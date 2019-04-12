@@ -1,0 +1,172 @@
+-keep public class * {
+    public protected <fields>;
+    public protected <methods>;
+}
+
+-keepnames class **
+-keepparameternames
+
+-dontpreverify
+-renamesourcefileattribute SourceFile
+-optimizationpasses 3
+-repackageclasses ''
+-allowaccessmodification
+-optimizations !code/simplification/arithmetic,!code/allocation/variable
+
+
+########## ExoPlayer ######################################
+-dontwarn com.google.android.exoplayer2.**
+
+-keep public class com.tritondigital.player.exoplayer.extractor.flv.TdFlvExtractor
+
+###########################################################
+# Triton options
+###########################################################
+
+-dontwarn android.media.**
+-dontnote android.media.**
+
+-dontwarn android.view.**
+-dontnote android.view.**
+
+-dontnote com.stw.core.**
+-dontwarn com.stw.core.**
+
+-dontnote com.tritondigital.util.Debug
+-dontnote com.tritondigital.net.streaming.proxy.**
+
+
+-keep public class com.tritondigital.ads.Ad
+-keep public class com.tritondigital.ads.AdLoader
+-keep public class com.tritondigital.ads.AdLoader$AdLoaderListener
+-keep public class com.tritondigital.ads.AdRequestBuilder
+-keep public class com.tritondigital.ads.BannerView
+-keep public class com.tritondigital.ads.BannerView$BannerListener
+-keep public class com.tritondigital.ads.Interstitial
+-keep public class com.tritondigital.ads.Interstitial$InterstitialListener
+-keep public class com.tritondigital.ads.InterstitialActivity
+-keep public class com.tritondigital.ads.SyncBannerView
+-keep public class com.tritondigital.player.CuePoint
+-keep public class com.tritondigital.player.CuePointHistory
+-keep public class com.tritondigital.player.CuePointHistory$CuePointHistoryListener
+-keep public class com.tritondigital.player.MediaPlayer
+-keep public class com.tritondigital.player.MediaPlayer$OnCuePointReceivedListener
+-keep public class com.tritondigital.player.MediaPlayer$OnInfoListener
+-keep public class com.tritondigital.player.MediaPlayer$OnStateChangedListener
+-keep public class com.tritondigital.player.SbmPlayer
+-keep public class com.tritondigital.player.StreamUrlBuilder
+-keep public class com.tritondigital.player.TritonPlayer
+-keep public class com.tritondigital.util.AuthUtil
+-keep public class com.tritondigital.util.SdkUtil
+-keep public class com.tritondigital.util.Log
+-keep public class com.tritondigital.util.LocationUtil
+-keep public class com.tritondigital.util.AnalyticsTracker
+-keep public class com.tritondigital.util.Assert
+-keep public class com.tritondigital.util.NetworkUtil
+-keep public class com.tritondigital.util.DisplayUtil
+-keep public class com.tritondigital.util.XmlPullParserUtil
+-keep public class com.tritondigital.util.TrackingUtil
+-keep public class com.tritondigital.util.Debug
+
+
+-keepclassmembers public class com.tritondigital.ads.** {
+    public *;
+}
+
+-keepclassmembers public class com.tritondigital.player.** {
+    public *;
+}
+
+-keepclassmembers public class com.tritondigital.util.** {
+    public *;
+}
+
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+}
+
+-assumenosideeffects class com.tritondigital.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+}
+
+
+
+###########################################################
+# Android options
+###########################################################
+
+-dontwarn **.BuildConfig
+
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Fragment
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class * extends android.preference.Preference
+-keep public class * extends android.support.v4.app.Fragment
+
+-keep public class * extends android.view.View {
+    public <init>(android.content.Context);
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+    public void set*(...);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers class * extends android.content.Context {
+    public void *(android.view.View);
+    public void *(android.view.MenuItem);
+}
+
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+-keepclassmembers class * implements android.os.Parcelable {
+    static ** CREATOR;
+}
+
+
+###########################################################
+# Generic obfuscation options
+###########################################################
+
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,
+                SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
+
+-keepclasseswithmembernames,includedescriptorclasses class * {
+    native <methods>;
+}
+
+-keepclassmembers,allowoptimization enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+-keepclassmembernames class * {
+    java.lang.Class class$(java.lang.String);
+    java.lang.Class class$(java.lang.String, boolean);
+}

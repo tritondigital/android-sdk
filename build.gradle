@@ -1,0 +1,174 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:deprecation"
+        }
+    }
+    repositories {
+        maven {
+            url "https://maven.google.com"
+        }
+    }
+}
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+
+def packagePrefix = 'triton-android-sdk'
+def androidHome = System.getenv('ANDROID_HOME') || System.env.ANDROID_HOME
+
+if(androidHome == null ||androidHome == ""  ){
+  throw new GradleException( 'ANDROID_HOME environment variable not found'+androidHome )
+}
+
+def cmd = './gradlew'
+def isWindows = false
+// If we are on Windows we use gradlew.bat
+if (System.properties['os.name'].toLowerCase().contains('windows')) {
+    cmd = "gradlew.bat"
+    println "it's Windows ${cmd}"
+    isWindows = true
+} else {
+    println "it's NOT Windows"
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        jcenter()
+            flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+ext {
+    tritonSDKVersion = ("$APP_VERSION_MAJOR.$APP_VERSION_MINOR.$APP_VERSION_PATCH") + '.' + (System.getenv('BUILD_NUMBER')?: '0')
+    tritonSdkPackage = "$packagePrefix-${tritonSDKVersion}"
+}
+
+task doc(type: Exec){
+  commandLine 'doxygen', 'Doxyfile'
+}
+
+task sdkBuild(type:Exec){
+  commandLine cmd, ':tdsdk:assemblerelease', '--no-daemon', '-c', 'tdsdk-settings.gradle'
+}
+
+task sdkCopy(type: Copy, dependsOn: 'sdkBuild') {
+  from 'tdsdk/build/outputs/aar'
+  into 'generated/libs'
+  include '*.aar'
+}
+
+task sdk(dependsOn: 'sdkCopy') {
+}
+
+task sampleTemplate (type: Copy) {
+  from 'templates/sample'
+  into 'generated/sample'  
+}
+
+task sampleSrc (type: Copy, dependsOn: 'sampleTemplate') {
+  from 'released_modules/src'
+  into 'generated/sample/sample/src'
+}
+
+task sampleLibs(type: Copy, dependsOn: 'sampleTemplate') {
+  from 'tdsdk/build/outputs/aar'
+  into 'generated/sample/sample/libs'
+  include '*.aar'
+}
+
+task sampleProperties (dependsOn: 'sampleTemplate') {
+    doLast {
+      def version = rootProject.ext.tritonSDKVersion
+      logger.info("Create saple gradle.properties")
+      def file = new File("generated/sample/gradle.properties")
+      file.createNewFile()
+      file.text = "TRITON_SDK = ${rootProject.ext.tritonSdkPackage}"
+    }
+}
+
+task createVersion(){
+  doLast {
+    def process = "git rev-parse HEAD".execute()
+    process.waitFor()
+     def commit = ""
+    if(process.exitValue() == 0){
+        commit = process.text
+        if( !commit){
+          throw new GradleException("Git version not exist")
+        }else{
+          def file = new File("generated/version.properties")
+          file.createNewFile()
+          file.write("version = $tritonSDKVersion\n")
+          file.append("commit = $commit")
+        }
+    }else{
+      throw new GradleException("Git version not exist")
+    } 
+  }
+}
+
+task sample(dependsOn: ['sampleTemplate', 'sampleSrc', 'sampleLibs', 'sampleProperties', 'createVersion']) {
+  copy {
+    from 'CHANGELOG.txt'
+    into 'generated'
+  }
+}
+
+task cleansdk(type:Exec){
+  commandLine cmd, ':tdsdk:clean', '--no-daemon', '-c', 'tdsdk-settings.gradle'
+}
+
+task clean(type: Delete, dependsOn: ['cleansdk']) {
+  delete 'generated'
+}
+
+task assembleSample(type:Exec, dependsOn:['chmodSample']){
+  workingDir "generated/sample"
+  commandLine cmd, 'assembledebug', '--no-daemon'
+}
+task chmodSample(type:Exec){
+  workingDir "generated/sample"
+    commandLine 'chmod', '+x', 'gradlew'
+}
+chmodSample.onlyIf {!isWindows}
+
+task copySampleApk(type: Copy, dependsOn: ['assembleSample']){
+  from 'generated/sample/sample/build/outputs/apk/sample-debug.apk'
+  into 'generated'
+  rename 'sample-debug.apk', "${tritonSdkPackage}.apk"
+}
+
+task buildSample(dependsOn: ['assembleSample', 'copySampleApk']){
+}
+
+task tests {
+
+}
+
+task androidTest {
+
+}
+
+def packageFiles = fileTree(dir: 'generated', includes: ['docs/**', 'libs/**', 'sample/**','version.properties','CHANGELOG.txt'], excludes: ['**/build/**', '**/.gradle/**'])
+
+task pack(type: Zip) {
+  archiveName = "generated/${tritonSdkPackage}.zip"
+  from packageFiles
+}

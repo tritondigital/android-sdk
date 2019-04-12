@@ -1,0 +1,50 @@
+apply plugin: 'com.android.library'
+apply from: '../export_aar.gradle'
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION.toInteger()
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion TRITONSDK_MIN_SDK_VERSION.toInteger()
+        targetSdkVersion TARGET_SDK_VERSION.toInteger()
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+          minifyEnabled false
+          proguardFiles rootProject.file('proguard.txt')
+        }
+    }
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api 'com.google.android.gms:play-services-ads:11.6.0'
+    api 'com.google.android.gms:play-services-base:11.6.0'
+    api 'com.google.android.gms:play-services-analytics:11.6.0'
+
+    androidTestImplementation 'com.android.support.test:runner:0.3'
+    androidTestImplementation 'com.android.support.test:rules:0.3'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.2'
+    androidTestImplementation 'org.hamcrest:hamcrest-library:1.1'
+
+
+}
+
+task SdkUtilVersion {
+    version = rootProject.ext.tritonSDKVersion
+    logger.info("Create SdkUtil.java with version : ${version}")
+    def file = new File("util/src/main/java/com/tritondigital/util/SdkUtil.java")
+    file.createNewFile()
+    file.text = """//Auto-generated file. Do not edit.
+    package com.tritondigital.util;
+    public final class SdkUtil { public static final String VERSION = "$version";
+    private SdkUtil() {}}"""
+}

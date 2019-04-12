@@ -1,0 +1,80 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:text="Triton SDK Version"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/textView_sdkVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+        </LinearLayout>
+
+        <Button
+            style="@style/Button.MainActivity"
+            android:onClick="onStationPlayerClick"
+            android:text="@string/station_player" />
+
+        <Button
+            style="@style/Button.MainActivity"
+            android:onClick="onMultiStationsPlayerClick"
+            android:text="@string/multistations_player" />
+
+        <Button
+            style="@style/Button.MainActivity"
+            android:onClick="onOnDemandPlayerClick"
+            android:text="@string/stream_player" />
+
+        <Button
+            style="@style/Button.MainActivity"
+            android:onClick="onCuePointHistoryClick"
+            android:text="@string/cue_point_history" />
+
+        <Button
+            style="@style/Button.MainActivity"
+            android:onClick="onInterstitialAdsClick"
+            android:text="@string/interstitial_ads" />
+
+        <!-- Advanced -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="8dp"
+            android:background="#ff0000"
+            android:gravity="center"
+            android:text="@string/advanced_use"
+            android:textColor="@android:color/white" />
+
+        <Button
+            style="@style/Button.MainActivity"
+            android:onClick="onCustomAdsClick"
+            android:text="@string/custom_ads" />
+
+        <Button
+            style="@style/Button.MainActivity"
+            android:onClick="onSbmPlayerClick"
+            android:text="@string/sbm_player" />
+
+    </LinearLayout>
+
+</ScrollView>

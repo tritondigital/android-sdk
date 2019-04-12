@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Button.MainActivity" parent="Widget.AppCompat.Button">
+        <item name="android:textAllCaps" tools:ignore="NewApi">false</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:lines">2</item>
+    </style>
+
+    <style name="EditText.Mount" parent="Widget.AppCompat.EditText">
+        <item name="android:inputType">textNoSuggestions|text|textCapCharacters</item>
+        <item name="android:lines">1</item>
+        <item name="android:paddingBottom">8dip</item>
+        <item name="android:paddingTop">8dip</item>
+    </style>
+
+    <style name="EditText.Url" parent="Widget.AppCompat.EditText">
+        <item name="android:inputType">textNoSuggestions|textUri</item>
+        <item name="android:lines">1</item>
+        <item name="android:paddingBottom">12dip</item>
+        <item name="android:paddingTop">12dip</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+</resources>

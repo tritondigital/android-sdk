@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner970x250"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner120x60"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner300x600"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner728x90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner970x100"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner300x250"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner88x31"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner300x1050"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner970x90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner180x150"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner320x480"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner300x50"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner320x50"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner300x300"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner970x66"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.tritondigital.ads.SyncBannerView
+            android:id="@+id/banner160x600"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+</ScrollView>

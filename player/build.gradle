@@ -1,0 +1,61 @@
+apply plugin: 'com.android.library'
+apply from: '../export_aar.gradle'
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION.toInteger()
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion TRITONSDK_MIN_SDK_VERSION.toInteger()
+        targetSdkVersion TARGET_SDK_VERSION.toInteger()
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles rootProject.file('proguard.txt')
+        }
+
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    
+    dexOptions {
+        jumboMode = true
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':streamingproxy')
+    api project(':util')
+
+
+    // Unit testing dependencies.
+    testImplementation 'junit:junit:4.12'        // Required -- JUnit 4 framework
+    testImplementation 'org.mockito:mockito-core:2.8.9'     // Optional -- Mockito framework
+
+    //Android Test dependencies
+    androidTestImplementation 'com.android.support.test:runner:0.3'
+    androidTestImplementation 'com.android.support.test:rules:0.3'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.2'
+    androidTestImplementation 'org.hamcrest:hamcrest-library:1.1'
+    androidTestImplementation 'com.google.android.exoplayer:exoplayer-core:2.9.4'
+    androidTestImplementation 'com.google.android.exoplayer:exoplayer-hls:2.9.4'
+
+    //Normal dependencies
+    api "com.android.support:support-core-utils:27.0.2"
+    api 'com.android.support:mediarouter-v7:27.0.2'
+    //Google ExoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.4'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.9.4'
+}

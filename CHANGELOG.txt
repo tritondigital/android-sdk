@@ -1,0 +1,93 @@
+--------------------------------------------------------------------------------
+2.6.0 - 2019/01/09
+- Add new key in the TritonPlayer settings to target a specific region: e.g: AP
+- Reconnect without dropping the stream when switching between 3G and WIFI
+- Fix autoplay after pre-roll
+
+--------------------------------------------------------------------------------
+2.5.11 - 2017/12/14
+- Update ExoPlayer to 2.6.0
+
+--------------------------------------------------------------------------------
+2.4.10 - 2017/09/06
+- Fix the delay that occurs on the stop when streaming HLS mount 
+- Add Multi-Stations Player activity in the sample app
+
+--------------------------------------------------------------------------------
+2.4.9 - 2017/08/15
+- Allow CrossProtocolRedirect (i.e. redirects from HTTP to HTTPS and vice versa)
+- Fix the player stop when switching to Sleep mode (this happens sometimes on some devices)
+
+--------------------------------------------------------------------------------
+2.4.8 - 2017/07/24
+- Removing restriction from playing only HTTP or RTSP url
+
+
+--------------------------------------------------------------------------------
+2.4.1 - 2016/01/05
+- Added Custom ExoPlayer Player Library to replace AndroidMedia Player for devices
+	with OS >= ICE_CREAM_SANDWICH (4.0)
+
+--------------------------------------------------------------------------------
+2.3.1 - 2015/07/21
+- Added "tdsdk" query parameter in AdRequestBuilder
+
+--------------------------------------------------------------------------------
+2.3.0 - 2015/07/13
+- Added TritonPlayer settings: SETTINGS_AUTH_TOKEN
+- Added util class to create a self-signed token: AuthUtil.java
+
+--------------------------------------------------------------------------------
+2.2.0 - 2015/06/22
+- Google Cast support for on-demand streams
+- Added the TritonSDK version to the user agent
+- Splitted "unknown duration" and "live stream duration" in two seperate constants.
+  The "unknown duration" value is now -1 instead of 0.
+- Renamed TritonPlayer.getErrorCode() to TritonPlayer.getLastErrorCode(). This method
+  now returns the last error even if the state has changed.
+
+--------------------------------------------------------------------------------
+2.1.2 - 2015/06/03
+- Bug fix for "Unexpected end of file" for MP3 streams
+
+--------------------------------------------------------------------------------
+2.1.1 - 2015/05/21
+- Beta Google Cast support
+
+--------------------------------------------------------------------------------
+2.1.0 - 2015/04/27
+- Merged sation and on-demand player into the same player: TritonPlayer
+- Added CuePointHistory
+- Minor API rename to improve consistency between "ad" and "player"
+
+--------------------------------------------------------------------------------
+2.0.1 - 2015/02/06
+- Fixes
+
+--------------------------------------------------------------------------------
+2.0.0 - 2015/01/27
+- Major advertising update
+- Moved AdLoader out of BannerView and Interstitials so user can create their
+  own on-demand ads UI
+
+--------------------------------------------------------------------------------
+1.1.1 - 2014/11/21
+- Added suport for Side-Band Metadata (SBM)
+- API update
+
+--------------------------------------------------------------------------------
+1.1.0 - 2014/08/20
+- Basic advertising support
+
+--------------------------------------------------------------------------------
+1.0.0 - 2014/07/25
+- Minor bug fixes
+
+--------------------------------------------------------------------------------
+0.2.0 - Beta
+- Updated Apache librairies
+- Added legacy AndoXML cue point format support
+
+--------------------------------------------------------------------------------
+0.1.0 - Beta
+- First beta version

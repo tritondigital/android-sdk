@@ -1,0 +1,22 @@
+apply plugin: 'com.android.library'
+apply from: '../export_aar.gradle'
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION.toInteger()
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion TRITONSDK_MIN_SDK_VERSION.toInteger()
+        targetSdkVersion TARGET_SDK_VERSION.toInteger()
+    }
+    buildTypes {
+        release {
+          minifyEnabled true
+          proguardFiles rootProject.file('proguard.txt')
+        }
+    }
+}
+
+dependencies {
+    api fileTree(dir: 'libs', include: ['*.jar'])
+}

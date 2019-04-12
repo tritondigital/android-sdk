@@ -1,0 +1,30 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
+def extractAar(file){
+  def zipFile = new java.util.zip.ZipFile(file)
+  zipFile.entries().each {
+    if (it.getName() == 'classes.jar') {
+      def is = zipFile.getInputStream(it)
+      def outfile = zipFile.getName().replace('.aar','.jar')
+      def outpath = Paths.get(outfile)
+      def tmp = new File(outfile)
+      if(tmp.exists()){
+        tmp.delete()
+      }
+      Files.copy(is, outpath)
+    }
+  }
+}
+
+afterEvaluate{ project ->
+    project.tasks.assembleRelease.doLast{
+        copy {
+            from('build/outputs/aar'){
+                include '*-release.aar'
+            }
+            into '../tdsdk/libs'
+        }
+        extractAar(new File("tdsdk/libs/${project.name}-release.aar").getAbsolutePath())
+    }    
+}

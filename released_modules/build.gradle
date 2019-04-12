@@ -1,0 +1,44 @@
+apply plugin: 'com.android.application'
+
+def versionPatch = 0
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION.toInteger()
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion    APP_MIN_SDK_VERSION.toInteger()
+        targetSdkVersion TARGET_SDK_VERSION.toInteger()
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // Always update the dependencies in sample template (template/sample)
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':ads')
+    api project(':player')
+    api 'com.google.android.gms:play-services-base:11.6.0'
+    api 'com.google.android.gms:play-services-ads:11.6.0'
+    api 'com.google.android.gms:play-services-cast:11.6.0'
+    api 'com.android.support:mediarouter-v7:27.0.2'
+    api 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.4'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.9.4'
+
+}

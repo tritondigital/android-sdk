@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="advanced_use">Advanced Use</string>
+    <string name="app_name">Triton SDK Sample</string>
+    <string name="cast_application_id"></string>
+
+    <!-- Players -->
+    <string name="cue_point_history">Cue Point History</string>
+    <string name="pause">Pause</string>
+    <string name="play">Play</string>
+    <string name="sbm_player">Side-Band Metadata Player</string>
+    <string name="stop">Stop</string>
+    <string name="station_player">Station Player</string>
+    <string name="multistations_player">Multi Stations Player</string>
+    <string name="stream_player">Stream Player</string>
+    <string name="transport_hls">HLS</string>
+
+    <!-- Ads -->
+    <string name="ad_loaded_and_ready">Ad loaded and ready to be displayed</string>
+    <string name="clear">Clear</string>
+    <string name="cleared">Cleared</string>
+    <string name="custom_ads">Custom On-Demand Ads</string>
+    <string name="error_with_reason">Error: %s</string>
+    <string name="interstitial_ads">Interstitial Ads</string>
+    <string name="load_audio_ad">Load Audio Ad</string>
+    <string name="load_video_ad">Load Video Ad</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="play_ad_click">Play Ad</string>
+    <string name="show_interstitial">Show Interstitial</string>
+    <string name="starting_interstitial">Starting interstitial</string>
+
+</resources>
