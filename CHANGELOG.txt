@@ -1,4 +1,8 @@
 --------------------------------------------------------------------------------
+2.7.0 - 2019/04/16
+- Release an open source version of the Triton Mobile SDK for Android
+
+--------------------------------------------------------------------------------
 2.6.0 - 2019/01/09
 - Add new key in the TritonPlayer settings to target a specific region: e.g: AP
 - Reconnect without dropping the stream when switching between 3G and WIFI
