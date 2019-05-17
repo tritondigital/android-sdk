@@ -2,9 +2,9 @@
 
 The Triton Digital® Mobile SDK is designed to help you play your radio station or display on-demand advertisements very easily in your own application. There are two (2) versions of the mobile SDK; one for Android and one for iOS. This is the Android version.
  
-The Triton Digital® Mobile SDK includes a [ZIP file that contains the API reference](https://userguides.tritondigital.com/spc/moband/zip_file.htm) and a sample application that is ready to compile showing the most common uses of the SDK.
+The Triton Digital® Mobile SDK includes a [ZIP file](https://github.com/tritondigital/android-sdk/releases) that contains the API reference and a sample application that is ready to compile showing the most common uses of the SDK.
 
-The Triton Digital® Mobile SDK adds about 240 kb to the size of your Android mobile application. This may vary with updates, and according to the parameters that you use.
+The Triton Digital® Mobile SDK adds about 330 kb to the size of your Android mobile application. This may vary with updates, and according to the parameters that you use.
  
 The main features of the SDK include:
 

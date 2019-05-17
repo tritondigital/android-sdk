@@ -1,0 +1,74 @@
+pipeline {
+    agent {
+        label 'android'
+    }
+    environment { 
+        ANDROID_HOME = '/Users/spacial/Library/Android/Sdk'
+	PATH = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+    }
+
+    stages {
+
+        stage('Clean') {          
+            steps {
+                sh "/Users/spacial/Library/Android/Sdk/platform-tools/adb kill-server"
+                sleep 2
+                sh "/Users/spacial/Library/Android/Sdk/platform-tools/adb start-server"
+                sh "./gradlew clean --no-daemon"
+            }
+        }
+
+        stage('Unit Test') {
+            steps {
+                sh "./gradlew test --no-daemon"
+            }
+        }
+
+        stage('Android Test') {
+            steps {
+                sh "/Users/spacial/Library/Android/Sdk/platform-tools/adb uninstall 'com.tritondigital.player.test' || true"
+                sh "/Users/spacial/Library/Android/Sdk/platform-tools/adb uninstall 'com.tritondigital.util.test' || true"
+                sh "./gradlew connectedAndroidTest --no-daemon"
+            }
+        }
+
+        stage('Build Modules') {          
+            steps {
+                sh "./gradlew assemblerelease --no-daemon"
+            }
+        }
+
+        stage('Build SDK') {          
+            steps {
+                sh "./gradlew sdk --no-daemon"
+            }
+        }
+
+
+        stage('Generate Documentation') {
+            steps {
+                sh "./gradlew doc --no-daemon"
+            }
+        }
+
+        stage('Generate Sample App') {
+            steps {
+                sh "./gradlew sample --no-daemon"
+            }
+        }
+
+        stage('Generate Build Sample App') {
+            steps {
+                sh "chmod +x generated/sample/gradlew"
+                sh "./gradlew buildSample --no-daemon"
+            }
+        }
+
+        stage('Package Sample App') {
+            steps {
+                sh "./gradlew pack --no-daemon"
+            }
+        }
+
+    }
+}

@@ -56,7 +56,7 @@ allprojects {
 }
 
 ext {
-    tritonSDKVersion = ("$APP_VERSION_MAJOR.$APP_VERSION_MINOR.$APP_VERSION_PATCH") + '.' + (System.getenv('BUILD_NUMBER')?: '0')
+    tritonSDKVersion = ("$APP_VERSION_MAJOR.$APP_VERSION_MINOR.$APP_VERSION_PATCH")
     tritonSdkPackage = "$packagePrefix-${tritonSDKVersion}"
 }
 
