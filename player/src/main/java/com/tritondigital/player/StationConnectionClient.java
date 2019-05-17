@@ -224,11 +224,11 @@ class StationConnectionClient {
 
     private void connectToStream() {
         Log.d(TAG, "Creating stream URL for serverIdx:" + mServerIdx + " portIdx:" + mPortIdx);
-
+        ArrayList<String> ports = null;
         try {
             ArrayList<Bundle> servers = mProvisioningResult.getParcelableArrayList(Provisioning.Result.SERVERS);
             Bundle server = servers.get(mServerIdx);
-            ArrayList<String> ports = server.getStringArrayList(Provisioning.Result.Server.PORTS);
+            ports = server.getStringArrayList(Provisioning.Result.Server.PORTS);
 
             final String baseUrl = "http://" + server.getString(Provisioning.Result.Server.HOST) + ':'
                     + ports.get(mPortIdx) + '/' + mProvisioningResult.getString(Provisioning.Result.MOUNT);
@@ -276,9 +276,13 @@ class StationConnectionClient {
             // Ask the listener owner to try the next URL
             Log.i(TAG, "Connection client stream: " + streamUrl);
             mListener.onStationConnectionNextStream(this, streamSettings);
-        }
-        catch (NullPointerException e)
-        {
+
+        } catch (ArrayIndexOutOfBoundsException ex){
+            Log.i(TAG, "Connection client stream failed with port index: " + mPortIdx + " and port size:" + ((ports != null) ? ports.size() : "NULL"));
+            Assert.fail(TAG, "Stream settings connection error: " + ex);
+            notifyConnectionFailed();
+
+        } catch (NullPointerException e) {
             Assert.fail(TAG, "Stream settings creation error: " + e);
             notifyConnectionFailed();
         }
