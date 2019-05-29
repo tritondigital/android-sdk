@@ -277,7 +277,7 @@ class StationConnectionClient {
             Log.i(TAG, "Connection client stream: " + streamUrl);
             mListener.onStationConnectionNextStream(this, streamSettings);
 
-        } catch (ArrayIndexOutOfBoundsException ex){
+        } catch (IndexOutOfBoundsException ex){
             Log.i(TAG, "Connection client stream failed with port index: " + mPortIdx + " and port size:" + ((ports != null) ? ports.size() : "NULL"));
             Assert.fail(TAG, "Stream settings connection error: " + ex);
             notifyConnectionFailed();
