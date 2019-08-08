@@ -102,7 +102,7 @@ public class CustomAdsActivity extends AdsActivity implements
     @Override
     public void onAdLoaded(AdLoader adLoader, Bundle ad)
     {
-        if ((ad == null) || ad.isEmpty() || (ad.getString(Ad.URL) == null))
+        if ((ad == null) || ad.isEmpty())
         {
             setStatus("Ad loading ERROR: NULL ad");
         }
@@ -113,7 +113,7 @@ public class CustomAdsActivity extends AdsActivity implements
             String mimeType = ad.getString(Ad.MIME_TYPE);
             if (mimeType == null)
             {
-                setStatus("Error: MIME type not set");
+                setStatus("Warning: No audio/video");
             }
             else if (mimeType.startsWith("video"))
             {

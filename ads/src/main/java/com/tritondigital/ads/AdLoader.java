@@ -240,7 +240,7 @@ public final class AdLoader {
                 if (mParseError != 0) {
                     onError(mParseError);
 
-                } else if ((ad == null) || ad.isEmpty() || ad.getString(Ad.URL) == null) {
+                } else if ((ad == null) || ad.isEmpty()) {
                     onError(ERROR_NO_INVENTORY);
 
                 } else {
