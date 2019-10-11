@@ -233,9 +233,6 @@ public class BannerView extends FrameLayout {
         if ((mListener != null) && (mErrorCode == 0)) {
             mListener.onBannerLoaded(this);
         }
-
-        AnalyticsTracker tracker = AnalyticsTracker.getTracker(getContext());
-        tracker.initialize();
     }
 
 

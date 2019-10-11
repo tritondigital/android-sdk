@@ -57,9 +57,6 @@ public final class SyncBannerView extends BannerView implements AdLoader.AdLoade
     @Override
     public void onAdLoaded(AdLoader adLoader, Bundle ad) {
         showAd(ad);
-
-        AnalyticsTracker tracker = AnalyticsTracker.getTracker(getContext());
-        tracker.initialize();
     }
 
 
