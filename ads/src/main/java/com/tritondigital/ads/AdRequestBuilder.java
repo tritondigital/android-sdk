@@ -41,6 +41,14 @@ public final class AdRequestBuilder {
      */
     public static final String STATION_ID = "stid";
 
+    public static final String BUNDLE_ID = "bundle-id";
+
+    public static final String STORE_ID = "store-id";
+
+    /** URL encoded string
+     * */
+    public static final String STORE_URL = "store-url";
+
 
     /**
      * _String_ - Station Name

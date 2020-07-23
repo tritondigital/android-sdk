@@ -223,6 +223,18 @@ class StationConnectionClient {
 
 
     private void connectToStream() {
+
+        String alternateUrl = mProvisioningResult.getString(Provisioning.Result.ALTERNATE_URL);
+        if(!TextUtils.isEmpty(alternateUrl)){
+            Bundle streamSettings = new Bundle();
+            streamSettings.putString(TritonPlayer.SETTINGS_STREAM_URL,  alternateUrl);
+            Log.i(TAG, "Connection to alternate media url: " + alternateUrl);
+            mListener.onStationConnectionNextStream(this, streamSettings);
+            return;
+        }
+
+
+
         Log.d(TAG, "Creating stream URL for serverIdx:" + mServerIdx + " portIdx:" + mPortIdx);
         ArrayList<String> ports = null;
         try {

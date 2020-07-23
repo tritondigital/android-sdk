@@ -10,6 +10,7 @@ import com.tritondigital.util.Log;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 /**
@@ -51,6 +52,10 @@ public final class AdLoader {
     private int    mError;
     private String mAdRequest;
 
+    /** Counter to ensure there is no infinite loop because of VAST Wrappers */
+    private int mNoRequest = 0;
+
+    private ArrayList<String> mImpressionUrls = new ArrayList<>();
 
     public void setTag(String msg) {
         TAG = msg;
@@ -147,11 +152,30 @@ public final class AdLoader {
         Log.i(TAG, "Ad request loaded: " + mAdRequest);
         mAd = ad;
 
+        if(ad.containsKey(Ad.IMPRESSION_TRACKING_URLS)) {
+            mImpressionUrls.addAll(ad.getStringArrayList(Ad.IMPRESSION_TRACKING_URLS));
+        }
+
+        if(!isVastWrapper(ad)) {
+
         if (mListener != null) {
+                ad.putStringArrayList(Ad.IMPRESSION_TRACKING_URLS, mImpressionUrls);
             mListener.onAdLoaded(this, ad);
+                mNoRequest = 0;
+                mImpressionUrls = new ArrayList<>();
+            }
         }
     }
 
+    private boolean isVastWrapper(Bundle ad) {
+        mNoRequest++;
+
+        if(ad.containsKey(Ad.VAST_AD_TAG) && mNoRequest <= 5) {
+            load(ad.getString(Ad.VAST_AD_TAG));
+            return true;
+        }
+        return false;
+    }
 
     private void onError(int error) {
         Log.w(TAG, "Error: " + debugErrorToStr(error));

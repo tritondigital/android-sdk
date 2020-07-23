@@ -57,6 +57,8 @@ public final class Ad {
     /** _String Array List_ - URLs to connect to when a video has been clicked */
     public static final String VIDEO_CLICK_TRACKING_URLS = "video_click_tracking_urls";
 
+    /** _String _ - URI element in VAST Wrapper  */
+    public static final String VAST_AD_TAG = "VASTAdTagURI";
 
     private Ad(){}
 

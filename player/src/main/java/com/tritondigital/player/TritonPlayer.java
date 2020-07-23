@@ -1,12 +1,17 @@
 package com.tritondigital.player;
 
 import android.content.Context;
+import android.database.ContentObserver;
+import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.media.MediaRouter;
 import android.text.TextUtils;
 
 import com.tritondigital.util.Log;
 import com.tritondigital.util.TrackingUtil;
+
+import static android.content.Context.AUDIO_SERVICE;
 
 /**
  * Plays a station provided by Triton Digital or an on-demand stream.
@@ -223,6 +228,11 @@ public final class TritonPlayer extends MediaPlayer {
 
     private final MediaPlayer mPlayer;
 
+    private AudioManager mAudioManager;
+
+    private SettingsContentObserver     mSettingsContentObserver;
+
+
 
     /**
      * Constructor
@@ -253,6 +263,13 @@ public final class TritonPlayer extends MediaPlayer {
         mPlayer.setOnMetaDataReceivedListener(mInOnMetaDataReceivedListener);
         mPlayer.setOnInfoListener(mInOnInfoListener);
         mPlayer.setOnStateChangedListener(mInOnStateChangedListener);
+
+        mAudioManager = (AudioManager)context.getSystemService(AUDIO_SERVICE);
+
+        mSettingsContentObserver = new SettingsContentObserver( new Handler() );
+        context.getApplicationContext().getContentResolver().registerContentObserver(
+                android.provider.Settings.System.CONTENT_URI, true,
+                mSettingsContentObserver );
     }
 
 
@@ -282,10 +299,14 @@ public final class TritonPlayer extends MediaPlayer {
     public float getVolume() { return mPlayer.getVolume(); }
 
     @Override
-    protected void internalPause() { mPlayer.pause(); }
+    protected void internalPause() { mPlayer.pause();
+    }
 
     @Override
-    protected void internalPlay() { mPlayer.play(); }
+    protected void internalPlay() {
+        checkVolume();
+        mPlayer.play();
+    }
 
     @Override
     protected void internalRelease() { mPlayer.release(); }
@@ -402,4 +423,35 @@ public final class TritonPlayer extends MediaPlayer {
             notifyInfo(info, extra);
         }
     };
+
+    private class SettingsContentObserver extends ContentObserver {
+
+        public SettingsContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return super.deliverSelfNotifications();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            if(volume == 0) {
+                pause();
+            }
+        }
+    }
+
+    private void checkVolume() {
+        int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        if(volume == 0) {
+            int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            float percent = 0.1f;
+            int minVolume = Math.round(maxVolume * percent) ;
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, minVolume, 0);
+        }
+    }
 }

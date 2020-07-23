@@ -55,6 +55,8 @@ class Provisioning
         public static final String MOUNT_SUFFIX = "mount_suffix";
         public static final String SBM_SUFFIX   = "sbm_suffix";
         public static final String TRANSPORT    = PlayerConsts.TRANSPORT;
+        public static final String ALTERNATE_URL    = "alternate_url";
+
 
         abstract class Server
         {
@@ -203,6 +205,7 @@ class Provisioning
         private final String mTransport;
         private boolean mGeoblocked;
         private String mAlternateMount;
+        private String mAlternateType;
 
 
         ParserTask(Provisioning src, String transport) {
@@ -371,10 +374,16 @@ class Provisioning
                     String elementName = parser.getName();
                     if (mGeoblocked) {
                         if ("alternate-content".equals(elementName)) {
-                            String alternateMount = readAlternateContent(parser);
-                            if (alternateMount != null) {
-                                mAlternateMount = alternateMount;
+                            String alternate = readAlternateContent(parser);
+                            if (alternate != null) {
+                                if(mAlternateType == "mount") {
+                                    mAlternateMount = alternate;
                                 return provisioningResult;
+                                } else if (mAlternateType == "url") {
+                                    mGeoblocked = false;
+                                    provisioningResult.putInt(Result.STATUS, 200);
+                                    provisioningResult.putString(Result.ALTERNATE_URL, alternate);
+                                }
                             }
                         } else {
                             XmlPullParserUtil.skip(parser);
@@ -426,21 +435,26 @@ class Provisioning
 
 
         private String readAlternateContent(XmlPullParser parser) throws XmlPullParserException, IOException {
-            String alternateMount = null;
+            String alternate = null;
             parser.require(XmlPullParser.START_TAG, null, "alternate-content");
 
             while (parser.next() != XmlPullParser.END_TAG) {
                 if (parser.getEventType() == XmlPullParser.START_TAG) {
                     String elementName = parser.getName();
                     if ("mount".equals(elementName)) {
-                        alternateMount = XmlPullParserUtil.readText(parser);
-                    } else {
+                        alternate = XmlPullParserUtil.readText(parser);
+                        mAlternateType = "mount";
+                    } else if ("url".equals(elementName)) {
+                         alternate = XmlPullParserUtil.readText(parser);
+                         mAlternateType = "url";
+                    }
+                    else {
                         XmlPullParserUtil.skip(parser);
                     }
                 }
             }
 
-            return alternateMount;
+            return alternate;
         }
 
 

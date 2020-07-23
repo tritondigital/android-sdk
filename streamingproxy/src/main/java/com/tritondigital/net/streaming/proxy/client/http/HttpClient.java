@@ -96,7 +96,7 @@ public class HttpClient extends Client {
                         Log.i(TAG, Thread.currentThread().getName() + " exited.");
 
                         // Notify parent that there was an error
-                        if (e.getMessage().equals("Software caused connection abort")) {
+                        if (e.getMessage() != null && e.getMessage().equals("Software caused connection abort")) {
                             onError(ErrorDetail.NETWORK_ERROR);
                         } else {
                             onError(ErrorDetail.UNKNOWN);

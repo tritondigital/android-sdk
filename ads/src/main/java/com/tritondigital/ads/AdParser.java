@@ -79,7 +79,10 @@ class AdParser {
                 String elementName = parser.getName();
                 if ((elementName != null) && elementName.equals("InLine")) {
                     readInline(parser);
-                } else {
+                } else if (elementName.equals("Wrapper")) {
+                    readWrapper(parser);
+                }
+                else {
                     XmlPullParserUtil.skip(parser);
                 }
             }
@@ -268,6 +271,32 @@ class AdParser {
         }
     }
 
+    /**
+     * Read the "Wrapper" tag.
+     */
+    private void readWrapper(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, null, "Wrapper");
+
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() == XmlPullParser.START_TAG) {
+
+                String elementName = parser.getName();
+                if (elementName == null) {
+                    XmlPullParserUtil.skip(parser);
+
+                } else if (elementName.equals("Impression")) {
+                    readImpression(parser);
+
+                } else if (elementName.equals("VASTAdTagURI")) {
+                    readVastAdTag(parser);
+
+                } else {
+                    XmlPullParserUtil.skip(parser);
+                }
+            }
+        }
+    }
+
 
     /**
      * Reads the "Creatives" tag.
@@ -397,6 +426,15 @@ class AdParser {
         return banner;
     }
 
+    /**
+     * Reads the "VASTAdTagURI" tag
+     */
+
+    private void readVastAdTag(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, null, "VASTAdTagURI");
+        String vastAdTag = XmlPullParserUtil.readText(parser);
+        mAd.putString(Ad.VAST_AD_TAG, vastAdTag);
+    }
 
     private static int getIntAttribute(XmlPullParser parser, String attribute) {
         String valStr = parser.getAttributeValue(null, attribute);

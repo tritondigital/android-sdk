@@ -42,7 +42,7 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
         MediaPlayer.OnCuePointReceivedListener, MediaPlayer.OnStateChangedListener,
         MediaPlayer.OnInfoListener, View.OnClickListener, MediaPlayer.OnMetaDataReceivedListener {
 
-    protected static final String IMAGE_URI = "http://mobileapps.streamtheworld.com/android/tritondigital/tritonradio/icon_512.png";
+    protected static final String IMAGE_URI = "http://mobileapps.streamtheworld.com/android/tritondigital_tritonradio/icon_512.png";
 
     private static final String TAG = "TritonSdkSample";
 
