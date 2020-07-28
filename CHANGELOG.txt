@@ -1,3 +1,6 @@
+2.7.6 - 2020/07/28
+- Allow local files to play without a network connection
+
 2.7.5 - 2020/07/03
 - VAST Wrapper Support
 - Check if the exception contains a message

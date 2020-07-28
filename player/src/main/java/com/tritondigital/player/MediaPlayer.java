@@ -186,7 +186,7 @@ public abstract class MediaPlayer {
     protected final String TAG = makeTag();
     private static final String STATIC_TAG = Log.makeTag("MediaPlayer");
     private final Context mContext;
-    private final Bundle  mSettings;
+    protected final Bundle  mSettings;
 
     // Listeners.
     private OnCuePointReceivedListener mCuePointListener;
