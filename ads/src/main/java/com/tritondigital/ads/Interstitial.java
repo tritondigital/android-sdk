@@ -144,9 +144,6 @@ public final class Interstitial {
         mRequestCode = new Random().nextInt();
         registerReceiver();
         createAdLoader();
-
-        AnalyticsTracker tracker = AnalyticsTracker.getTracker(context);
-        tracker.initialize();
     }
 
 
@@ -304,7 +301,6 @@ public final class Interstitial {
             mAdLoader.load(adRequestBuilder);
         }
 
-        AnalyticsTracker.getTracker(mContext).startTimer();
     }
 
 
@@ -316,7 +312,6 @@ public final class Interstitial {
             mAdLoader.load(adRequest);
         }
 
-        AnalyticsTracker.getTracker(mContext).startTimer();
     }
 
 
@@ -340,23 +335,10 @@ public final class Interstitial {
             error = ERROR_NETWORK_NOT_AVAILABLE;
         }
 
-        //Google Analytics: track Preroll Ad success
-        String mimeType = ad.getString(Ad.MIME_TYPE);
-        boolean isVideo = (mimeType != null && mimeType.startsWith("video")) ? true : false;
-        String adFormat = ad.getString(Ad.FORMAT);
-        AnalyticsTracker tracker = AnalyticsTracker.getTracker(mContext);
-        long connectionTime = tracker.stopTimer();
-
         if (error != 0) {
             onError(error);
-
-            //Google Analytics: track Preroll Ad success
-            tracker.trackAdPrerollError(adFormat, connectionTime, isVideo);
-            return;
+           return;
         }
-
-        //Google Analytics: track Preroll Ad success
-        tracker.trackAdPrerollSuccess(adFormat, connectionTime, isVideo);
 
         mActive = true;
 
