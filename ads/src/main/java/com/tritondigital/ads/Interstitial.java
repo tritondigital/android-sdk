@@ -67,6 +67,10 @@ public final class Interstitial {
         void onInterstitialClosed(Interstitial interstitial);
 
         /**
+         * Called after an interstitial has finished
+         */
+        void onInterstitialFinished(Interstitial interstitial);
+        /**
          * Called after an error has occurred
          */
         void onInterstitialError(Interstitial interstitial, int errorCode);
