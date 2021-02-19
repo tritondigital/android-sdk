@@ -1,12 +1,11 @@
 package com.tritondigital.player.exoplayer.extractor.flv;
 
-import android.media.*;
-import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AacUtil;
+import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.extractor.*;
-import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.Collections;
@@ -48,7 +47,7 @@ final class TdAudioTagPayloadReader extends TdTagPayloadReader{
     private int     sampleRateIndex;
     private int     channels;
 
-    private MpegAudioHeader mMpegAudioHeader;
+    private MpegAudioUtil.Header mMpegAudioHeader;
 
     public TdAudioTagPayloadReader(TrackOutput output) {
         super(output);
@@ -77,8 +76,8 @@ final class TdAudioTagPayloadReader extends TdTagPayloadReader{
             if(audioFormat == AUDIO_FORMAT_MP3)
             {
                 isMP3 = true;
-                mMpegAudioHeader = new MpegAudioHeader();
-                MpegAudioHeader.populateHeader(header,mMpegAudioHeader);
+                mMpegAudioHeader = new MpegAudioUtil.Header();
+                mMpegAudioHeader.setForHeaderData(header);
             }
 
             hasParsedAudioDataHeader = true;
@@ -97,10 +96,22 @@ final class TdAudioTagPayloadReader extends TdTagPayloadReader{
             if (packetType == AAC_PACKET_TYPE_SEQUENCE_HEADER && !hasOutputFormat) {
                 byte[] audioSpecifiConfig = new byte[data.bytesLeft()];
                 data.readBytes(audioSpecifiConfig, 0, audioSpecifiConfig.length);
-                Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(audioSpecifiConfig);
-                Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_AAC, null,
-                        Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
-                        Collections.singletonList(audioSpecifiConfig), null, 0, null);
+                AacUtil.Config config = AacUtil.parseAudioSpecificConfig(audioSpecifiConfig);
+
+
+                Format format = new Format.Builder().setId(null)
+                        .setLanguage(null)
+                        .setSelectionFlags(0)
+                        .setAverageBitrate(Format.NO_VALUE)
+                        .setPeakBitrate(Format.NO_VALUE)
+                        .setCodecs(null)
+                        .setSampleMimeType(MimeTypes.AUDIO_AAC)
+                        .setMaxInputSize(Format.NO_VALUE)
+                        .setInitializationData(Collections.singletonList(audioSpecifiConfig))
+                        .setDrmInitData(null)
+                        .setChannelCount(config.channelCount)
+                        .setSampleRate(config.sampleRateHz)
+                        .build();
                 output.format(format);
                 hasOutputFormat = true;
             } else if (packetType == AAC_PACKET_TYPE_AAC_RAW) {
@@ -115,9 +126,19 @@ final class TdAudioTagPayloadReader extends TdTagPayloadReader{
             if ( !hasOutputFormat )
             {
                 // It's an MP3, set the media format once.
-                Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_MPEG, "MP3",
-                        Format.NO_VALUE, Format.NO_VALUE, channels, AUDIO_MP3_SAMPLING_RATE_TABLE[sampleRateIndex],
-                        null, null, 0, null);
+                Format format = new Format.Builder().setId(null)
+                        .setLanguage(null)
+                        .setSelectionFlags(0)
+                        .setAverageBitrate(Format.NO_VALUE)
+                        .setPeakBitrate(Format.NO_VALUE)
+                        .setCodecs("MP3")
+                        .setSampleMimeType(MimeTypes.AUDIO_MPEG)
+                        .setMaxInputSize(Format.NO_VALUE)
+                        .setInitializationData(Collections.EMPTY_LIST)
+                        .setDrmInitData(null)
+                        .setChannelCount(channels)
+                        .setSampleRate(AUDIO_MP3_SAMPLING_RATE_TABLE[sampleRateIndex])
+                        .build();
                 output.format(format);
 
                 hasOutputFormat = true;

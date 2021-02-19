@@ -13,18 +13,14 @@ android {
     }
 
     libraryVariants.all { variant ->
-        variant.outputs.each { output ->
-            def outputFile = output.outputFile
-            if (outputFile != null && outputFile.name.endsWith('.aar')) {
-                def fileName = "${archivesBaseName}-${tritonSDKVersion}.aar"
-                output.outputFileName = new File(".", fileName)
-            }
+        variant.outputs.all { output ->
+            outputFileName = "${archivesBaseName}-${tritonSDKVersion}.aar"
         }
     }
 }
 
 dependencies {
-  compile fileTree(include: ['*.jar'], dir: 'libs')
+  implementation fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 clean {

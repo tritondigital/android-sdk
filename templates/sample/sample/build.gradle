@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.0"
+    compileSdkVersion 29
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 23
+        minSdkVersion 16
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
     }
@@ -29,11 +29,8 @@ repositories {
 }
 dependencies {
     compile(name: "$TRITON_SDK", ext:'aar')
-    compile 'com.google.android.gms:play-services-base:11.6.0'
-    compile 'com.google.android.gms:play-services-ads:11.6.0'
-    compile 'com.google.android.gms:play-services-cast:11.6.0'
-    compile 'com.android.support:mediarouter-v7:27.0.2'
-    //compile 'com.android.support:appcompat-v7:27.0.2'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.4'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.9.4'
+    implementation 'com.google.android.gms:play-services-base:17.5.0'
+    implementation 'com.google.android.gms:play-services-cast:19.0.0'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.12.3'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.12.3'
 }

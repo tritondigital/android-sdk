@@ -53,6 +53,10 @@ public class InterstitialAdsActivity extends AdsActivity implements
         setStatus("Interstitial closed");
     }
 
+    @Override
+    public void onInterstitialFinished(Interstitial interstitial) {
+        setStatus("Interstitial finished");
+    }
 
     @Override
     public void onInterstitialError(Interstitial interstitial, int errorCode) {

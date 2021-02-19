@@ -3,8 +3,8 @@ package com.tritondigital.player;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import junit.framework.AssertionFailedError;
 
@@ -32,7 +32,7 @@ public class ProvisioningAndroidTest
     @Before
     public void setUp()
     {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         mHandler = new Handler(mContext.getMainLooper());
         mParser = new Provisioning();
     }

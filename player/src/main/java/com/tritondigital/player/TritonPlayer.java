@@ -5,7 +5,7 @@ import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouter;
 import android.text.TextUtils;
 
 import com.tritondigital.util.Log;
@@ -429,6 +429,7 @@ public final class TritonPlayer extends MediaPlayer {
         public SettingsContentObserver(Handler handler) {
             super(handler);
         }
+        private boolean volumeStopped = false;
 
         @Override
         public boolean deliverSelfNotifications() {
@@ -440,7 +441,13 @@ public final class TritonPlayer extends MediaPlayer {
             super.onChange(selfChange);
             int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
             if(volume == 0) {
+                if(getState() != STATE_STOPPED){
+                    volumeStopped = true;
+                }
                 pause();
+            }else  if (getState() == STATE_STOPPED && volume > 0 && volumeStopped) {
+                play();
+                volumeStopped = false;
             }
         }
     }
@@ -449,8 +456,7 @@ public final class TritonPlayer extends MediaPlayer {
         int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         if(volume == 0) {
             int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-            float percent = 0.1f;
-            int minVolume = Math.round(maxVolume * percent) ;
+            int minVolume = Math.round(maxVolume * 0.4f) ;
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, minVolume, 0);
         }
     }

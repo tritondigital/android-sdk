@@ -35,6 +35,7 @@ public final class InterstitialActivity extends Activity implements
         MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
     public static final String ACTION_CLOSED = "com.tritondigital.ads.InterstitialActivity.ACTION_CLOSED";
     public static final String ACTION_ERROR  = "com.tritondigital.ads.InterstitialActivity.ACTION_ERROR";
+    public static final String ACTION_FINISHED = "com.tritondigital.ads.InterstitialActivity.ACTION_FINISHED";
 
     public static final String EXTRA_AD           = "com.tritondigital.ads.EXTRA_AD";
     public static final String EXTRA_ERROR_CODE   = "com.tritondigital.ads.EXTRA_ERROR_CODE";
@@ -44,6 +45,7 @@ public final class InterstitialActivity extends Activity implements
     private Bundle mAd;
     private int    mRequestCode;
     private int    mErrorCode;
+    private boolean mPlaybackFinished;
 
     private ProgressBar              mProgressBar;
     private ViewGroup.LayoutParams   mMatchParentLayoutParam;
@@ -70,6 +72,7 @@ public final class InterstitialActivity extends Activity implements
         Bundle args  = getIntent().getExtras();
         mAd          = args.getBundle(EXTRA_AD);
         mRequestCode = args.getInt(EXTRA_REQUEST_CODE);
+        mPlaybackFinished = false;
 
         initAudioManager();
         lockOrientation();
@@ -139,11 +142,6 @@ public final class InterstitialActivity extends Activity implements
             mAudioAdBanner = null;
         }
 
-        if (mAudioPlayer != null) {
-            mAudioPlayer.release();
-            mAudioPlayer = null;
-        }
-
         if (mVideoView != null) {
             mVideoView.stopPlayback();
             mVideoView.setOnClickListener(null);
@@ -151,6 +149,7 @@ public final class InterstitialActivity extends Activity implements
             mVideoView.setOnErrorListener(null);
             mVideoView.setOnPreparedListener(null);
             mVideoView = null;
+            broadcastPlaybackFinished();
         }
 
         // Broadcast the ad has finished
@@ -176,11 +175,31 @@ public final class InterstitialActivity extends Activity implements
     private void finishWithSuccess() {
         // Handle only the first error.
         if (mErrorCode == 0) {
-            mErrorCode = -1;
             finish();
+        }
+        playbackFinished();
+    }
+
+    private void playbackFinished() {
+
+        if (mAudioPlayer != null) {
+
+            if (mPlaybackFinished == true) {
+                    mAudioPlayer.release();
+                    mAudioPlayer = null;
+                    mAudioPlayer = null;
+                    broadcastPlaybackFinished();
+            }
         }
     }
 
+    private void broadcastPlaybackFinished() {
+
+        Intent i = new Intent(ACTION_FINISHED);
+        i.putExtra(EXTRA_ERROR_CODE,   mErrorCode);
+        i.putExtra(EXTRA_REQUEST_CODE, mRequestCode);
+        sendBroadcast(i);
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // UI
@@ -335,13 +354,14 @@ public final class InterstitialActivity extends Activity implements
     /**
      * Adds a close button to the main layout.
      */
-    private void addCloseButton(FrameLayout parent) {
-        Button closeBtn = new Button(this);
+    private void addCloseButton(final FrameLayout parent) {
+        final Button closeBtn = new Button(this);
         closeBtn.setPadding(0, 0, 0, 0);
         closeBtn.setText("\u00D7");
         closeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mPlaybackFinished = false;
                 finishWithSuccess();
             }
         });
@@ -416,6 +436,7 @@ public final class InterstitialActivity extends Activity implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
+        mPlaybackFinished = true;
         finishWithSuccess();
     }
 

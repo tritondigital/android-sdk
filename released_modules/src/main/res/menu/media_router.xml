@@ -6,5 +6,5 @@
     <item android:id="@+id/menuItem_mediaRoute"
           android:title="@string/mr_chooser_title"
           app:showAsAction="always"
-          app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"/>
+          app:actionProviderClass="androidx.mediarouter.app.MediaRouteActionProvider"/>
 </menu>

@@ -200,6 +200,13 @@ public final class Interstitial {
         }
     }
 
+    private void onFinished() {
+        mActive = false;
+
+        if ((mListener != null) && !mReleased) {
+            mListener.onInterstitialFinished(this);
+        }
+    }
 
     private void onStarted() {
         mActive = true;
@@ -218,6 +225,7 @@ public final class Interstitial {
         IntentFilter playerFilter = new IntentFilter();
         playerFilter.addAction(InterstitialActivity.ACTION_CLOSED);
         playerFilter.addAction(InterstitialActivity.ACTION_ERROR);
+        playerFilter.addAction(InterstitialActivity.ACTION_FINISHED);
         mContext.registerReceiver(mReceiver, playerFilter);
     }
 
@@ -237,6 +245,9 @@ public final class Interstitial {
                         onClosed();
                         break;
 
+                    case InterstitialActivity.ACTION_FINISHED:
+                        onFinished();
+                        break;
                     case InterstitialActivity.ACTION_ERROR:
                         int error = intent.getIntExtra(InterstitialActivity.EXTRA_ERROR_CODE, ERROR_UNKNOWN);
                         onError(error);

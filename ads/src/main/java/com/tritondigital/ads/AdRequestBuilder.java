@@ -381,7 +381,7 @@ public final class AdRequestBuilder {
             // Prefix. Use "http" if no scheme is provided
             //
             if (!host.startsWith("http")) {
-                host = "http://" + host;
+                host = "https://" + host;
             }
 
             // Remove the last character if it is '/'

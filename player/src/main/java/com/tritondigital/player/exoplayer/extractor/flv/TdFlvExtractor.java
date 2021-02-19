@@ -1,12 +1,12 @@
 package com.tritondigital.player.exoplayer.extractor.flv;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * Facilitates the extraction of data from the FLV container format.
  */
-public final class TdFlvExtractor implements Extractor, SeekMap {
+public final class TdFlvExtractor implements Extractor {
 
     /**
      * Factory for {@link TdFlvExtractor} instances.
@@ -88,23 +88,23 @@ public final class TdFlvExtractor implements Extractor, SeekMap {
     }
 
     @Override
-    public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    public boolean sniff(ExtractorInput input) throws IOException {
         // Check if file starts with "FLV" tag
-        input.peekFully(scratch.data, 0, 3);
+        input.peekFully(scratch.getData(), 0, 3);
         scratch.setPosition(0);
         if (scratch.readUnsignedInt24() != FLV_TAG) {
             return false;
         }
 
         // Checking reserved flags are set to 0
-        input.peekFully(scratch.data, 0, 2);
+        input.peekFully(scratch.getData(), 0, 2);
         scratch.setPosition(0);
         if ((scratch.readUnsignedShort() & 0xFA) != 0) {
             return false;
         }
 
         // Read data offset
-        input.peekFully(scratch.data, 0, 4);
+        input.peekFully(scratch.getData(), 0, 4);
         scratch.setPosition(0);
         int dataOffset = scratch.readInt();
 
@@ -112,7 +112,7 @@ public final class TdFlvExtractor implements Extractor, SeekMap {
         input.advancePeekPosition(dataOffset);
 
         // Checking first "previous tag size" is set to 0
-        input.peekFully(scratch.data, 0, 4);
+        input.peekFully(scratch.getData(), 0, 4);
         scratch.setPosition(0);
 
         return scratch.readInt() == 0;
@@ -135,8 +135,7 @@ public final class TdFlvExtractor implements Extractor, SeekMap {
     }
 
     @Override
-    public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
-            InterruptedException {
+    public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
         while (true) {
             switch (parserState) {
                 case STATE_READING_FLV_HEADER:
@@ -169,8 +168,8 @@ public final class TdFlvExtractor implements Extractor, SeekMap {
      * @throws IOException If an error occurred reading or parsing data from the source.
      * @throws InterruptedException If the thread was interrupted.
      */
-    private boolean readFlvHeader(ExtractorInput input) throws IOException, InterruptedException {
-        if (!input.readFully(headerBuffer.data, 0, FLV_HEADER_SIZE, true)) {
+    private boolean readFlvHeader(ExtractorInput input) throws IOException {
+        if (!input.readFully(headerBuffer.getData(), 0, FLV_HEADER_SIZE, true)) {
             // We've reached the end of the stream.
             return false;
         }
@@ -190,7 +189,7 @@ public final class TdFlvExtractor implements Extractor, SeekMap {
             metadataReader = new TdScriptTagPayloadLoader(null, mMetaDataListener);
         }
         extractorOutput.endTracks();
-        extractorOutput.seekMap(this);
+        extractorOutput.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
 
         // We need to skip any additional content in the FLV header, plus the 4 byte previous tag size.
         bytesToNextTagHeader = headerBuffer.readInt() - FLV_HEADER_SIZE + 4;
@@ -205,7 +204,7 @@ public final class TdFlvExtractor implements Extractor, SeekMap {
      * @throws IOException If an error occurred skipping data from the source.
      * @throws InterruptedException If the thread was interrupted.
      */
-    private void skipToTagHeader(ExtractorInput input) throws IOException, InterruptedException {
+    private void skipToTagHeader(ExtractorInput input) throws IOException {
         input.skipFully(bytesToNextTagHeader);
         bytesToNextTagHeader = 0;
         parserState = STATE_READING_TAG_HEADER;
@@ -219,8 +218,8 @@ public final class TdFlvExtractor implements Extractor, SeekMap {
      * @throws IOException If an error occurred reading or parsing data from the source.
      * @throws InterruptedException If the thread was interrupted.
      */
-    private boolean readTagHeader(ExtractorInput input) throws IOException, InterruptedException {
-        if (!input.readFully(tagHeaderBuffer.data, 0, FLV_TAG_HEADER_SIZE, true)) {
+    private boolean readTagHeader(ExtractorInput input) throws IOException {
+        if (!input.readFully(tagHeaderBuffer.getData(), 0, FLV_TAG_HEADER_SIZE, true)) {
             // We've reached the end of the stream.
             return false;
         }
@@ -243,7 +242,7 @@ public final class TdFlvExtractor implements Extractor, SeekMap {
      * @throws IOException If an error occurred reading or parsing data from the source.
      * @throws InterruptedException If the thread was interrupted.
      */
-    private boolean readTagData(ExtractorInput input) throws IOException, InterruptedException {
+    private boolean readTagData(ExtractorInput input) throws IOException {
         boolean wasConsumed = true;
         if (tagType == TAG_TYPE_AUDIO && audioReader != null) {
             audioReader.consume(prepareTagData(input), tagTimestampUs);
@@ -260,32 +259,15 @@ public final class TdFlvExtractor implements Extractor, SeekMap {
         return wasConsumed;
     }
 
-    private ParsableByteArray prepareTagData(ExtractorInput input) throws IOException,
-            InterruptedException {
+    private ParsableByteArray prepareTagData(ExtractorInput input) throws IOException {
         if (tagDataSize > tagData.capacity()) {
             tagData.reset(new byte[Math.max(tagData.capacity() * 2, tagDataSize)], 0);
         } else {
             tagData.setPosition(0);
         }
         tagData.setLimit(tagDataSize);
-        input.readFully(tagData.data, 0, tagDataSize);
+        input.readFully(tagData.getData(), 0, tagDataSize);
         return tagData;
     }
 
-    // SeekMap implementation.
-
-    @Override
-    public boolean isSeekable() {
-        return false;
-    }
-
-    @Override
-    public long getDurationUs() {
-        return metadataReader.getDurationUs();
-    }
-
-    @Override
-    public SeekPoints getSeekPoints(long timeUs) {
-        return null;
-    }
 }

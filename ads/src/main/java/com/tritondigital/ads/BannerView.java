@@ -464,6 +464,30 @@ public class BannerView extends FrameLayout {
         return (mWebView != null) && (mWebView.getVisibility() == View.VISIBLE);
     }
 
+    public Bundle getBestBannerSize(ArrayList<Bundle> banners, int width, int height) {
+
+        Bundle newBanner = null;
+        int bestDeltaWidth = Integer.MAX_VALUE ;
+        int bestDeltaHeight = Integer.MAX_VALUE ;
+
+        for (Bundle banner : banners) {
+            int newDeltaWidth = width - banner.getInt(Ad.WIDTH);
+
+            if(newDeltaWidth >= 0 && newDeltaWidth <= bestDeltaWidth) {
+                int newDeltaHeight = height - banner.getInt(Ad.HEIGHT);
+
+                if(newDeltaHeight >= 0 && newDeltaHeight < bestDeltaHeight) {
+                    bestDeltaHeight = newDeltaHeight;
+                    bestDeltaWidth = newDeltaWidth;
+                    newBanner = banner;
+                }
+            }
+
+        }
+
+        return newBanner;
+
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Web view

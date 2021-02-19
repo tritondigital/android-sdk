@@ -3,8 +3,8 @@ package com.tritondigital.player;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.media.MediaRouter;
+import androidx.annotation.NonNull;
+import androidx.mediarouter.media.MediaRouter;
 import android.text.TextUtils;
 
 import com.tritondigital.util.*;

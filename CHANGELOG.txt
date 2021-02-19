@@ -1,3 +1,11 @@
+3.1.1 - 2021/02/19
+- Upgrade to Exoplayer 2.12.3
+- Upgrade the support libraries to AndroidX
+- Volume button unmute stream
+- Update target api level to 29
+- Syncbanner was not loading content correctly
+- Finish playing a pre-roll before starting the main stream
+
 2.7.6 - 2020/07/28
 - Allow local files to play without a network connection
 

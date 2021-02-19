@@ -7,8 +7,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.CountDownTimer;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.google.android.exoplayer2.*;
@@ -16,6 +16,7 @@ import com.google.android.exoplayer2.source.*;
 import com.google.android.exoplayer2.source.hls.*;
 import com.google.android.exoplayer2.trackselection.*;
 import com.google.android.exoplayer2.upstream.*;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.tritondigital.player.exoplayer.extractor.flv.*;
 import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
@@ -24,6 +25,7 @@ import com.tritondigital.util.NetworkUtil;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_SEEK;
 
 /**
  * Wraps Android's native player
@@ -334,6 +336,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener
 
 
         PlayerHandler(Context context, MainHandler mainHandler, Bundle settings) {
+            super(Looper.getMainLooper());
             mContext     = context;
             mMainHandler = mainHandler;
             mSettings    = settings;
@@ -428,9 +431,9 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener
                      String transport = mSettings.getString(SETTINGS_TRANSPORT);
 
 
-                    BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+                    BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter.Builder(mContext).build();
 
-                    TrackSelector trackSelector = new DefaultTrackSelector(bandwidthMeter);
+                    TrackSelector trackSelector = new DefaultTrackSelector(mContext);
 
                     DefaultRenderersFactory defaultRenderersFactory = new DefaultRenderersFactory(mContext);
 
@@ -442,10 +445,16 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener
                    LoadControl loadControl = new DefaultLoadControl.Builder()
                            .setBufferDurationsMs(minBufferMs, maxBufferMs, bufferForPlaybackMs, bufferForPlaybackAfterRebufferMs)
                            .setAllocator(new DefaultAllocator(true, BUFFER_SEGMENT_SIZE,BUFFER_SEGMENTS))
-                           .createDefaultLoadControl();                            ;
+                           .build();
 
+                mExoPlayerLib = new SimpleExoPlayer.Builder(mContext,defaultRenderersFactory)
+                        .setTrackSelector(trackSelector)
+                        .setLoadControl(loadControl)
+                        .setBandwidthMeter(bandwidthMeter)
+                        .setWakeMode(C.WAKE_MODE_NETWORK)
+                        .build();
 
-                    mExoPlayerLib =  ExoPlayerFactory.newSimpleInstance(mContext, defaultRenderersFactory ,trackSelector, loadControl);
+                mExoPlayerLib.setThrowsWhenUsingWrongThread(false);
                     mExoPlayerLib.addListener(this);
 
                     // Produces DataSource instances through which media data is loaded.
@@ -468,11 +477,11 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener
                     MediaSource audioSource;
                     if(PlayerConsts.TRANSPORT_HLS.equals(transport))
                     {
-                        audioSource = new HlsMediaSource(uri, dataSourceFactory, null,  null);
+                        audioSource = new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_M3U8).build());
                     }
                     else
                     {
-                        audioSource = new ExtractorMediaSource(uri, dataSourceFactory, extractorsFactory, null, null);
+                        audioSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory).createMediaSource(new MediaItem.Builder().setUri(uri).build());
                     }
 
 
@@ -480,7 +489,8 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener
                     Log.d(TAG, "Prepare ExoPlayer for: " + streamUrl);
 
                     // Prepare the player with the source.
-                    mExoPlayerLib.prepare(audioSource);
+                    mExoPlayerLib.setMediaSource(audioSource);
+                    mExoPlayerLib.prepare();
 
                     mExoPlayerLib.setPlayWhenReady(true);
 
@@ -518,7 +528,6 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener
 
                 mFinishing = true;
 
-                getLooper().quit();
             } catch (Exception e) {
                 Log.w(TAG, e, "release()");
             }
@@ -865,11 +874,6 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener
             Log.e(TAG, "ExoPlayer onPlaybackParametersChanged()");
         }
 
-        @Override
-        public void onSeekProcessed() {
-            Log.e(TAG, "ExoPlayer onSeekProcessed()");
-        }
-
 
         @Override
         public void onPlayerError(ExoPlaybackException e) {
@@ -898,7 +902,11 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener
 
         @Override
         public void onPositionDiscontinuity(int i) {
+            if (i == DISCONTINUITY_REASON_SEEK) {
+                Log.i(TAG, "ExoPlayer onSeekProcessed()");
+            } else{
             Log.i(TAG, "ExoPlayer onPositionDiscontinuity()   i: " + i);
+            }
         }
 
 

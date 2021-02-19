@@ -3,25 +3,22 @@ package com.tritondigital.sdksample.player;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.media.MediaItemMetadata;
+import androidx.mediarouter.media.MediaItemMetadata;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import com.tritondigital.player.MediaPlayer;
 import com.tritondigital.player.TritonPlayer;
 import com.tritondigital.sdksample.R;
 
-import java.io.File;
 
 
 /**
@@ -30,7 +27,7 @@ import java.io.File;
 public class StreamPlayerActivity extends TritonPlayerActivity implements SeekBar.OnSeekBarChangeListener {
 
     private static final String[] URLS = {
-        "http://storage.googleapis.com/automotive-media/Jazz_In_Paris.mp3"
+        "https://storage.googleapis.com/automotive-media/Jazz_In_Paris.mp3"
     };
 
 

@@ -3,7 +3,7 @@ package com.tritondigital.sdksample.player;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouter;
 import android.util.Log;
 
 import com.google.android.gms.cast.ApplicationMetadata;

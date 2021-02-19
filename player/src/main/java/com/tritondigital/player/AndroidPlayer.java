@@ -10,7 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.tritondigital.net.streaming.proxy.Proxy;
 import com.tritondigital.net.streaming.proxy.ProxyFactory;

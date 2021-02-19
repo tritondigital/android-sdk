@@ -137,7 +137,7 @@ public final class TdScriptTagPayloadLoader extends TdTagPayloadReader{
         int size = data.readUnsignedShort();
         int position = data.getPosition();
         data.skipBytes(size);
-        return new String(data.data, position, size);
+        return new String(data.getData(), position, size);
     }
 
     /**

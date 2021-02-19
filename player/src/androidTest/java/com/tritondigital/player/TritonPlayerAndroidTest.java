@@ -9,8 +9,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tritondigital.util.Log;
 
@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,6 +35,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 
+import static android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -48,7 +48,7 @@ public class TritonPlayerAndroidTest
     private static final int MSG_CREATE_PLAYER        = 101;
     private static final int MSG_RELEASE_PLAYER       = 104;
 
-    private static final String PODCAST_TEST_URL      = "http://storage.googleapis.com/automotive-media/Jazz_In_Paris.mp3";
+    private static final String PODCAST_TEST_URL      = "https://storage.googleapis.com/automotive-media/Jazz_In_Paris.mp3";
 
 
     static float VOLUME = 0.5f;
@@ -67,7 +67,7 @@ public class TritonPlayerAndroidTest
     @BeforeClass
     public static void setAllUp()
     {
-        TARGET_CONTEXT    = InstrumentationRegistry.getTargetContext();
+        TARGET_CONTEXT    = InstrumentationRegistry.getInstrumentation().getTargetContext();
         LATCH             = new CountDownLatch(1);
         AUDIO_MANAGER     = (AudioManager)TARGET_CONTEXT.getSystemService(Context.AUDIO_SERVICE);
         MAIN_LOOP_HANDLER = new android.os.Handler(Looper.getMainLooper())
@@ -97,7 +97,7 @@ public class TritonPlayerAndroidTest
 
         //Wake up the device if it is on sleep mode
         PowerManager pm = (PowerManager) TARGET_CONTEXT.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
+        PowerManager.WakeLock wakeLock = pm.newWakeLock(( FLAG_KEEP_SCREEN_ON  | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
         wakeLock.acquire(3*60*1000);//3 minutes
 
         createPodcastLocalFile();

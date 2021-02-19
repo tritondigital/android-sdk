@@ -11,6 +11,7 @@ android {
         targetSdkVersion TARGET_SDK_VERSION.toInteger()
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -33,12 +34,13 @@ dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     api project(':ads')
     api project(':player')
-    api 'com.google.android.gms:play-services-base:11.6.0'
-    api 'com.google.android.gms:play-services-ads:11.6.0'
-    api 'com.google.android.gms:play-services-cast:11.6.0'
-    api 'com.android.support:mediarouter-v7:27.0.2'
-    api 'com.android.support:appcompat-v7:27.0.2'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.4'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.9.4'
+    api 'com.google.android.gms:play-services-base:17.5.0'
+    api 'com.google.android.gms:play-services-cast:19.0.0'
+    api 'com.google.android.gms:play-services-location:17.1.0'
+    api 'androidx.mediarouter:mediarouter:1.2.1'
+    api 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.12.3'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.12.3'
+    implementation 'androidx.mediarouter:mediarouter:1.2.1'
 
 }

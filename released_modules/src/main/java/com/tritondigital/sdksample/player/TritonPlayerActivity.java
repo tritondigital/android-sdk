@@ -3,12 +3,12 @@ package com.tritondigital.sdksample.player;
 
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.MediaRouteActionProvider;
-import android.support.v7.media.MediaControlIntent;
-import android.support.v7.media.MediaRouteSelector;
-import android.support.v7.media.MediaRouter;
+import androidx.core.view.MenuItemCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.mediarouter.app.MediaRouteActionProvider;
+import androidx.mediarouter.media.MediaControlIntent;
+import androidx.mediarouter.media.MediaRouteSelector;
+import androidx.mediarouter.media.MediaRouter;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -300,7 +300,7 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
     private void createPlayer(Bundle settings)
     {
         mTritonPlayer = new TritonPlayer(this, settings);
-        //mTritonPlayer.setMediaRoute(mMediaRouter.getSelectedRoute());
+        mTritonPlayer.setMediaRoute(mMediaRouter.getSelectedRoute());
         mTritonPlayer.setOnCuePointReceivedListener(this);
         mTritonPlayer.setOnMetaDataReceivedListener(this);
         mTritonPlayer.setOnInfoListener(this);

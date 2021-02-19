@@ -1,7 +1,7 @@
 package com.tritondigital.sdksample.player;
 
 import android.os.Bundle;
-import android.support.v7.media.MediaItemMetadata;
+import androidx.mediarouter.media.MediaItemMetadata;
 import android.widget.EditText;
 
 import com.tritondigital.player.TritonPlayer;

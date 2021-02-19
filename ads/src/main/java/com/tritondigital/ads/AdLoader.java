@@ -7,8 +7,10 @@ import android.os.Bundle;
 import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -224,7 +226,8 @@ public final class AdLoader {
                 if (adRequests[0] != null) {
                     if (adRequests[0].startsWith("http")) {
                         URL url = new URL(adRequests[0]);
-                        is = url.openStream();
+                        HttpURLConnection urlConnection=(HttpURLConnection) url.openConnection();
+                        is = new BufferedInputStream(urlConnection.getInputStream());
                     } else {
                         is = new ByteArrayInputStream(adRequests[0].getBytes());
                     }

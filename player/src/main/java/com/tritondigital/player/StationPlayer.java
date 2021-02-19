@@ -5,13 +5,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.media.MediaRouter;
+import androidx.annotation.NonNull;
+import androidx.mediarouter.media.MediaRouter;
 
 import com.tritondigital.util.*;
 
 import java.io.Serializable;
-import java.util.*;
 
 
 /**

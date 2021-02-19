@@ -108,7 +108,7 @@ public final class CuePointHistory {
     private static final String TAG = Log.makeTag("CuePointHistory");
     private static final int MIN_REQUEST_TIME   = 15000;
 
-    private static final String SERVER_PROD    = "http://np.tritondigital.com";
+    private static final String SERVER_PROD    = "https://np.tritondigital.com";
     private static final String SERVER_HTTPS   = "https://np.tritondigital.com";
 
     // User set values

@@ -1,8 +1,8 @@
 package com.tritondigital.player;
 
 
-import android.support.v7.media.MediaControlIntent;
-import android.support.v7.media.MediaRouteSelector;
+import androidx.mediarouter.media.MediaControlIntent;
+import androidx.mediarouter.media.MediaRouteSelector;
 import android.text.TextUtils;
 
 import java.util.Locale;
