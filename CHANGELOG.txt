@@ -1,3 +1,7 @@
+3.1.3 - 2021/05/05
+- Fix audio not playing on Android Auto.
+- Fix banners that are not hiding
+
 3.1.1 - 2021/02/19
 - Upgrade to Exoplayer 2.12.3
 - Upgrade the support libraries to AndroidX

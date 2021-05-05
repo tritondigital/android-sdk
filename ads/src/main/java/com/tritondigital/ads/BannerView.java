@@ -14,6 +14,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -581,6 +582,11 @@ public class BannerView extends FrameLayout {
                 webSettings.setDisplayZoomControls(false);
             }
 
+            if (android.os.Build.VERSION.SDK_INT >= 21) {
+                CookieManager.getInstance().setAcceptThirdPartyCookies(mWebView, true);
+            } else {
+                CookieManager.getInstance().setAcceptCookie(true);
+            }
             addView(mWebView, mLayoutParams);
         }
     }
@@ -654,7 +660,11 @@ public class BannerView extends FrameLayout {
 
 
                 mWebViewClicked = false;
-                mWebView.loadData(html, "text/html", "UTF-8");
+                if(html.contains("<script>")){
+                    mWebView.loadDataWithBaseURL("http://localhost/", html, "text/html; charset=utf-8", "UTF-8", "http://localhost/");
+                }else{
+                    mWebView.loadData(html, "text/html", "UTF-8");
+                }
             }
         }
 
