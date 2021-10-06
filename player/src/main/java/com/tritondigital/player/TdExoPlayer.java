@@ -16,12 +16,16 @@ import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.analytics.PlaybackStatsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -41,6 +45,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.tritondigital.player.exoplayer.extractor.flv.TdDefaultExtractorsFactory;
 import com.tritondigital.player.exoplayer.extractor.flv.TdMetaDataListener;
 import com.tritondigital.util.Assert;
+import com.tritondigital.util.AuthUtil;
 import com.tritondigital.util.Log;
 import com.tritondigital.util.NetworkUtil;
 
@@ -81,15 +86,51 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
      */
     public static final String SETTINGS_POSITION = PlayerConsts.POSITION;
 
+    /**
+     * @copybrief PlayerConsts.STATION_MOUNT
+     */
     public static final String SETTINGS_STATION_MOUNT = PlayerConsts.STATION_MOUNT;
 
+    /**
+     * @copybrief PlayerConsts.LOW_DELAY
+     */
     public static final String SETTINGS_LOW_DELAY = PlayerConsts.LOW_DELAY;
 
+    /**
+     * @copybrief PlayerConsts.AUTH_KEY_ID
+     */
+    public static final String SETTINGS_AUTH_KEY_ID = PlayerConsts.AUTH_KEY_ID;
+
+    /**
+     * @copybrief PlayerConsts.AUTH_SECRET_KEY
+     */
+    public static final String SETTINGS_AUTH_SECRET_KEY = PlayerConsts.AUTH_SECRET_KEY;
+
+    /**
+     * @copybrief PlayerConsts.AUTH_REGISTERED_USER
+     */
+    public static final String SETTINGS_AUTH_REGISTERED_USER = PlayerConsts.AUTH_REGISTERED_USER;
+
+    /**
+     * @copybrief PlayerConsts.AUTH_REGISTERED_USER
+     */
+    public static final String SETTINGS_AUTH_USER_ID = PlayerConsts.AUTH_USER_ID;
+
+    /**
+     * @copybrief PlayerConsts.AUTH_REGISTERED_USER
+     */
+    public static final String SETTINGS_AUTH_TOKEN = PlayerConsts.AUTH_TOKEN;
+
+    /**
+     * @copybrief PlayerConsts.TARGETING_PARAMS
+     */
+    public static final String SETTINGS_TARGETING_PARAMS = PlayerConsts.TARGETING_PARAMS;
     private static final int CALLBACK_CUE_POINT_RECEIVED = 60;
     private static final int CALLBACK_ON_INFO            = 61;
     private static final int CALLBACK_HANDLER_READY      = 62;
     private static final int CALLBACK_STATE_CHANGED      = 63;
     private static final int CALLBACK_METADATA_RECEIVED  = 64;
+    private static final int CALLBACK_ANALYTICS_RECEIVED = 65;
 
     private static final String TAG = Log.makeTag("TdExoPlayer:Thread");
 
@@ -320,6 +361,9 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                         mTdExoPlayer.onStateChanged(msg.arg1, msg.arg2);
                         break;
 
+                    case CALLBACK_ANALYTICS_RECEIVED:
+                        mTdExoPlayer.notifyAnalytics((Format)msg.obj);
+                        break;
                     default:
                         Assert.failUnhandledValue(TAG, msg.what, "handleMessage");
                         break;
@@ -356,6 +400,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
         private int lowDelay = 0;       
 
         private SimpleExoPlayer mExoPlayerLib;
+        PlaybackStatsListener myPlaybackStatsListener;
 
 
         private int   mDuration = DURATION_UNKNOWN;
@@ -526,12 +571,28 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
 
             if (mExoPlayerLib == null) {
                 // Create stream URL
+                String authSecretKey = mSettings.getString(SETTINGS_AUTH_SECRET_KEY);
+                String authKeyId = mSettings.getString(SETTINGS_AUTH_KEY_ID);
                 String streamUrl = mSettings.getString(SETTINGS_STREAM_URL);
 
                 if (streamUrl == null) {
                     notifyStateChanged(STATE_ERROR, ERROR_INVALID_URL);
                     return;
                 } else {
+                    if(authKeyId != null || authSecretKey != null){
+                        final String token = AuthUtil.createJwtToken(authSecretKey, authKeyId,
+                                mSettings.getBoolean(SETTINGS_AUTH_REGISTERED_USER),
+                                mSettings.getString(SETTINGS_AUTH_USER_ID),
+                                ((mSettings.get(SETTINGS_TARGETING_PARAMS) == null ) ? null : (Map) mSettings.get(SETTINGS_TARGETING_PARAMS)));
+
+                        if(streamUrl.contains("tdtok=")){
+                            streamUrl = streamUrl.replace(mSettings.getString(SETTINGS_AUTH_TOKEN), token);
+                        }else{
+                            streamUrl = streamUrl + "&tdtok=" + token;
+                        }
+
+                        mSettings.putString(SETTINGS_AUTH_TOKEN, token);
+                    }
                     if ( lowDelay == -1 || lowDelay > 0  ) {
                         int dPrebufferSeconds;
 
@@ -614,9 +675,16 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                     TdDefaultExtractorsFactory extractorsFactory = new TdDefaultExtractorsFactory(mMainHandler.mTdExoPlayer);
 
                     // This is the MediaSource representing the media to be played.
+                mExoPlayerLib.addAnalyticsListener(new AnalyticsListener() {
+                    @Override
+                    public void onAudioInputFormatChanged(EventTime eventTime, Format format) {
+                        notifyAnalyticsChanged(format);
+                    }
+                });
                     MediaSource audioSource;
                 if (PlayerConsts.TRANSPORT_HLS.equals(transport)) {
-                        audioSource = new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_M3U8).build());
+                    audioSource = new HlsMediaSource.Factory(dataSourceFactory)
+                            .createMediaSource(new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_M3U8).build());
                 } else {
                         audioSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory).createMediaSource(new MediaItem.Builder().setUri(uri).build());
                     }
@@ -726,6 +794,10 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
             mMainHandler.sendMessage(msg);
         }
 
+        private void notifyAnalyticsChanged(Format format) {
+            Message msg = mMainHandler.obtainMessage(CALLBACK_ANALYTICS_RECEIVED,format);
+            mMainHandler.sendMessage(msg);
+        }
 
         private void notifyStateChanged(int state) {
             notifyStateChanged(state, 0);
@@ -753,7 +825,11 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
             if (mExoPlayerLib != null) {
                 try {
                     notifyInfo(INFO_SEEK_STARTED);
+                    if (position == 0){
+                        mExoPlayerLib.seekToDefaultPosition();
+                    }else{
                     mExoPlayerLib.seekTo(position);
+                    }
                     notifyInfo(INFO_SEEK_COMPLETED, (int) mExoPlayerLib.getCurrentPosition());
                 } catch (IllegalStateException e) {
                     Log.w(TAG, e, "seekTo()");
@@ -842,7 +918,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                                 }
                             } else {
                                 //Log.i(TAG, "ExoPlayer timeout");
-                               //notifyStateChanged(STATE_ERROR, ERROR_UNEXPECTED_END_OF_MEDIA);
+                                    notifyStateChanged(STATE_ERROR, ERROR_UNEXPECTED_END_OF_MEDIA);
                             }
                         }
 
@@ -882,7 +958,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
         }
 
         @Override
-        public void onTimelineChanged(Timeline timeline, @Nullable Object manifest, int reason) {
+        public void onTimelineChanged(Timeline timeline, int reason) {
             Log.i(TAG, "ExoPlayer onTimelineChanged()");
         }
 
@@ -898,7 +974,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
 
 
         @Override
-        public void onPlayerError(ExoPlaybackException e) {
+        public void onPlayerError(PlaybackException e) {
             Log.e(TAG, "ExoPlayer error: " + e.getMessage());
             Log.e(TAG, "ExoPlayer Network connected: " +  com.tritondigital.util.NetworkUtil.isNetworkConnected(mContext));
             if (!isMountEmpty()) {

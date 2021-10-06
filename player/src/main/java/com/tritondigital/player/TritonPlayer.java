@@ -8,6 +8,7 @@ import android.os.Handler;
 import androidx.mediarouter.media.MediaRouter;
 import android.text.TextUtils;
 
+import com.google.android.exoplayer2.Format;
 import com.tritondigital.util.Log;
 import com.tritondigital.util.TrackingUtil;
 
@@ -187,6 +188,10 @@ public final class TritonPlayer extends MediaPlayer {
     */
     public static final String SETTINGS_AUTH_TOKEN = PlayerConsts.AUTH_TOKEN;
 
+    public static final String SETTINGS_AUTH_KEY_ID = PlayerConsts.AUTH_KEY_ID;
+    public static final String SETTINGS_AUTH_SECRET_KEY = PlayerConsts.AUTH_SECRET_KEY;
+    public static final String SETTINGS_AUTH_REGISTERED_USER = PlayerConsts.AUTH_REGISTERED_USER;
+    public static final String SETTINGS_AUTH_USER_ID = PlayerConsts.AUTH_USER_ID;
     /** @copydoc PlayerConsts::TARGETING_PARAMS */
     public static final String SETTINGS_TARGETING_PARAMS = PlayerConsts.TARGETING_PARAMS;
 
@@ -226,6 +231,8 @@ public final class TritonPlayer extends MediaPlayer {
     /** @copybrief PlayerConsts::PLAYER_SERVICES_REGION */
     public static final String SETTINGS_PLAYER_SERVICES_REGION = PlayerConsts.PLAYER_SERVICES_REGION;
 
+    /** @copybrief PlayerConsts::TIMESHIFT */
+    public static final String SETTINGS_TIMESHIFT_ENABLED = PlayerConsts.TIMESHIFT_ENABLED;
     private final MediaPlayer mPlayer;
 
     private AudioManager mAudioManager;
@@ -263,6 +270,7 @@ public final class TritonPlayer extends MediaPlayer {
         mPlayer.setOnMetaDataReceivedListener(mInOnMetaDataReceivedListener);
         mPlayer.setOnInfoListener(mInOnInfoListener);
         mPlayer.setOnStateChangedListener(mInOnStateChangedListener);
+        mPlayer.setOnAnalyticsReceivedListener(mInAnalyticsReceivedListener);
 
         mAudioManager = (AudioManager)context.getSystemService(AUDIO_SERVICE);
 
@@ -412,6 +420,13 @@ public final class TritonPlayer extends MediaPlayer {
             } else {
                 setState(state);
             }
+        }
+    };
+
+    private final OnAnalyticsReceivedListener mInAnalyticsReceivedListener = new OnAnalyticsReceivedListener() {
+        @Override
+        public void onAnalyticsReceivedListener(MediaPlayer player, Format format) {
+            notifyAnalytics(format);
         }
     };
 

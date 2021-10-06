@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter;
 
+import com.google.android.exoplayer2.Format;
 import com.tritondigital.util.*;
 
 import java.io.Serializable;
@@ -26,11 +27,16 @@ public class StationPlayer extends MediaPlayer
     public static final String SETTINGS_STATION_NAME                        = PlayerConsts.STATION_NAME;
     public static final String SETTINGS_TRANSPORT                           = PlayerConsts.TRANSPORT;
     public static final String SETTINGS_AUTH_TOKEN                          = PlayerConsts.AUTH_TOKEN;
+    public static final String SETTINGS_AUTH_SECRET_KEY                     = PlayerConsts.AUTH_SECRET_KEY;
+    public static final String SETTINGS_AUTH_KEY_ID                         = PlayerConsts.AUTH_KEY_ID;
+    public static final String SETTINGS_AUTH_USER_ID                         = PlayerConsts.AUTH_USER_ID;
+    public static final String SETTINGS_AUTH_REGISTERED_USER                 = PlayerConsts.AUTH_REGISTERED_USER;
     public static final String SETTINGS_TARGETING_LOCATION_TRACKING_ENABLED = PlayerConsts.TARGETING_LOCATION_TRACKING_ENABLED;
     public static final String SETTINGS_TARGETING_PARAMS                    = PlayerConsts.TARGETING_PARAMS;
     public static final String SETTINGS_MEDIA_ITEM_METADATA                 = PlayerConsts.MEDIA_ITEM_METADATA;
     public static final String SETTINGS_LOW_DELAY                           = PlayerConsts.LOW_DELAY;
     public static final String SETTINGS_TTAGS                               = PlayerConsts.TTAGS;
+    public static final String SETTINGS_TIMESHIFT_ENABLED                   = PlayerConsts.TIMESHIFT_ENABLED;
 
 
     private static final String TAG = Log.makeTag("StationPlayer");
@@ -41,6 +47,7 @@ public class StationPlayer extends MediaPlayer
     private String                  mUserAgent;
     private MediaRouter.RouteInfo   mMediaRoute;
     private String                  mLiveStreamingUrl;
+    private boolean                 timeshiftEnabled = false;
 
     /**
      * Constructor
@@ -195,20 +202,30 @@ public class StationPlayer extends MediaPlayer
                 boolean locationTrackingEnabled = stationSettings.getBoolean(SETTINGS_TARGETING_LOCATION_TRACKING_ENABLED);
                 Serializable targetingParams    = stationSettings.getSerializable(SETTINGS_TARGETING_PARAMS);
                 String authToken                = stationSettings.getString(SETTINGS_AUTH_TOKEN);
+                String authSecretKey                = stationSettings.getString(SETTINGS_AUTH_SECRET_KEY);
+                String authKeyId                = stationSettings.getString(SETTINGS_AUTH_KEY_ID);
+                String authUserId               = stationSettings.getString(SETTINGS_AUTH_USER_ID);
+                boolean authRegisteredUser      = stationSettings.getBoolean(SETTINGS_AUTH_REGISTERED_USER);
                 Bundle metaData                 = stationSettings.getBundle(SETTINGS_MEDIA_ITEM_METADATA);
                 String mount                    = stationSettings.getString(SETTINGS_STATION_MOUNT);
                 Integer lowDelay                = stationSettings.getInt(SETTINGS_LOW_DELAY, 0);
                 String[] tTags                  = stationSettings.getStringArray(SETTINGS_TTAGS);
                 boolean disableExoPlayer        = stationSettings.getBoolean(PlayerConsts.FORCE_DISABLE_EXOPLAYER, false);
+                timeshiftEnabled        = stationSettings.getBoolean(PlayerConsts.TIMESHIFT_ENABLED, false);
 
                 streamSettings.putBoolean(StreamPlayer.SETTINGS_TARGETING_LOCATION_TRACKING_ENABLED, locationTrackingEnabled);
                 streamSettings.putSerializable(StreamPlayer.SETTINGS_TARGETING_PARAMS, targetingParams);
                 streamSettings.putString(StreamPlayer.SETTINGS_AUTH_TOKEN, authToken);
+                streamSettings.putString(StreamPlayer.SETTINGS_AUTH_SECRET_KEY, authSecretKey );
+                streamSettings.putBoolean(StreamPlayer.SETTINGS_AUTH_REGISTERED_USER, authRegisteredUser);
+                streamSettings.putString(StreamPlayer.SETTINGS_AUTH_USER_ID, authUserId);
+                streamSettings.putString(StreamPlayer.SETTINGS_AUTH_KEY_ID, authKeyId );
                 streamSettings.putString(StreamPlayer.SETTINGS_USER_AGENT, mUserAgent);
                 streamSettings.putBundle(StreamPlayer.SETTINGS_MEDIA_ITEM_METADATA, metaData);
                 streamSettings.putString(StreamPlayer.SETTINGS_STATION_MOUNT, mount);
                 streamSettings.putInt(StreamPlayer.SETTINGS_LOW_DELAY, lowDelay);
                 streamSettings.putBoolean(PlayerConsts.FORCE_DISABLE_EXOPLAYER, disableExoPlayer);
+                streamSettings.putBoolean(PlayerConsts.TIMESHIFT_ENABLED, timeshiftEnabled);
 
                 //update transport on stationSettings
                 String transport = streamSettings.getString(SETTINGS_TRANSPORT);
@@ -225,6 +242,7 @@ public class StationPlayer extends MediaPlayer
                 mStreamPlayer.setOnCuePointReceivedListener(mStreamPlayerCuePointListener);
                 mStreamPlayer.setOnInfoListener(mStreamPlayerOnInfoListener);
                 mStreamPlayer.setOnStateChangedListener(mStreamPlayerStateChangeListener);
+                mStreamPlayer.setOnAnalyticsReceivedListener(mStreamPlayerAnalyticsReceived);
                 mStreamPlayer.play();
 
                 mLiveStreamingUrl = mStreamPlayer.getSettings().getString(StreamPlayer.SETTINGS_STREAM_URL);
@@ -239,7 +257,7 @@ public class StationPlayer extends MediaPlayer
 
     @Override
     public int getDuration() {
-        return DURATION_LIVE_STREAM;
+        return (mStreamPlayer == null) ? DURATION_LIVE_STREAM : mStreamPlayer.getDuration();
     }
 
 
@@ -251,12 +269,16 @@ public class StationPlayer extends MediaPlayer
 
     @Override
     public boolean isSeekable() {
-        return false;
+        return (mStreamPlayer == null) ? false : (timeshiftEnabled && mStreamPlayer.isSeekable());
     }
 
 
     @Override
-    protected void internalSeekTo(int position) {}
+    protected void internalSeekTo(int position) {
+        if (mStreamPlayer != null) {
+            mStreamPlayer.seekTo(position);
+        }
+    }
 
 
     @Override
@@ -317,6 +339,12 @@ public class StationPlayer extends MediaPlayer
         }
     };
 
+     private final OnAnalyticsReceivedListener mStreamPlayerAnalyticsReceived = new OnAnalyticsReceivedListener() {
+         @Override
+         public void onAnalyticsReceivedListener(MediaPlayer player, Format format) {
+            notifyAnalytics(format);
+         }
+     };
 
     private final OnCuePointReceivedListener mStreamPlayerCuePointListener = new OnCuePointReceivedListener() {
         @Override

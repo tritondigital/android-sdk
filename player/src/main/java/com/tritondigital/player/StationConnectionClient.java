@@ -1,6 +1,7 @@
 package com.tritondigital.player;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -14,32 +15,45 @@ import java.util.Random;
 
 class StationConnectionClient {
 
-    interface Listener {
-        void onStationConnectionError(StationConnectionClient src, int errorCode);
-        void onStationConnectionNextStream(StationConnectionClient src, Bundle streamSettings);
-    }
-
-    /** @copybrief PlayerConsts.ERROR_CONNECTION_FAILED */
+    /**
+     * @copybrief PlayerConsts.ERROR_CONNECTION_FAILED
+     */
     public static final int ERROR_CONNECTION_FAILED = MediaPlayer.ERROR_CONNECTION_FAILED;
 
-    /** @copybrief PlayerConsts.ERROR_CONNECTION_TIMEOUT */
+    /**
+     * @copybrief PlayerConsts.ERROR_CONNECTION_TIMEOUT
+     */
     public static final int ERROR_CONNECTION_TIMEOUT = MediaPlayer.ERROR_CONNECTION_TIMEOUT;
 
-    /** @copybrief MediaPlayer.ERROR_GEOBLOCKED */
+    /**
+     * @copybrief MediaPlayer.ERROR_GEOBLOCKED
+     */
     public static final int ERROR_GEOBLOCKED = MediaPlayer.ERROR_GEOBLOCKED;
 
-    /** @copybrief MediaPlayer.ERROR_NOT_FOUND */
+    /**
+     * @copybrief MediaPlayer.ERROR_NOT_FOUND
+     */
     public static final int ERROR_NOT_FOUND = MediaPlayer.ERROR_NOT_FOUND;
 
-    /** @copybrief PlayerConsts.ERROR_SERVICE_UNAVAILABLE */
+    /**
+     * @copybrief PlayerConsts.ERROR_SERVICE_UNAVAILABLE
+     */
     public static final int ERROR_SERVICE_UNAVAILABLE = MediaPlayer.ERROR_SERVICE_UNAVAILABLE;
 
-    /** @copybrief PlayerConsts.STATION_MOUNT */
+    /**
+     * @copybrief PlayerConsts.STATION_MOUNT
+     */
     public static final String SETTINGS_STATION_MOUNT = PlayerConsts.STATION_MOUNT;
 
-    /** @copybrief PlayerConsts::PLAYER_SERVICES_REGION */
+    /**
+     * @copybrief PlayerConsts::PLAYER_SERVICES_REGION
+     */
     public static final String SETTINGS_PLAYER_SERVICES_REGION = PlayerConsts.PLAYER_SERVICES_REGION;
 
+    /**
+     * @copybrief PlayerConsts::TIMESHIFT_ENABLED
+     */
+    public static final String SETTINGS_TIMESHIFT_ENABLED = PlayerConsts.TIMESHIFT_ENABLED;
     /**
      * @copybrief PlayerConsts.TRANSPORT
      * Default: flv
@@ -52,7 +66,6 @@ class StationConnectionClient {
     private static final int MAX_RETRY_DELAY = 5000;
     private static final int MAX_TOTAL_DELAY = 30000;
 
-    private String TAG = Log.makeTag("StationConnectionClient");
 
     private final Handler      mHandler = new Handler();
     private final Random       mRandom;
@@ -60,12 +73,58 @@ class StationConnectionClient {
     private final Listener     mListener;
     private final String       mStationMount;
 
+    private final Boolean timeshiftEnabled;
+    private String TAG = Log.makeTag("StationConnectionClient");
     private int    mProvisioningRetryDelay;
     private Bundle mProvisioningResult;
     private int    mPortIdx;
     private int    mServerIdx;
 
+    private final Runnable mFetchProvisioningRunnable = new Runnable() {
+        @Override
+        public void run() {
+            fetchProvisioning();
+        }
+    };
     private String mSbmUrl;
+    final Provisioning.Listener mProvisioningListener = new Provisioning.Listener() {
+        @Override
+        public void onProvisioningSuccess(Provisioning src, Bundle result) {
+            mProvisioningResult = result;
+            connectToStream();
+        }
+
+
+        @Override
+        public void onProvisioningFailed(Provisioning src, int errorCode) {
+            switch (errorCode) {
+                case Provisioning.ERROR_GEOBLOCK:
+                    // Stream redirection has already been done.
+                    onError(ERROR_GEOBLOCKED);
+                    break;
+
+                case Provisioning.ERROR_SERVICE_UNAVAILABLE:
+                    onError(ERROR_SERVICE_UNAVAILABLE);
+                    break;
+
+                case Provisioning.ERROR_UNKNOWN_HOST:
+                    onError(ERROR_CONNECTION_FAILED);
+                    break;
+
+                case Provisioning.ERROR_NOT_FOUND:
+                    onError(ERROR_NOT_FOUND);
+                    break;
+
+                case Provisioning.ERROR_REQUEST_TIMEOUT:
+                    onError(ERROR_CONNECTION_TIMEOUT);
+                    break;
+
+                default:
+                    delayProvisioning();
+                    break;
+            }
+        }
+    };
 
 
     public StationConnectionClient(Context context, Bundle settings, Listener listener) {
@@ -79,14 +138,14 @@ class StationConnectionClient {
 
         String transport = settings.getString(SETTINGS_TRANSPORT);
         String userAgent = settings.getString(SETTINGS_USER_AGENT);
+        timeshiftEnabled = settings.getBoolean(SETTINGS_TIMESHIFT_ENABLED);
         mProvisioningParser = new Provisioning();
         mProvisioningParser.setMount(mStationMount, transport);
         mProvisioningParser.setUserAgent(userAgent);
         mProvisioningParser.setListener(mProvisioningListener);
 
         String psPrefix  = settings.getString(SETTINGS_PLAYER_SERVICES_REGION);
-        if(!TextUtils.isEmpty(psPrefix))
-        {
+        if (!TextUtils.isEmpty(psPrefix)) {
           mProvisioningParser.setPlayerServicesPrefix(psPrefix);
         }
     }
@@ -143,14 +202,12 @@ class StationConnectionClient {
     }
 
 
-    public String getSideBandMetadataUrl()
-    {
+    public String getSideBandMetadataUrl() {
         return mSbmUrl;
     }
 
     public String getCastStreamingUrl(){
-        if(mProvisioningResult != null)
-        {
+        if (mProvisioningResult != null) {
             ArrayList<Bundle> servers = mProvisioningResult.getParcelableArrayList(Provisioning.Result.SERVERS);
             Bundle server = servers.get(mServerIdx);
             ArrayList<String> ports = server.getStringArrayList(Provisioning.Result.Server.PORTS);
@@ -223,7 +280,17 @@ class StationConnectionClient {
 
 
     private void connectToStream() {
+        String transport = "";
+        String mimeType = "" ;
+        String streamUrl = "";
+        String sbmUrl = "";
 
+        if (timeshiftEnabled) {
+            streamUrl = streamUrl = String.format("%s/%s.%s", "https://playerservices.streamtheworld.com/api/cloud-redirect", mStationMount, "m3u8");
+            mimeType = "application/x-mpegURL";
+            transport = "hls";
+
+        } else {
         String alternateUrl = mProvisioningResult.getString(Provisioning.Result.ALTERNATE_URL);
         if(!TextUtils.isEmpty(alternateUrl)){
             Bundle streamSettings = new Bundle();
@@ -249,21 +316,20 @@ class StationConnectionClient {
             // Stream URL
             //
             String streamSuffix = mProvisioningResult.getString(Provisioning.Result.MOUNT_SUFFIX);
-            String streamUrl    = (streamSuffix == null) ? baseUrl : (baseUrl + streamSuffix);
+                streamUrl = (streamSuffix == null) ? baseUrl : (baseUrl + streamSuffix);
 
             //
             // Stream info
             //
-            String transport = mProvisioningResult.getString(Provisioning.Result.TRANSPORT);
-            String mimeType  = mProvisioningResult.getString(Provisioning.Result.MIME_TYPE);
+                transport = mProvisioningResult.getString(Provisioning.Result.TRANSPORT);
+                mimeType = mProvisioningResult.getString(Provisioning.Result.MIME_TYPE);
 
             //
             // Side-Band Metadata
             //
             String sbmSuffix = mProvisioningResult.getString(Provisioning.Result.SBM_SUFFIX);
-            String sbmUrl = (sbmSuffix == null) ? null : (baseUrl + sbmSuffix);
-            if(sbmUrl != null)
-            {
+                sbmUrl = (sbmSuffix == null) ? null : (baseUrl + sbmSuffix);
+                if (sbmUrl != null) {
                 char argPrefix = sbmUrl.contains("?") ? '&' : '?';
                 String sbmId = SbmPlayer.generateSbmId();
                 sbmUrl += argPrefix + "sbmid=" + sbmId;
@@ -272,10 +338,19 @@ class StationConnectionClient {
 
 
             //Normalize transport and sbm; if streamSuffix is null, we will stream FLV
-            if(streamSuffix == null)
-            {
+                if (streamSuffix == null) {
                 transport = PlayerConsts.TRANSPORT_FLV;
                 sbmUrl    = null;
+                }
+            } catch (IndexOutOfBoundsException ex) {
+                Log.i(TAG, "Connection client stream failed with port index: " + mPortIdx + " and port size:" + ((ports != null) ? ports.size() : "NULL"));
+                Assert.fail(TAG, "Stream settings connection error: " + ex);
+                notifyConnectionFailed();
+
+            } catch (NullPointerException e) {
+                Assert.fail(TAG, "Stream settings creation error: " + e);
+                notifyConnectionFailed();
+            }
             }
 
             // Create the stream settings
@@ -287,17 +362,7 @@ class StationConnectionClient {
 
             // Ask the listener owner to try the next URL
             Log.i(TAG, "Connection client stream: " + streamUrl);
-            mListener.onStationConnectionNextStream(this, streamSettings);
-
-        } catch (IndexOutOfBoundsException ex){
-            Log.i(TAG, "Connection client stream failed with port index: " + mPortIdx + " and port size:" + ((ports != null) ? ports.size() : "NULL"));
-            Assert.fail(TAG, "Stream settings connection error: " + ex);
-            notifyConnectionFailed();
-
-        } catch (NullPointerException e) {
-            Assert.fail(TAG, "Stream settings creation error: " + e);
-            notifyConnectionFailed();
-        }
+            mListener.onStationConnectionNextStream(this, streamSettings);     
     }
 
 
@@ -323,50 +388,10 @@ class StationConnectionClient {
     }
 
 
-    private final Runnable mFetchProvisioningRunnable = new Runnable() {
-        @Override
-        public void run() {
-            fetchProvisioning();
+    interface Listener {
+        void onStationConnectionError(StationConnectionClient src, int errorCode);
+
+
+        void onStationConnectionNextStream(StationConnectionClient src, Bundle streamSettings);
         }
-    };
-
-
-    final Provisioning.Listener mProvisioningListener = new Provisioning.Listener() {
-        @Override
-        public void onProvisioningSuccess(Provisioning src, Bundle result) {
-            mProvisioningResult = result;
-            connectToStream();
-        }
-
-
-        @Override
-        public void onProvisioningFailed(Provisioning src, int errorCode) {
-            switch (errorCode) {
-                case Provisioning.ERROR_GEOBLOCK:
-                    // Stream redirection has already been done.
-                    onError(ERROR_GEOBLOCKED);
-                    break;
-
-                case Provisioning.ERROR_SERVICE_UNAVAILABLE:
-                    onError(ERROR_SERVICE_UNAVAILABLE);
-                    break;
-
-                case Provisioning.ERROR_UNKNOWN_HOST:
-                    onError(ERROR_CONNECTION_FAILED);
-                    break;
-
-                case Provisioning.ERROR_NOT_FOUND:
-                    onError(ERROR_NOT_FOUND);
-                    break;
-
-                case Provisioning.ERROR_REQUEST_TIMEOUT:
-                    onError(ERROR_CONNECTION_TIMEOUT);
-                    break;
-
-                default:
-                    delayProvisioning();
-                    break;
-            }
-        }
-    };
 }

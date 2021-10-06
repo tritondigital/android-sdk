@@ -320,11 +320,9 @@ public class BannerView extends FrameLayout {
      */
 
 
-    public Point getBestBannerSize(Bundle ad, int containerWidth, int containerHeight)
-    {
+    public Point getBestBannerSize(Bundle ad, int containerWidth, int containerHeight) {
         ArrayList<Bundle> banners = ad.getParcelableArrayList(Ad.BANNERS);
-        if(banners == null || banners.isEmpty())
-        {
+        if (banners == null || banners.isEmpty()) {
             return null;
         }
 
@@ -337,16 +335,14 @@ public class BannerView extends FrameLayout {
 
             if ((bannerWidth <= containerWidth) && (bannerHeight <= containerHeight)) {
                 com.tritondigital.util.Log.d("BannersWrapper", "Banner size:  " +  bannerWidth + " , " + bannerHeight);
-                if(maxWidthBetterFit <= bannerWidth && maxHeightBetterFit <= bannerHeight)
-                {
+                if (maxWidthBetterFit <= bannerWidth && maxHeightBetterFit <= bannerHeight) {
                     maxWidthBetterFit = bannerWidth;
                     maxHeightBetterFit = bannerHeight;
                 }
             }
         }
 
-        if(maxWidthBetterFit > 0 && maxHeightBetterFit > 0)
-        {
+        if (maxWidthBetterFit > 0 && maxHeightBetterFit > 0) {
             return new Point(maxWidthBetterFit,maxHeightBetterFit);
         }
 
@@ -412,8 +408,7 @@ public class BannerView extends FrameLayout {
         String bannerUrl = banner.getString(Ad.URL);
         if ( bannerUrl != null )
             loadUrl(bannerUrl);
-        else
-        {
+        else {
             String bannerHtml = banner.getString(Ad.HTML);
             if ( bannerHtml != null )
                 loadHTML(bannerHtml);
@@ -530,13 +525,11 @@ public class BannerView extends FrameLayout {
         // Create the webview
         createWebViewIfNeeded("http");
 
-        if ( mWebViewClient != null )
-        {
+        if (mWebViewClient != null) {
            // mWebView
             String newHTML;
             int test = html.toLowerCase().indexOf("<html>");
-            if ( test == -1 )
-            {
+            if (test == -1) {
                 newHTML = "<html><head><style type=\"text/css\">\n" +
                         "html, body {\n" +
                         "width:100%;\n" +
@@ -545,9 +538,7 @@ public class BannerView extends FrameLayout {
                         "padding: 0px;\n" +
                         "}\n" +
                         "</style></head><body>" + html + "</body><html>";
-            }
-            else
-            {
+            } else {
                 newHTML = html;
             }
             mWebViewClient.loadHTML(newHTML);
@@ -721,9 +712,12 @@ public class BannerView extends FrameLayout {
 
         private int webViewToAdError(int webViewError) {
             switch (webViewError) {
-                case WebViewClient.ERROR_HOST_LOOKUP: return ERROR_UNKNOWN_HOST;
-                case WebViewClient.ERROR_TIMEOUT:     return ERROR_TIMEOUT;
-                default:                              return ERROR_UNKNOWN;
+                case WebViewClient.ERROR_HOST_LOOKUP:
+                    return ERROR_UNKNOWN_HOST;
+                case WebViewClient.ERROR_TIMEOUT:
+                    return ERROR_TIMEOUT;
+                default:
+                    return ERROR_UNKNOWN;
             }
         }
 

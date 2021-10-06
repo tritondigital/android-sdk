@@ -4,10 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.tritondigital.ads.AdLoader.AdLoaderListener;
-import com.tritondigital.util.*;
+import com.tritondigital.util.Assert;
+import com.tritondigital.util.HttpGetRequest;
+import com.tritondigital.util.Log;
+import com.tritondigital.util.NetworkUtil;
 
 import java.util.Random;
 
@@ -336,7 +340,16 @@ public final class Interstitial {
     public void showAd(Bundle ad) {
         int error = 0;
         if ((ad == null) || ad.isEmpty() || (ad.getString(Ad.URL) == null)) {
+            String errorUrl = ad.getString(Ad.ERROR_URL);
             error = ERROR_NO_INVENTORY;
+            if (errorUrl != null && !errorUrl.isEmpty()) {
+                if (errorUrl.startsWith("http")) {
+                    try {
+                        new HttpGetRequest().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, errorUrl);
+                    } catch (Exception ex) {
+                    }
+                }
+            }
             onError(error);
             return;
 

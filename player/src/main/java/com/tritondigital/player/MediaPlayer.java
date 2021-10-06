@@ -3,6 +3,7 @@ package com.tritondigital.player;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.google.android.exoplayer2.Format;
 import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
 
@@ -86,6 +87,18 @@ public abstract class MediaPlayer {
         void onStateChanged(MediaPlayer player, int state);
     }
 
+    /**
+     * Callback for receiving CuePoint.
+     */
+    public interface OnAnalyticsReceivedListener {
+        /**
+         * Called when a player has received stream analytics.
+         *
+         * @param player    Source where this event comes from
+         * @param format    Received Format
+         */
+        void onAnalyticsReceivedListener(MediaPlayer player, Format format);
+    }
     /** Error code indicating an error in the OS player or Google Cast */
     public static final int ERROR_LOW_LEVEL_PLAYER_ERROR = 210;
 
@@ -192,6 +205,7 @@ public abstract class MediaPlayer {
     private OnMetaDataReceivedListener mMetadataListener;
     private OnInfoListener             mOnInfoListener;
     private OnStateChangedListener     mStateChangedListener;
+    private OnAnalyticsReceivedListener mAnalyticsReceivedListener;
 
     private Bundle  mLastCuePoint;
     private int     mLastErrorCode;
@@ -310,6 +324,9 @@ public abstract class MediaPlayer {
         return mStateChangedListener;
     }
 
+    public OnAnalyticsReceivedListener getAnalyticsReceivedListener() {
+        return mAnalyticsReceivedListener;
+    }
 
     /**
      * Sets the cue point event listener.
@@ -339,6 +356,13 @@ public abstract class MediaPlayer {
      */
     public void setOnStateChangedListener(OnStateChangedListener listener) {
         mStateChangedListener = listener;
+    }
+
+    /**
+     * Sets the analytics changed listener.
+     */
+    public void setOnAnalyticsReceivedListener(OnAnalyticsReceivedListener listener) {
+        mAnalyticsReceivedListener = listener;
     }
 
 
@@ -401,11 +425,13 @@ public abstract class MediaPlayer {
     public final void seek(int delta) {
         if (isSeekable()) {
             if (delta != 0) {
-                int position = getPosition() + delta;
+                int position = getPosition() + (delta);
                 position = Math.max(0, position);
                 position = Math.min(position, getDuration());
 
                 seekTo(position);
+            } else{
+                seekTo(0);
             }
         } else {
             Log.w(TAG, "Not seekable");
@@ -548,6 +574,7 @@ public abstract class MediaPlayer {
             mMetadataListener     = null;
             mOnInfoListener       = null;
             mStateChangedListener = null;
+            mAnalyticsReceivedListener = null;
         }
     }
 
@@ -576,6 +603,12 @@ public abstract class MediaPlayer {
         }
     }
 
+    final void notifyAnalytics(Format format) {
+        // Notify analytics changed.
+        if (mAnalyticsReceivedListener != null) {
+            mAnalyticsReceivedListener.onAnalyticsReceivedListener(this,format);
+        }
+    }
 
     /**
      * Change the state to STATE_ERROR with the provided error detail.

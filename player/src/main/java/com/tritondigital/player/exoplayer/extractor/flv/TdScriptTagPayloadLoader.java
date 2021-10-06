@@ -63,14 +63,14 @@ public final class TdScriptTagPayloadLoader extends TdTagPayloadReader{
         int nameType = readAmfType(data);
         if (nameType != AMF_TYPE_STRING) {
             // Should never happen.
-            throw new ParserException();
+            throw ParserException.createForUnsupportedContainerFeature("Wrong Type");
         }
         String name = readAmfString(data);
 
         int type = readAmfType(data);
         if (type != AMF_TYPE_ECMA_ARRAY) {
             // Should never happen.
-            throw new ParserException();
+            throw ParserException.createForUnsupportedContainerFeature("Wrong Type");
         }
 
         Map<String, Object> metadata = readAmfEcmaArray(data);

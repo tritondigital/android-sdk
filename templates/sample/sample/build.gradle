@@ -5,7 +5,7 @@ android {
     buildToolsVersion "28.0.3"
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -28,9 +28,10 @@ repositories {
     }
 }
 dependencies {
-    compile(name: "$TRITON_SDK", ext:'aar')
-    implementation 'com.google.android.gms:play-services-base:17.5.0'
-    implementation 'com.google.android.gms:play-services-cast:19.0.0'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.12.3'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.12.3'
+    api(name: "$TRITON_SDK", ext:'aar')
+    api 'com.google.android.gms:play-services-base:17.5.0'
+    api 'com.google.android.gms:play-services-cast:19.0.0'
+    api 'com.google.android.gms:play-services-analytics:17.0.0'
+    api 'com.google.android.exoplayer:exoplayer-core:2.15.0'
+    api 'com.google.android.exoplayer:exoplayer-hls:2.15.0'
 }

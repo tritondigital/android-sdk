@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.Format;
 import com.google.android.gms.cast.CastMediaControlIntent;
 
 
@@ -40,7 +41,7 @@ import java.util.List;
  */
 public abstract class TritonPlayerActivity extends AppCompatActivity implements
         MediaPlayer.OnCuePointReceivedListener, MediaPlayer.OnStateChangedListener,
-        MediaPlayer.OnInfoListener, View.OnClickListener, MediaPlayer.OnMetaDataReceivedListener {
+        MediaPlayer.OnInfoListener, View.OnClickListener, MediaPlayer.OnMetaDataReceivedListener, MediaPlayer.OnAnalyticsReceivedListener {
 
     protected static final String IMAGE_URI = "http://mobileapps.streamtheworld.com/android/tritondigital_tritonradio/icon_512.png";
 
@@ -169,6 +170,12 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
             stopPlayer();
         } else if (id == R.id.button_reset) {
             reset();
+        } else if (id == R.id.button_forward)  {
+            seek(5000);
+        } else if (id == R.id.button_rewind)  {
+            seek(-5000);
+        } else if (id == R.id.button_live)  {
+            seek(0);
         }
     }
 
@@ -235,6 +242,12 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public void onAnalyticsReceivedListener(MediaPlayer player, Format format) {
+        if (mTritonPlayer == player) {
+            Log.i(TAG,"The streaming format changed to:" + format.toString());
+        }
+    }
 
     @Override
     public void onStateChanged(MediaPlayer player, int state) {
@@ -265,6 +278,9 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
         releasePlayer();
     }
 
+    protected void seek(int seconds){
+        mTritonPlayer.seek(seconds);
+    }
 
     protected void startPlayer() {
         // Recreate player
@@ -305,6 +321,7 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
         mTritonPlayer.setOnMetaDataReceivedListener(this);
         mTritonPlayer.setOnInfoListener(this);
         mTritonPlayer.setOnStateChangedListener(this);
+        mTritonPlayer.setOnAnalyticsReceivedListener(this);
     }
 
 

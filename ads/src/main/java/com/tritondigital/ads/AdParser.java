@@ -24,6 +24,15 @@ class AdParser {
     private Bundle mAd;
     private static final String TAG = Log.makeTag("AdParser");
 
+    private static int getIntAttribute(XmlPullParser parser, String attribute) {
+        String valStr = parser.getAttributeValue(null, attribute);
+
+        try {
+            return Integer.parseInt(valStr);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
 
     /**
      * Parse the provided input stream.
@@ -36,8 +45,7 @@ class AdParser {
             parser.setInput(in, null);
             parser.nextTag();
             String elementName = parser.getName();
-            if(!TextUtils.isEmpty(elementName))
-            {
+            if (!TextUtils.isEmpty(elementName)) {
                 mAd.putString(Ad.FORMAT, elementName);
             }
             readDaastOrVast(parser);
@@ -60,6 +68,8 @@ class AdParser {
                 elementName = parser.getName();
                 if ((elementName != null) && elementName.equals("Ad")) {
                     readAd(parser);
+                } else if ((elementName != null) && elementName.equals("Error")) {
+                    readErrorTag(parser);
                 } else {
                     XmlPullParserUtil.skip(parser);
                 }
@@ -81,8 +91,7 @@ class AdParser {
                     readInline(parser);
                 } else if (elementName.equals("Wrapper")) {
                     readWrapper(parser);
-                }
-                else {
+                } else {
                     XmlPullParserUtil.skip(parser);
                 }
             }
@@ -407,8 +416,7 @@ class AdParser {
                         banner.putInt(Ad.HEIGHT, height);
                         banner.putString(Ad.URL, url);
                     }
-                }
-                else if ((elementName != null) && elementName.equals("HTMLResource")){
+                } else if ((elementName != null) && elementName.equals("HTMLResource")) {
                     String html = XmlPullParserUtil.readText(parser);
                     if (html != null) {
                         banner = new Bundle();
@@ -416,8 +424,15 @@ class AdParser {
                         banner.putInt(Ad.HEIGHT, height);
                         banner.putString(Ad.HTML, html);
                     }
+                } else if ((elementName != null) && elementName.equals("StaticResource")) {
+                    String url = XmlPullParserUtil.readText(parser);
+                    if (url != null) {
+                        banner = new Bundle();
+                        banner.putInt(Ad.WIDTH, width);
+                        banner.putInt(Ad.HEIGHT, height);
+                        banner.putString(Ad.URL, url);
                 }
-                else {
+                } else {
                     XmlPullParserUtil.skip(parser);
                 }
             }
@@ -436,13 +451,17 @@ class AdParser {
         mAd.putString(Ad.VAST_AD_TAG, vastAdTag);
     }
 
-    private static int getIntAttribute(XmlPullParser parser, String attribute) {
-        String valStr = parser.getAttributeValue(null, attribute);
-
-        try {
-            return Integer.parseInt(valStr);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+    /**
+     * Reads the "Error" tag.
+     */
+    private void readErrorTag(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, null, "Error");
+        String errorTag = XmlPullParserUtil.readText(parser);
+        if (errorTag != null && !errorTag.isEmpty()) {
+            errorTag = errorTag.replace("[TD_DURATION]", "0");
+            errorTag = errorTag.replace("[ERRORCODE]", "202");
+            mAd.putString(Ad.ERROR_URL, errorTag);
+    }
+       
     }
 }

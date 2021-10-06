@@ -60,6 +60,8 @@ public final class Ad {
     /** _String _ - URI element in VAST Wrapper  */
     public static final String VAST_AD_TAG = "VASTAdTagURI";
 
+    /** _String_ - The main creative's URL */
+    public static final String ERROR_URL = "error_url";
     private Ad(){}
 
     /**

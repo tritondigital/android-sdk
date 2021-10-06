@@ -7,6 +7,10 @@ public final class PlayerConsts {
 
     /** _String_ - Authentication token */
     public static final String AUTH_TOKEN  = "auth_token";
+    public static final String AUTH_KEY_ID  = "auth_key_id";
+    public static final String AUTH_SECRET_KEY  = "auth_secret_key";
+    public static final String AUTH_REGISTERED_USER  = "auth_registered_user";
+    public static final String AUTH_USER_ID  = "auth_user_id";
 
     /**
      * _HashMap<String, String>_ - Advertising targeting parameters.
@@ -66,6 +70,8 @@ public final class PlayerConsts {
     /** TTags */
     public static final String TTAGS = "ttags";
 
+    /** _Boolean_ - Enable timeshift (Default: false) */
+    public static final String TIMESHIFT_ENABLED = "timeshift_enabled";
 
     /** Force the disabling of the ExoPlayer */
     public static final String FORCE_DISABLE_EXOPLAYER = "ForceDisableExoPlayer";

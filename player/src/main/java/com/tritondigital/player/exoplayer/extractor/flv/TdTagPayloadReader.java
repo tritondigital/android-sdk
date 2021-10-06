@@ -4,9 +4,8 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
-/**
- * Created by mkabore on 27/10/2016.
- */
+import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA;
+
 
 /**
  * Extracts individual samples from FLV tags, preserving original order.
@@ -19,7 +18,7 @@ abstract class TdTagPayloadReader {
     public static final class UnsupportedFormatException extends ParserException {
 
         public UnsupportedFormatException(String msg) {
-            super(msg);
+            super(msg, null, false, DATA_TYPE_MEDIA);
         }
 
     }

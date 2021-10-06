@@ -32,6 +32,39 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/tritonApp_Seek_Controls"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/button_rewind"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onClick"
+            android:src="@drawable/ic_media_rewind" />
+
+        <ImageButton
+            android:id="@+id/button_forward"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_weight="1"
+            android:onClick="onClick"
+            android:src="@drawable/ic_media_fastforward" />
+
+        <Button
+            android:id="@+id/button_live"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="onClick"
+            android:text="Live" />
+
+    </LinearLayout>
 
     <TableLayout
         android:layout_width="match_parent"

@@ -4,8 +4,12 @@ import android.os.Bundle;
 import androidx.mediarouter.media.MediaItemMetadata;
 import android.widget.EditText;
 
+import com.tritondigital.player.StreamUrlBuilder;
 import com.tritondigital.player.TritonPlayer;
 import com.tritondigital.sdksample.R;
+import com.tritondigital.util.AuthUtil;
+
+import java.util.HashMap;
 
 
 /**
@@ -63,6 +67,8 @@ public class StationPlayerActivity extends TritonPlayerActivity {
         settings.putString(TritonPlayer.SETTINGS_STATION_MOUNT, mount);
         settings.putString(TritonPlayer.SETTINGS_STATION_BROADCASTER, BROADCASTER);
         settings.putString(TritonPlayer.SETTINGS_STATION_NAME, STATION_NAME);
+        settings.putString(TritonPlayer.SETTINGS_TRANSPORT, TritonPlayer.TRANSPORT_HLS);
+        settings.putBoolean(TritonPlayer.SETTINGS_TIMESHIFT_ENABLED, false);
 
         //settings.putBoolean(TritonPlayer.SETTINGS_FORCE_DISABLE_EXOPLAYER, true);
         //settings.putString(TritonPlayer.SETTINGS_TRANSPORT, TritonPlayer.TRANSPORT_HLS);

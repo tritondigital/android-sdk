@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter;
 import android.text.TextUtils;
 
+import com.google.android.exoplayer2.Format;
 import com.tritondigital.util.*;
 
 import java.util.HashMap;
@@ -26,6 +27,10 @@ import java.util.Map;
 public class StreamPlayer extends MediaPlayer {
 
     public static final String SETTINGS_AUTH_TOKEN                          = PlayerConsts.AUTH_TOKEN;
+    public static final String SETTINGS_AUTH_KEY_ID                         = PlayerConsts.AUTH_KEY_ID;
+    public static final String SETTINGS_AUTH_SECRET_KEY                     = PlayerConsts.AUTH_SECRET_KEY;
+    public static final String SETTINGS_AUTH_REGISTERED_USER                 = PlayerConsts.AUTH_REGISTERED_USER;
+    public static final String SETTINGS_AUTH_USER_ID                         = PlayerConsts.AUTH_USER_ID;
     public static final String SETTINGS_MEDIA_ITEM_METADATA                 = PlayerConsts.MEDIA_ITEM_METADATA;
     public static final String SETTINGS_STATION_MOUNT                       = PlayerConsts.STATION_MOUNT;
     public static final String SETTINGS_SBM_URL                             = PlayerConsts.SBM_URL;
@@ -271,6 +276,7 @@ public class StreamPlayer extends MediaPlayer {
             lowLevelPlayer.setOnCuePointReceivedListener(mInputCuePointListener);
             lowLevelPlayer.setOnMetaDataReceivedListener(mInputMetaDataListener);
             lowLevelPlayer.setOnStateChangedListener(mInputOnStateChangedListener);
+            lowLevelPlayer.setOnAnalyticsReceivedListener(mInputAnalyticsReceivedListener);
         }
     }
 
@@ -357,6 +363,14 @@ public class StreamPlayer extends MediaPlayer {
         }
     };
 
+    private final OnAnalyticsReceivedListener mInputAnalyticsReceivedListener = new OnAnalyticsReceivedListener() {
+        @Override
+        public void onAnalyticsReceivedListener(MediaPlayer player, Format format) {
+            if (player == mAndroidPlayer) {
+                notifyAnalytics(format);
+            }
+        }
+    };
 
     private final OnStateChangedListener mInputOnStateChangedListener = new OnStateChangedListener() {
         @Override
@@ -390,6 +404,20 @@ public class StreamPlayer extends MediaPlayer {
                     default:
                         Assert.failUnhandledValue(TAG, debugStateToStr(state), "mInputOnStateChangedListener");
                         break;
+                }
+
+                if(isSeekable())
+                {
+                   if(state == STATE_PLAYING)
+                   {
+                       //Google Analytics: track On demand Play success
+                       AnalyticsTracker.getTracker(getContext()).trackOnDemandPlaySuccess();
+                   }
+                   else if(state == STATE_ERROR)
+                   {
+                       //Google Analytics: track On demand Play Error
+                       AnalyticsTracker.getTracker(getContext()).trackOnDemandPlayError();
+                   }
                 }
             }
         }
