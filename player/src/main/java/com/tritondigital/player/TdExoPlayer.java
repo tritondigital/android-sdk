@@ -889,6 +889,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
             switch (playbackState) {
                 case ExoPlayer.STATE_IDLE:
                     //ignore
+                     notifyStateChanged(STATE_STOPPED);
                      break;
                 case ExoPlayer.STATE_BUFFERING:
                     notifyInfo(INFO_BUFFERING_START);
@@ -926,8 +927,13 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                     break;
 
                 case ExoPlayer.STATE_READY:
-                    notifyInfo(INFO_BUFFERING_COMPLETED);
-                    onPlaybackStarted();
+                    if (playWhenReady) {
+                        notifyInfo(INFO_BUFFERING_COMPLETED);
+                        onPlaybackStarted();
+                    } else {
+                        mExoPlayerLib.stop();
+                        notifyStateChanged(STATE_STOPPED, EVENT_PLAY_WHEN_READY_CHANGED);
+                    }
                     break;
 
                 case ExoPlayer.STATE_ENDED:

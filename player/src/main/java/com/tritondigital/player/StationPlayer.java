@@ -311,6 +311,9 @@ public class StationPlayer extends MediaPlayer
             }
 
             switch (state) {
+                case STATE_STOPPED:
+                    setState(STATE_STOPPED);
+                    break;
                 case STATE_PLAYING:
                     setState(STATE_PLAYING);
                     break;
