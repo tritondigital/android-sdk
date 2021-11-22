@@ -1,3 +1,7 @@
+3.2.1 - 2021/11/22
+- Add 'other' as a supported gender type.
+- Update the player state when the audio focus is lost.
+
 3.1.9 - 2021/10/06
 - Updated Google Play target API level to 30.
 - Call the error URL on an ondemand missed opportunity
