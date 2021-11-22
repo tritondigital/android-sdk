@@ -95,6 +95,8 @@ public final class StreamUrlBuilder {
     /** @copybrief GENDER_VALUE_FEMALE */
     public static final char GENDER_VALUE_MALE = 'm';
 
+    /** @copybrief GENDER_VALUE_OTHER */
+    public static final char GENDER_VALUE_OTHER = 'o';
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 5.2.3 Custom Segment ID Targeting
@@ -224,8 +226,8 @@ public final class StreamUrlBuilder {
      * /copydoc addQueryParameter(String, String)
      */
     public StreamUrlBuilder addQueryParameter(String key, char value) {
-        if (key.equals(GENDER) && (value != GENDER_VALUE_FEMALE) && (value != GENDER_VALUE_MALE)) {
-            Log.w(TAG, "Invalid \"" + key + "\" value: Can only be 'm' or 'f'.");
+        if (key.equals(GENDER) && (value != GENDER_VALUE_FEMALE) && (value != GENDER_VALUE_MALE) && (value != GENDER_VALUE_OTHER)) {
+            Log.w(TAG, "Invalid \"" + key + "\" value: Can only be 'm' or 'f' or 'o'.");
         }
 
         return addQueryParameter(key, String.valueOf(value));
