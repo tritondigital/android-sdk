@@ -53,6 +53,9 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_SEEK;
+import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
+import static com.google.android.exoplayer2.Player.STATE_IDLE;
 
 /**
  * Wraps Android's native player
