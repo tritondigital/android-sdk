@@ -407,7 +407,7 @@ public final class StreamUrlBuilder {
         uriBuilder.appendQueryParameter("tdsdk", "android-" + SdkUtil.VERSION);
 
         // Listener ID
-        uriBuilder.appendQueryParameter("uuid", TrackingUtil.getTrackingId(mContext));
+        uriBuilder.appendQueryParameter("lsid", TrackingUtil.getTrackingId(mContext));
 
 
         //Add pname
