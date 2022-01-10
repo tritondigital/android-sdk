@@ -31,7 +31,7 @@ public class StreamPlayerActivity extends TritonPlayerActivity implements SeekBa
     };
 
 
-    private static final String[] TRANSPORTS = {TritonPlayer.TRANSPORT_SC, TritonPlayer.TRANSPORT_FLV};
+    private static final String[] TRANSPORTS = { TritonPlayer.TRANSPORT_SC, TritonPlayer.TRANSPORT_HLS, TritonPlayer.TRANSPORT_FLV};
     private static final String[] MIME_TYPES = {TritonPlayer.MIME_TYPE_MPEG, TritonPlayer.MIME_TYPE_AAC};
 
     private Spinner mUrlSpinner;

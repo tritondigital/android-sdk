@@ -913,8 +913,10 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
 
                                 if (dPrebuffer < 10000) {
                                     Log.i(TAG, "ExoPlayer increasing prebuffer due to ExoLib buferring timeout, must reconnect");
+                                    if(mExoPlayerLib != null){
                                     mExoPlayerLib.release();
                                     mExoPlayerLib = null;
+                                    }
                                     play();
                                 } else {
                                     Log.i(TAG, "ExoPlayer resetting after 3 increases, must reconnect");

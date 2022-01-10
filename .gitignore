@@ -1,4 +1,5 @@
 .idea
+local.properties
 **/build/*
 /.gradle
 /released_modules/*idea

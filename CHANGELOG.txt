@@ -1,3 +1,6 @@
+3.2.2 - 2021/12/07
+- Check that the Exoplayer instance is not null before releasing it.
+
 3.2.1 - 2021/11/22
 - Add 'other' as a supported gender type.
 - Update the player state when the audio focus is lost.
