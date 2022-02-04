@@ -68,7 +68,7 @@ class Provisioning
     private static final String DOMAIN_NAME_PROD = "playerservices.streamtheworld.com";
     private static final String SERVER_PROD      = String.format("https://%s/api/livestream",DOMAIN_NAME_PROD);
     private static final String SERVER_HTTPS     = String.format("https://%s/api/livestream",DOMAIN_NAME_PROD);
-    private static final String VERSION          = "1.8";
+    private static final String VERSION          = "1.9";
     private static final String TAG              = Log.makeTag("Provisioning");
 
     public static final int ERROR_GEOBLOCK            = 453;
@@ -630,7 +630,7 @@ class Provisioning
                         // Ignoring non HTTP ports
                         String type = parser.getAttributeValue(null, "type");
                         String port = XmlPullParserUtil.readText(parser);
-                        if ("http".equals(type)) {
+                        if ("https".equals(type)) {
                             ports.add(port);
                         }
                     } else {

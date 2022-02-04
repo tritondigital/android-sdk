@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.analytics.PlaybackStatsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -40,7 +41,6 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.tritondigital.player.exoplayer.extractor.flv.TdDefaultExtractorsFactory;
 import com.tritondigital.player.exoplayer.extractor.flv.TdMetaDataListener;
@@ -623,9 +623,6 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
 
                 Log.i(TAG, "ExoPlayer URL: " +  streamUrl);
 
-                Uri uri = Uri.parse(streamUrl);
-
-
                 int timeout = dRebuffer + dBufferGaurd;
                 Log.i(TAG, "ExoPlayer buffer start: " +  dPrebuffer + " rebuffer: " + dRebuffer + " timeout: " + timeout);
 
@@ -667,8 +664,11 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                     // Produces DataSource instances through which media data is loaded.
                     DataSource.Factory dataSourceFactory;
                 if (streamUrl.startsWith("http")) {
-                        dataSourceFactory = new DefaultHttpDataSourceFactory(userAgent,null,DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
-                                DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, SETTINGS_ALLOW_CROSS_PROTOCOL_REDIRECT);
+                    dataSourceFactory = new DefaultHttpDataSource.Factory()
+                            .setUserAgent(userAgent)
+                            .setConnectTimeoutMs(DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS)
+                            .setReadTimeoutMs(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS)
+                            .setAllowCrossProtocolRedirects(SETTINGS_ALLOW_CROSS_PROTOCOL_REDIRECT);
                 } else {
                         dataSourceFactory = new DefaultDataSourceFactory(mContext,userAgent);
                     }
@@ -680,16 +680,20 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                     // This is the MediaSource representing the media to be played.
                 mExoPlayerLib.addAnalyticsListener(new AnalyticsListener() {
                     @Override
-                    public void onAudioInputFormatChanged(EventTime eventTime, Format format) {
+                    public void onAudioInputFormatChanged(EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
                         notifyAnalyticsChanged(format);
                     }
                 });
                     MediaSource audioSource;
+                Uri uri = Uri.parse(streamUrl);
                 if (PlayerConsts.TRANSPORT_HLS.equals(transport)) {
                     audioSource = new HlsMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_M3U8).build());
+                            .createMediaSource(new MediaItem.Builder().setUri(uri)
+                                    .setMimeType(MimeTypes.APPLICATION_M3U8)
+                                    .build());
                 } else {
-                        audioSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory).createMediaSource(new MediaItem.Builder().setUri(uri).build());
+                    audioSource =  new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
+                            .createMediaSource(new MediaItem.Builder().setUri(uri).build());
                     }
 
                 AudioAttributes audioAttributes = new AudioAttributes.Builder()
