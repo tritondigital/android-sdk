@@ -17,6 +17,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:exported="true"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,43 +27,51 @@
 
         <activity
             android:name=".ads.CustomAdsActivity"
+            android:exported="true"
             android:label="@string/custom_ads"
             android:windowSoftInputMode="stateHidden" />
 
         <activity
             android:name=".ads.InterstitialAdsActivity"
             android:label="@string/interstitial_ads"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden" />
 
         <activity
             android:name=".player.CuePointHistoryActivity"
+            android:exported="true"
             android:label="@string/cue_point_history"
             android:windowSoftInputMode="stateHidden" />
 
         <activity
             android:name=".player.StreamPlayerActivity"
+            android:exported="true"
             android:label="@string/stream_player"
             android:windowSoftInputMode="stateHidden" />
 
         <activity
             android:name=".player.SbmPlayerActivity"
+            android:exported="true"
             android:label="@string/sbm_player"
             android:windowSoftInputMode="stateHidden" />
 
         <activity
             android:name=".player.StationPlayerActivity"
+            android:exported="true"
             android:label="@string/station_player"
             android:windowSoftInputMode="stateHidden" />
 
         <activity
             android:name=".player.MultiStationsPlayerActivity"
+            android:exported="true"
             android:label="@string/multistations_player"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- Libraries -->
         <activity
             android:name="com.tritondigital.ads.InterstitialActivity"
+            android:exported="true"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
 
         <meta-data

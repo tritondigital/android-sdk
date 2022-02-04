@@ -79,10 +79,17 @@ class TdVideoTagPayloadReader  extends TdTagPayloadReader{
             AvcConfig avcConfig = AvcConfig.parse(videoSequence);
             nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
             // Construct and output the format.
-            Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
-                    Format.NO_VALUE, Format.NO_VALUE, avcConfig.width, avcConfig.height, Format.NO_VALUE,
-                    avcConfig.initializationData, Format.NO_VALUE, avcConfig.pixelWidthAspectRatio, null);
-            output.format(format);
+            Format.Builder builder = new Format.Builder()
+                    .setContainerMimeType(MimeTypes.VIDEO_H264)
+                    .setWidth(avcConfig.width)
+                    .setHeight(avcConfig.height)
+                    .setInitializationData(avcConfig.initializationData)
+                    .setPixelWidthHeightRatio(avcConfig.pixelWidthHeightRatio);
+
+//            Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
+//                    Format.NO_VALUE, Format.NO_VALUE, avcConfig.width, avcConfig.height, Format.NO_VALUE,
+//                    avcConfig.initializationData, Format.NO_VALUE, avcConfig.pixelWidthAspectRatio, null);
+            output.format(builder.build());
             hasOutputFormat = true;
         } else if (packetType == AVC_PACKET_TYPE_AVC_NALU) {
             // TODO: Deduplicate with Mp4Extractor.

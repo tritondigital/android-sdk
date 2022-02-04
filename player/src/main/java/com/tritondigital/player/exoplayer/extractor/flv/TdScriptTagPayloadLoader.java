@@ -98,6 +98,11 @@ public final class TdScriptTagPayloadLoader extends TdTagPayloadReader{
             //notify on metadata
             if(mMetaDataListener != null)
             {
+                if(timeUs == 0){
+                    try{
+                        Thread.sleep(100);
+                    }catch (InterruptedException ex){ }
+                }
                 mMetaDataListener.onMetaDataReceived(eventObject);
             }
         }

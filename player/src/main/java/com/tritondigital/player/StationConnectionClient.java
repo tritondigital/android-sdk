@@ -309,7 +309,7 @@ class StationConnectionClient {
             Bundle server = servers.get(mServerIdx);
             ports = server.getStringArrayList(Provisioning.Result.Server.PORTS);
 
-            final String baseUrl = "http://" + server.getString(Provisioning.Result.Server.HOST) + ':'
+                final String baseUrl = "https://" + server.getString(Provisioning.Result.Server.HOST) + ':'
                     + ports.get(mPortIdx) + '/' + mProvisioningResult.getString(Provisioning.Result.MOUNT);
 
             //

@@ -25,6 +25,6 @@ afterEvaluate{ project ->
             }
             into '../tdsdk/libs'
         }
-        extractAar(new File("tdsdk/libs/${project.name}-release.aar").getAbsolutePath())
+        extractAar(new File("$projectDir/../tdsdk/libs/${project.name}-release.aar").getAbsolutePath())
     }    
 }
