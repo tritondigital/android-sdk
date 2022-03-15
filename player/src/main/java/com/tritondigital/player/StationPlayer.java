@@ -318,6 +318,11 @@ public class StationPlayer extends MediaPlayer
                     setState(STATE_PLAYING);
                     break;
 
+                case STATE_PAUSED:{
+                    setState(STATE_STOPPED);
+                    stop();
+                    break;
+                }
                 case STATE_ERROR: {
                     int stationPlayerState = StationPlayer.this.getState();
 
