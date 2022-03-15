@@ -936,13 +936,11 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                     break;
 
                 case ExoPlayer.STATE_READY:
+                    //PlayWhenReady can change on audio focus loss or for example a pause.
                     if (playWhenReady) {
                         notifyInfo(INFO_BUFFERING_COMPLETED);
                         onPlaybackStarted();
-                    } else {
-                        mExoPlayerLib.stop();
-                        notifyStateChanged(STATE_STOPPED, EVENT_PLAY_WHEN_READY_CHANGED);
-                    }
+                    } 
                     break;
 
                 case ExoPlayer.STATE_ENDED:
@@ -954,6 +952,13 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
 
                     break;
 
+            }
+        }
+
+        @Override
+        public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+            if(reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS){
+                notifyStateChanged(STATE_PAUSED);
             }
         }
 
