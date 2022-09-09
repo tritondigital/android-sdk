@@ -10,7 +10,9 @@ import android.text.TextUtils;
 import com.google.android.exoplayer2.Format;
 import com.tritondigital.util.*;
 
+import org.json.JSONObject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -42,6 +44,7 @@ public class StreamPlayer extends MediaPlayer {
     public static final String SETTINGS_TRANSPORT                           = PlayerConsts.TRANSPORT;
     public static final String SETTINGS_LOW_DELAY                           = PlayerConsts.LOW_DELAY; //-1 (AUTO), 0 (DISABLED), 1 - 60 for seconds
     public static final String SETTINGS_TTAGS                               = PlayerConsts.TTAGS;
+    public static final String SETTINGS_DMP_SEGMENTS                        = PlayerConsts.DMP_SEGMENTS;
 
     private static  final String USE_EXOPLAYER                              ="UseExoPlayer";
 
@@ -105,6 +108,7 @@ public class StreamPlayer extends MediaPlayer {
         // Init Url Builder
         boolean locationTrackingEnabled = settings.getBoolean(SETTINGS_TARGETING_LOCATION_TRACKING_ENABLED);
         HashMap<String, String> params  = (HashMap<String, String>) settings.getSerializable(SETTINGS_TARGETING_PARAMS);
+        HashMap<String, List> dmpSegments  = (HashMap<String, List>) settings.getSerializable(SETTINGS_DMP_SEGMENTS);
         String authToken                = settings.getString(SETTINGS_AUTH_TOKEN);
 
         if (locationTrackingEnabled || (params != null) || !TextUtils.isEmpty(authToken) || isTritonUrl(streamUrl)) {

@@ -80,6 +80,8 @@ public final class PlayerConsts {
     public static final String PNAME     = "pname";
     public static final String PNAME_VAL = "TritonMobileSDK_Android";
 
+    /** Use when adding DMP Segment Headers */
+    public static final String DMP_SEGMENTS = "dmp_segments";
 
     /** Prefix used in the playerServices Url to target a specific provisioning service */
     public static final String PLAYER_SERVICES_REGION = "PlayerServicesRegion";

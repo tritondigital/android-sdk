@@ -37,6 +37,7 @@ public class StationPlayer extends MediaPlayer
     public static final String SETTINGS_LOW_DELAY                           = PlayerConsts.LOW_DELAY;
     public static final String SETTINGS_TTAGS                               = PlayerConsts.TTAGS;
     public static final String SETTINGS_TIMESHIFT_ENABLED                   = PlayerConsts.TIMESHIFT_ENABLED;
+    public static final String SETTINGS_DMP_SEGMENTS                        = PlayerConsts.DMP_SEGMENTS;
 
 
     private static final String TAG = Log.makeTag("StationPlayer");
@@ -212,6 +213,7 @@ public class StationPlayer extends MediaPlayer
                 String[] tTags                  = stationSettings.getStringArray(SETTINGS_TTAGS);
                 boolean disableExoPlayer        = stationSettings.getBoolean(PlayerConsts.FORCE_DISABLE_EXOPLAYER, false);
                 timeshiftEnabled        = stationSettings.getBoolean(PlayerConsts.TIMESHIFT_ENABLED, false);
+                Serializable dmpSegments        = stationSettings.getSerializable(SETTINGS_DMP_SEGMENTS);
 
                 streamSettings.putBoolean(StreamPlayer.SETTINGS_TARGETING_LOCATION_TRACKING_ENABLED, locationTrackingEnabled);
                 streamSettings.putSerializable(StreamPlayer.SETTINGS_TARGETING_PARAMS, targetingParams);
@@ -226,6 +228,7 @@ public class StationPlayer extends MediaPlayer
                 streamSettings.putInt(StreamPlayer.SETTINGS_LOW_DELAY, lowDelay);
                 streamSettings.putBoolean(PlayerConsts.FORCE_DISABLE_EXOPLAYER, disableExoPlayer);
                 streamSettings.putBoolean(PlayerConsts.TIMESHIFT_ENABLED, timeshiftEnabled);
+                streamSettings.putSerializable(StreamPlayer.SETTINGS_DMP_SEGMENTS, dmpSegments);
 
                 //update transport on stationSettings
                 String transport = streamSettings.getString(SETTINGS_TRANSPORT);

@@ -29,6 +29,7 @@ public abstract class AdsActivity extends AppCompatActivity implements View.OnCl
     private EditText     mStationEditText;
     private TextView     mAdRequestTextView;
     private TextView     mStatusView;
+    private TextView     mAdDuration;
     private RadioGroup   mAssetTypeRadioGroup;
     private RadioGroup   mTypeRadioGroup;
 
@@ -46,6 +47,7 @@ public abstract class AdsActivity extends AppCompatActivity implements View.OnCl
         mStationEditText     = (EditText) findViewById(R.id.editText_station);
         mAdRequestTextView   = (TextView) findViewById(R.id.textView_adRequest);
         mStatusView          = (TextView) findViewById(R.id.textView_status);
+        mAdDuration          = (TextView) findViewById(R.id.textView_adDuration);
         mAssetTypeRadioGroup = (RadioGroup) findViewById(R.id.radioGroup_assetType);
         mTypeRadioGroup      = (RadioGroup) findViewById(R.id.radioGroup_type);
 
@@ -75,6 +77,7 @@ public abstract class AdsActivity extends AppCompatActivity implements View.OnCl
     protected void reset() {
         mAdRequestTextView.setText(null);
         mStatusView.setText(null);
+        mAdDuration.setText(null);
         mStationEditText.setText(DEFAULT_STATION_ID);
         mHostEditText.setText(DEFAULT_HOST);
 
@@ -112,6 +115,11 @@ public abstract class AdsActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    protected void setAdDuration(String duration) {
+        if (mStatusView != null) {
+            mAdDuration.setText(duration);
+        }
+    }
 
     private String getHost() {
         return mHostEditText.getText().toString().trim();

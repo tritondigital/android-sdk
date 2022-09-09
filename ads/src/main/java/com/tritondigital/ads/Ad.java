@@ -28,7 +28,7 @@ public final class Ad {
     public static final String IMPRESSION_TRACKING_URLS = "impression_tracking_urls";
 
     /** _String_ - The main creative's duration in _HH:MM:SS.mmm_ or _HH:MM:SS_ format */
-    public static final String DURATION = "mime_type";
+    public static final String DURATION = "duration";
 
     /** _String_ - The main creative's MIME type */
     public static final String MIME_TYPE = "mime_type";
@@ -62,6 +62,9 @@ public final class Ad {
 
     /** _String_ - The main creative's URL */
     public static final String ERROR_URL = "error_url";
+
+    /** _String_ - Display the countdown timer on the interstitial ad */
+    public static final String ENABLE_COUNTDOWN_DISPLAY = "enable_countdown_display";
     private Ad(){}
 
     /**

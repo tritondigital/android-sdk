@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -22,9 +23,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import androidx.annotation.RequiresApi;
 import com.tritondigital.util.*;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -52,12 +57,15 @@ public final class InterstitialActivity extends Activity implements
     private FrameLayout.LayoutParams mWrapContentCenteredLayoutParam;
     private BannerView               mAudioAdBanner;
     private VideoView                mVideoView;
+    private TextView                 mAdDurationTextView;
+    private String                   mAdDuration;
 
     // Other
     private static final int[] BANNER_SIZES[] = {{320, 480}, {300, 300}, {300, 250}, {320, 50}, {300, 50}, {180, 150}};
     private static final String TAG = Log.makeTag("InterstitialActivity");
     private MediaPlayer  mAudioPlayer;
     private AudioManager mAudioManager;
+    private TimerTask    durationTimerTask;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -237,6 +245,9 @@ public final class InterstitialActivity extends Activity implements
         // Progress bar and close button
         addProgressBar(frameLayout);
         addCloseButton(frameLayout);
+        if(mAd.getBoolean(Ad.ENABLE_COUNTDOWN_DISPLAY,false)){
+            addCountdownTimer(frameLayout);
+        }
         setContentView(frameLayout, mMatchParentLayoutParam);
     }
 
@@ -372,6 +383,42 @@ public final class InterstitialActivity extends Activity implements
         parent.addView(closeBtn, wrapContentParam);
     }
 
+    /**
+     * Adds a ad duration countdown timer.
+     */
+    private void addCountdownTimer(FrameLayout parent) {
+        this.mAdDurationTextView = new TextView(this);
+        mAdDuration = mAd.getString(Ad.DURATION);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams( FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
+        parent.addView(mAdDurationTextView, params);
+    }
+
+    private void createAndStartAdCountdownTimer(){
+        if(mAd.getBoolean(Ad.ENABLE_COUNTDOWN_DISPLAY,false) &&  (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) ){
+            Timer durationTimer = new Timer();
+            durationTimerTask = new TimerTask() {
+
+                @Override
+                public void run() {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        if(mAdDuration != null && !mAdDuration.isEmpty()){
+                            LocalTime localTime = LocalTime.parse(mAdDuration);
+
+                            mAdDurationTextView.setText(Integer.toString(localTime.toSecondOfDay()));
+
+                            if (localTime.getSecond() <= 0){
+                                this.cancel();
+                            }
+
+                            mAdDuration = localTime.minusSeconds(1).toString();
+                        }
+                    }
+                }
+            };
+
+            durationTimer.schedule(durationTimerTask,0, 1000);
+        }
+    }
 
     /**
      * Locks the orientation to the ad's orientation.
@@ -399,6 +446,12 @@ public final class InterstitialActivity extends Activity implements
         mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
     }
 
+    private void stopCountdownTimerTask(){
+        if(durationTimerTask != null ){
+            durationTimerTask.cancel();
+            durationTimerTask = null;
+        }
+    }
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
@@ -409,6 +462,8 @@ public final class InterstitialActivity extends Activity implements
         } else if (mVideoView != null) {
             mVideoView.start();
         }
+
+        createAndStartAdCountdownTimer();
 
         // Track the impression
         Ad.trackImpression(mAd);
@@ -437,6 +492,7 @@ public final class InterstitialActivity extends Activity implements
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         mPlaybackFinished = true;
+        stopCountdownTimerTask();
         finishWithSuccess();
     }
 

@@ -1,3 +1,8 @@
+3.2.8 - 2022/09/09
+- Update to ExoPlayer 2.18.1
+- Add DMP Segment headers
+- Add ad countdown timer to the interstitial ad
+
 3.2.5 - 2022/03/15
 - Fix player state when the audio focus is lost.
 
