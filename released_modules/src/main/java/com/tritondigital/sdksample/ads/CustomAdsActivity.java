@@ -6,16 +6,23 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.VideoView;
 
+import androidx.annotation.RequiresApi;
 import com.tritondigital.ads.Ad;
 import com.tritondigital.ads.AdLoader;
 import com.tritondigital.ads.AdRequestBuilder;
 import com.tritondigital.sdksample.R;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -32,6 +39,8 @@ public class CustomAdsActivity extends AdsActivity implements
     private VideoView      mVideoView;
     private MediaPlayer    mAudioPlayer;
     private AdLoader       mAdLoader;
+    private String         adDuration;
+    private TimerTask      durationTimerTask;
 
 
     @Override
@@ -81,6 +90,9 @@ public class CustomAdsActivity extends AdsActivity implements
     protected void reset() {
         super.reset();
         clearAd();
+        if(durationTimerTask != null){
+            durationTimerTask.cancel();
+        }
     }
 
 
@@ -180,6 +192,8 @@ public class CustomAdsActivity extends AdsActivity implements
         try
         {
             setStatus("Start audio buffering");
+            adDuration = ad.getString(Ad.DURATION);
+            setAdDuration(adDuration);
 
             mAudioPlayer = new MediaPlayer();
             mAudioPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -199,6 +213,27 @@ public class CustomAdsActivity extends AdsActivity implements
             String mediaUrl = ad.getString(Ad.URL);
             mAudioPlayer.setDataSource(mediaUrl);
             mAudioPlayer.prepareAsync();
+            Timer durationTimer = new Timer();
+            durationTimerTask = new TimerTask() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void run() {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        LocalTime localTime = LocalTime.parse(adDuration).minusSeconds(1);
+
+
+                        adDuration = localTime.toString();
+                        setAdDuration(adDuration);
+
+                        if (localTime.getSecond() <= 0){
+                          this.cancel();
+                        }
+                    }
+
+                }
+            };
+
+            durationTimer.schedule(durationTimerTask,0, 1000);
         }
         catch (Exception e)
         {

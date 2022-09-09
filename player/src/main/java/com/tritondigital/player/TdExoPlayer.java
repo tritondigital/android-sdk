@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.analytics.PlaybackStatsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -39,6 +40,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -50,6 +52,8 @@ import com.tritondigital.util.Log;
 import com.tritondigital.util.NetworkUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_SEEK;
@@ -57,6 +61,7 @@ import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
 import static com.google.android.exoplayer2.Player.STATE_IDLE;
 
+import org.json.JSONObject;
 /**
  * Wraps Android's native player
  *
@@ -128,6 +133,11 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
      * @copybrief PlayerConsts.TARGETING_PARAMS
      */
     public static final String SETTINGS_TARGETING_PARAMS = PlayerConsts.TARGETING_PARAMS;
+
+    /**
+     * @copybrief PlayerConsts.DMP_SEGMENTS
+     */
+    public static final String SETTINGS_DMP_SEGMENTS = PlayerConsts.DMP_SEGMENTS;
     private static final int CALLBACK_CUE_POINT_RECEIVED = 60;
     private static final int CALLBACK_ON_INFO            = 61;
     private static final int CALLBACK_HANDLER_READY      = 62;
@@ -376,7 +386,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
     }
 
 
-    protected static class PlayerHandler extends Handler implements Player.EventListener {
+    protected static class PlayerHandler extends Handler implements Player.Listener {
 
         static final int ACTION_PAUSE           = 350;
         static final int ACTION_PLAY            = 351;
@@ -402,8 +412,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
         private int dPrebufferMultiplier = 1;
         private int lowDelay = 0;       
 
-        private SimpleExoPlayer mExoPlayerLib;
-        PlaybackStatsListener myPlaybackStatsListener;
+        private ExoPlayer mExoPlayerLib;
 
 
         private int   mDuration = DURATION_UNKNOWN;
@@ -651,27 +660,28 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                            .setAllocator(new DefaultAllocator(true, BUFFER_SEGMENT_SIZE,BUFFER_SEGMENTS))
                            .build();
 
-                mExoPlayerLib = new SimpleExoPlayer.Builder(mContext,defaultRenderersFactory)
+                mExoPlayerLib = new ExoPlayer.Builder(mContext,defaultRenderersFactory)
                         .setTrackSelector(trackSelector)
                         .setLoadControl(loadControl)
                         .setBandwidthMeter(bandwidthMeter)
                         .setWakeMode(C.WAKE_MODE_NETWORK)
                         .build();
 
-                mExoPlayerLib.setThrowsWhenUsingWrongThread(false);
+                mExoPlayerLib.setPlaybackParameters(PlaybackParameters.DEFAULT);
                     mExoPlayerLib.addListener(this);
 
                     // Produces DataSource instances through which media data is loaded.
                     DataSource.Factory dataSourceFactory;
                 if (streamUrl.startsWith("http")) {
+                    dataSourceFactory = createDefaultHttpDatasourceFactory(userAgent);
+                } else {
                     dataSourceFactory = new DefaultHttpDataSource.Factory()
                             .setUserAgent(userAgent)
                             .setConnectTimeoutMs(DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS)
                             .setReadTimeoutMs(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS)
                             .setAllowCrossProtocolRedirects(SETTINGS_ALLOW_CROSS_PROTOCOL_REDIRECT);
-                } else {
-                        dataSourceFactory = new DefaultDataSourceFactory(mContext,userAgent);
-                    }
+                
+                }
 
 
                     // Produces Extractor instances for parsing the media data.
@@ -698,7 +708,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
 
                 AudioAttributes audioAttributes = new AudioAttributes.Builder()
                         .setUsage(C.USAGE_MEDIA)
-                        .setContentType(C.CONTENT_TYPE_MUSIC)
+                        .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
                         .build();
 
                 mExoPlayerLib.setAudioAttributes(audioAttributes,true);
@@ -883,7 +893,34 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
             return false;
         }
 
+        private DataSource.Factory createDefaultHttpDatasourceFactory(String userAgent){
+            String dmpSegments = getDMPSegmentsJSONString();
+            if(dmpSegments == null){
+                return new DefaultHttpDataSource.Factory()
+                        .setUserAgent(userAgent)
+                        .setConnectTimeoutMs(DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS)
+                        .setReadTimeoutMs(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS)
+                        .setAllowCrossProtocolRedirects(SETTINGS_ALLOW_CROSS_PROTOCOL_REDIRECT);
+            }else{
+                Map<String, String> requestProperties = new HashMap<>();
+                requestProperties.put("X-DMP-Segment-IDs", dmpSegments);
 
+                return new DefaultHttpDataSource.Factory()
+                        .setUserAgent(userAgent)
+                        .setConnectTimeoutMs(DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS)
+                        .setReadTimeoutMs(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS)
+                        .setDefaultRequestProperties(requestProperties)
+                        .setAllowCrossProtocolRedirects(SETTINGS_ALLOW_CROSS_PROTOCOL_REDIRECT);
+            }
+        }
+        private String getDMPSegmentsJSONString(){
+            HashMap<String, List> dmpSegments  = (HashMap<String, List>) mSettings.getSerializable(SETTINGS_DMP_SEGMENTS);
+            if (dmpSegments != null){
+                return new JSONObject(dmpSegments).toString();
+            }
+
+            return null;
+        }
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
@@ -983,7 +1020,7 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
         }
 
         @Override
-        public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+        public void onTracksChanged(Tracks tracks) {
             Log.i(TAG, "ExoPlayer onTracksChanged()");
         }
 

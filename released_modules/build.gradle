@@ -39,8 +39,8 @@ dependencies {
     api 'com.google.android.gms:play-services-location:17.1.0'
     api 'androidx.mediarouter:mediarouter:1.2.1'
     api 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.16.1'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.16.1'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.1'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.18.1'
     implementation 'androidx.mediarouter:mediarouter:1.2.1'
 
 }

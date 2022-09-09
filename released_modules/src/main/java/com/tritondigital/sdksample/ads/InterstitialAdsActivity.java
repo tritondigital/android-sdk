@@ -4,8 +4,12 @@ import android.os.Bundle;
 
 import com.tritondigital.ads.AdRequestBuilder;
 import com.tritondigital.ads.Interstitial;
+import com.tritondigital.player.TritonPlayer;
 import com.tritondigital.sdksample.R;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Shows how to display an on-demand interstitial ad.
@@ -22,6 +26,7 @@ public class InterstitialAdsActivity extends AdsActivity implements
 
         mInterstitial = new Interstitial(this);
         mInterstitial.setListener(this);
+        mInterstitial.setEnableCountDownDisplay(true);
 
         if (savedInstanceState == null) {
             reset();

@@ -233,6 +233,9 @@ public final class TritonPlayer extends MediaPlayer {
 
     /** @copybrief PlayerConsts::TIMESHIFT */
     public static final String SETTINGS_TIMESHIFT_ENABLED = PlayerConsts.TIMESHIFT_ENABLED;
+
+    /** @copybrief PlayerConsts::DMP_SEGMENTS */
+    public static final String SETTINGS_DMP_SEGMENTS = PlayerConsts.DMP_SEGMENTS;
     private final MediaPlayer mPlayer;
 
     private AudioManager mAudioManager;

@@ -13,6 +13,8 @@ import com.tritondigital.util.HttpGetRequest;
 import com.tritondigital.util.Log;
 import com.tritondigital.util.NetworkUtil;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 
@@ -138,6 +140,7 @@ public final class Interstitial {
     private InterstitialListener mListener;
     private boolean mReleased;
     private boolean mActive;
+    private boolean mEnableCountDownDisplay = false;
 
 
     /**
@@ -181,6 +184,9 @@ public final class Interstitial {
         mListener = listener;
     }
 
+    public void setEnableCountDownDisplay(boolean mEnableCountDownDisplay) {
+        this.mEnableCountDownDisplay = mEnableCountDownDisplay;
+    }
 
     /**
      * Returns the interstitial listener
@@ -315,13 +321,23 @@ public final class Interstitial {
     /**
      * Shows an ad from an ad request
      */
-    public void showAd(AdRequestBuilder adRequestBuilder) {
+    public void showAd(AdRequestBuilder adRequestBuilder, Map<String, List<Integer>> dmpSegments) {
         if (mAdLoader != null) {
+            if(dmpSegments == null){
             mAdLoader.load(adRequestBuilder);
+            }else{
+                mAdLoader.load(adRequestBuilder,dmpSegments);
         }
 
     }
-
+        
+    }
+    /**
+     * Shows an ad from an ad request
+     */
+    public void showAd(AdRequestBuilder adRequestBuilder) {
+        showAd(adRequestBuilder,null);
+    }
 
     /**
      * Shows an ad from an ad request
@@ -370,6 +386,7 @@ public final class Interstitial {
 
         mActive = true;
 
+        ad.putBoolean(Ad.ENABLE_COUNTDOWN_DISPLAY, mEnableCountDownDisplay);
         // Adding a request code so we are able to filter the broadcasts sent by the activity this class has started.
         Intent intent = new Intent(mContext, InterstitialActivity.class);
         intent.putExtra(InterstitialActivity.EXTRA_AD, ad);

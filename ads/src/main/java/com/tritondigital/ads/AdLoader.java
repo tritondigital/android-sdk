@@ -7,12 +7,16 @@ import android.os.Bundle;
 import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
 
+import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -70,7 +74,7 @@ public final class AdLoader {
      * If this class is already loading an ad, it will be cancelled.
      */
     @TargetApi(11)
-    public void load(String adRequest) {
+    public void load(String adRequest, Map<String,List<Integer>> dmpSegments) {
         cancel();
 
         // Ignore null ad request.
@@ -84,7 +88,11 @@ public final class AdLoader {
 
         // Start VAST parsing
         Log.i(TAG, "Loading ad request: " + adRequest);
+        if(dmpSegments == null){
         mVastParsingTask = new VastParsingTask();
+        }else{
+            mVastParsingTask = new VastParsingTask(dmpSegments);
+        }
 
         if (android.os.Build.VERSION.SDK_INT < 11) {
             mVastParsingTask.execute(adRequest);
@@ -93,15 +101,41 @@ public final class AdLoader {
         }
     }
 
+    /**
+     * Load an ad request.
+     *
+     * If this class is already loading an ad, it will be cancelled.
+     */
+    @TargetApi(11)
+    public void load(String adRequest) {
+        load(adRequest, null);
+    }
+
 
     /**
      * Load an ad request from its builder.
      */
     public void load(AdRequestBuilder adRequestBuilder) {
+        load(adRequestBuilder,null);
         if (adRequestBuilder == null) {
             load((String) null);
         } else {
             load(adRequestBuilder.build());
+        }
+    }
+
+    /**
+     * Load an ad request from its builder with DMP Segments
+     */
+    public void load(AdRequestBuilder adRequestBuilder, Map<String, List<Integer>> dmpSegments) {
+        if (adRequestBuilder == null) {
+            load((String) null);
+        } else {
+            if(dmpSegments == null){
+                load(adRequestBuilder.build());
+            }else{
+                load(adRequestBuilder.build(), dmpSegments);
+            }
         }
     }
 
@@ -213,7 +247,14 @@ public final class AdLoader {
 
     private class VastParsingTask extends AsyncTask<String, Void, Bundle> {
         private volatile int mParseError;
+        private Map<String, List<Integer>> dmpSegments;
 
+        public VastParsingTask() {
+        }
+
+        public VastParsingTask(Map<String, List<Integer>> dmpSegments) {
+            this.dmpSegments = dmpSegments;
+        }
 
         @Override
         protected Bundle doInBackground(String... adRequests) {
@@ -227,6 +268,10 @@ public final class AdLoader {
                     if (adRequests[0].startsWith("http")) {
                         URL url = new URL(adRequests[0]);
                         HttpURLConnection urlConnection=(HttpURLConnection) url.openConnection();
+                        if(dmpSegments != null){
+                            JSONObject segments = new JSONObject(dmpSegments);
+                            urlConnection.setRequestProperty("X-DMP-Segment-IDs", segments.toString());
+                        }
                         is = new BufferedInputStream(urlConnection.getInputStream());
                     } else {
                         is = new ByteArrayInputStream(adRequests[0].getBytes());
