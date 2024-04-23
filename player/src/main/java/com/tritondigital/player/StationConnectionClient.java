@@ -381,8 +381,6 @@ class StationConnectionClient {
 
 
     interface Listener {
-        void onStationConnectionError(StationConnectionClient src, int errorCode);
-
         void onStationConnectionNextStream(StationConnectionClient src, Bundle streamSettings);
         }
 }

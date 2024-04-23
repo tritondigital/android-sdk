@@ -63,6 +63,9 @@ public class StationPlayer extends MediaPlayer
 
     private int originalSeekValue;
 
+    private static final String DOMAIN_NAME_PROD = "example.com";
+    private static final String DOMAIN_NAME_PREPROD = "example.prepord.net";
+
     /**
      * Constructor
      */
@@ -95,6 +98,7 @@ public class StationPlayer extends MediaPlayer
         }
 
         mConnectionClient.start();
+        }
     }
 
 
@@ -272,36 +276,6 @@ public class StationPlayer extends MediaPlayer
 
 
     final StationConnectionClient.Listener mConnectionClientListener = new StationConnectionClient.Listener() {
-        @Override
-        public void onStationConnectionError(StationConnectionClient src, int errorCode) {
-            setErrorState(errorCode);
-
-            //Google analytics  :track connection time
-            AnalyticsTracker tracker = AnalyticsTracker.getTracker(getContext());
-            long connectionTime      = tracker.stopTimer();
-            String mount = getSettings().getString(SETTINGS_STATION_MOUNT);
-            String broadcaster = getSettings().getString(SETTINGS_STATION_BROADCASTER);
-            switch (errorCode)
-            {
-                case ERROR_CONNECTION_FAILED:
-                    tracker.trackStreamingConnectionFailed(mount, broadcaster, connectionTime);
-                    break;
-                case ERROR_GEOBLOCKED:
-                    tracker.trackStreamingConnectionGeoBlocked(mount, broadcaster, connectionTime);
-                    break;
-                case ERROR_SERVICE_UNAVAILABLE:
-                    tracker.trackStreamingConnectionUnavailable(mount, broadcaster, connectionTime);
-                    break;
-                case ERROR_CONNECTION_TIMEOUT:
-                    tracker.trackStreamingConnectionFailed(mount, broadcaster, connectionTime);
-                    break;
-                case ERROR_NOT_FOUND:
-                    tracker.trackStreamingConnectionUnavailable(mount, broadcaster, connectionTime);
-                    break;
-            }
-        }
-
-
         @Override
         public void onStationConnectionNextStream(StationConnectionClient src, Bundle streamSettings) {
 
