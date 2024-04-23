@@ -1,13 +1,25 @@
 package com.tritondigital.sdksample.player;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import androidx.mediarouter.media.MediaItemMetadata;
-import android.widget.EditText;
 
+import android.os.Handler;
+import android.text.format.DateUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import com.tritondigital.player.MediaPlayer;
+import com.tritondigital.player.PlayerConsts;
 import com.tritondigital.player.StreamUrlBuilder;
 import com.tritondigital.player.TritonPlayer;
 import com.tritondigital.sdksample.R;
-import com.tritondigital.util.AuthUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 
@@ -18,14 +30,16 @@ import java.util.HashMap;
  * IMPORTANT: You must use your real broadcaster and station names when making an app in order to
  * maximise your advertising revenues.
  */
-public class StationPlayerActivity extends TritonPlayerActivity {
+public class StationPlayerActivity extends TritonPlayerActivity implements SeekBar.OnSeekBarChangeListener{
 
     // IMPORTANT: use your real values in your apps.
     private static final String BROADCASTER   = "TritonDigital";
     private static final String STATION_NAME  = "Sdk Sample";
     //private static final String DEFAULT_MOUNT = "S1_FLV_AAC";
     private static final String DEFAULT_MOUNT = "S1_HLS_AAC";
-
+    private static final int GREEN = Color.rgb(123, 232, 143);
+    private static final int RED = Color.rgb(240, 94, 84);
+    private Button         mProgramButton;
 
 
     private EditText mMountEditText;
@@ -35,6 +49,12 @@ public class StationPlayerActivity extends TritonPlayerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mMountEditText = (EditText) findViewById(R.id.editText_mount);
+        initSeekViews();
+        findViewById(R.id.button_pause).setOnClickListener(this);
+        findViewById(R.id.button_get_cloudstreaminfo).setOnClickListener(this);
+        findViewById(R.id.button_play_program).setOnClickListener(this);
+        mProgramButton = (Button) findViewById(R.id.button_play_program);
+        mProgramButton.setVisibility(View.GONE);
     }
 
 
@@ -50,6 +70,26 @@ public class StationPlayerActivity extends TritonPlayerActivity {
         mMountEditText.setText(DEFAULT_MOUNT);
     }
 
+    @Override
+    public void onClick(View v) {
+        super.onClick(v);
+        if (v.getId() == R.id.button_pause) {
+            pausePlayer();
+        }
+    }
+
+
+    @Override
+    protected void createPlayer() {
+        super.createPlayer();
+        mTritonPlayer.setOnCloudStreamInfoReceivedListener(this);
+    }
+
+    @Override
+    protected void startPlayer() {
+        super.startPlayer();
+        mProgramButton.setVisibility(View.GONE);
+    }
 
     @Override
     protected Bundle createPlayerSettings() {
@@ -88,7 +128,7 @@ public class StationPlayerActivity extends TritonPlayerActivity {
 
         // Add low delay setting
         //settings.putInt(TritonPlayer.SETTINGS_LOW_DELAY, -1); // Auto
-        //settings.putInt(TritonPlayer.SETTINGS_LOW_DELAY, 10); // 10 sec
+        settings.putInt(TritonPlayer.SETTINGS_LOW_DELAY, 10); // 10 sec
         //settings.putInt(TritonPlayer.SETTINGS_LOW_DELAY, 0);  // Disabled
 
         // Add TTags
@@ -106,6 +146,11 @@ public class StationPlayerActivity extends TritonPlayerActivity {
         return mMountEditText.getText().toString().trim();
     }
 
+    private void pausePlayer() {
+        if (mTritonPlayer != null) {
+            mTritonPlayer.pause();
+        }
+    }
 
     @Override
     protected void setInputEnabled(boolean enabled) {

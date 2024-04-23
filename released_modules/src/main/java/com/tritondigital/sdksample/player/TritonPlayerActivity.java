@@ -40,7 +40,7 @@ import java.util.List;
  * In a real application, you should use TritonPlayer from an Android service.
  */
 public abstract class TritonPlayerActivity extends AppCompatActivity implements
-        MediaPlayer.OnCuePointReceivedListener, MediaPlayer.OnStateChangedListener,
+        MediaPlayer.OnCuePointReceivedListener, MediaPlayer.OnStateChangedListener, MediaPlayer.OnCloudStreamInfoReceivedListener,
         MediaPlayer.OnInfoListener, View.OnClickListener, MediaPlayer.OnMetaDataReceivedListener, MediaPlayer.OnAnalyticsReceivedListener {
 
     protected static final String IMAGE_URI = "http://mobileapps.streamtheworld.com/android/tritondigital_tritonradio/icon_512.png";
@@ -54,6 +54,7 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
     private TextView       mPlayerTransportView;
     private ListView       mListView;
     private BannersWrapper mBannersWrapper;
+    private String         mProgramUniqueId;
 
     // Google Cast
     private MediaRouter        mMediaRouter;
@@ -171,11 +172,20 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
         } else if (id == R.id.button_reset) {
             reset();
         } else if (id == R.id.button_forward)  {
-            seek(5000);
+            seek(30000);
         } else if (id == R.id.button_rewind)  {
-            seek(-5000);
+            seek(-30000);
         } else if (id == R.id.button_live)  {
-            seek(0);
+            seekToLive();
+        } else if(v.getId() == R.id.button_get_cloudstreaminfo){
+            if(mTritonPlayer == null){
+                createPlayer();
+                mTritonPlayer.getCloudStreamInfo();
+            }else{
+                mTritonPlayer.getCloudStreamInfo();
+            }
+        } else if(v.getId() == R.id.button_play_program){
+           startProgram();
         }
     }
 
@@ -279,10 +289,20 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
     }
 
     protected void seek(int seconds){
-        mTritonPlayer.seek(seconds);
+        if(mTritonPlayer != null){
+             mTritonPlayer.seek(seconds);
+    	}
+
     }
 
-    protected void startPlayer() {
+    protected void seekToLive(){
+        if(mTritonPlayer != null){
+            mTritonPlayer.seekToLive();
+        }
+
+    }
+
+    protected void createPlayer() {
         // Recreate player
         Bundle playerSettings = (mTritonPlayer == null) ? null : mTritonPlayer.getSettings();
         Bundle inputSettings = createPlayerSettings();
@@ -295,8 +315,15 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
             releasePlayer();
             createPlayer(inputSettings);
         }
+    }
 
-        // Start the playback
+    protected void startProgram() {
+        createPlayer();
+        mTritonPlayer.playProgram(getmProgramUniqueId());
+    }
+
+    protected void startPlayer() {
+        createPlayer();
         mTritonPlayer.play();
     }
 
@@ -386,9 +413,23 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public void onCloudStreamInfoReceivedListener(MediaPlayer player, String cloudStreamInfo) {
+
+    }
 
     private String getCastApplicationID()
     {
         return this.getString(R.string.cast_application_id);
     }
+
+    public String getmProgramUniqueId() {
+        return mProgramUniqueId;
 }
+
+    public void setmProgramUniqueId(String mProgramUniqueId) {
+        this.mProgramUniqueId = mProgramUniqueId;
+    }
+}
+
+

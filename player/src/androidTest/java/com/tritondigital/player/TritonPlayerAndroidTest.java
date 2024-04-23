@@ -3,7 +3,10 @@ package com.tritondigital.player;
 import android.content.Context;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -90,9 +93,8 @@ public class TritonPlayerAndroidTest
         };
 
         //Verify Network is available
-        ConnectivityManager manager = (ConnectivityManager)TARGET_CONTEXT.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info            = manager.getActiveNetworkInfo();
-        assertTrue( info != null && info.isConnected() );
+
+        assertTrue( isNetworkAvailable() );
 
 
         //Wake up the device if it is on sleep mode

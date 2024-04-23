@@ -270,7 +270,7 @@ public final class Assert {
     }
 
     /**
-     * Asserts that an object is null. If it isn't an {@link AssertionError} is
+     * Asserts that an object is null. If it isn't an {@link AssertionFailedError} is
      * thrown.
      * Message contains: Expected: <null> but was: object
      *

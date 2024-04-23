@@ -25,6 +25,12 @@ public final class PlayerConsts {
     /** _String_ - Stream URL */
     public static final String STREAM_URL = "stream_url";
 
+    /** _String_ - Timeshift Stream URL */
+    public static final String TIMESHIFT_STREAM_URL = "timeshift_stream_url";
+
+    /** _String_ - Timeshift Programs Base URL */
+    public static final String TIMESHIFT_PROGRAM_URL = "timeshift_program_url";
+
     /** _String_ - Stream transport (TRANSPORT_FLV, TRANSPORT_HLS or TRANSPORT_SC) */
     public static final String TRANSPORT  = "transport";
 
@@ -83,10 +89,14 @@ public final class PlayerConsts {
     /** Use when adding DMP Segment Headers */
     public static final String DMP_SEGMENTS = "dmp_segments";
 
+
     /** Prefix used in the playerServices Url to target a specific provisioning service */
     public static final String PLAYER_SERVICES_REGION = "PlayerServicesRegion";
 
     static final String USER_AGENT = "user_agent";
+
+    /** The original seek value used for Timeshift */
+    public static final String ORIGINAL_SEEK_VALUE = "OriginalSeekValue";
 
     private PlayerConsts() {}
 }

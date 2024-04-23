@@ -8,6 +8,7 @@ import androidx.mediarouter.media.MediaItemMetadata;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -15,10 +16,10 @@ import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import com.tritondigital.player.MediaPlayer;
 import com.tritondigital.player.TritonPlayer;
 import com.tritondigital.sdksample.R;
-
 
 
 /**
@@ -34,9 +35,12 @@ public class StreamPlayerActivity extends TritonPlayerActivity implements SeekBa
     private static final String[] TRANSPORTS = { TritonPlayer.TRANSPORT_SC, TritonPlayer.TRANSPORT_HLS, TritonPlayer.TRANSPORT_FLV};
     private static final String[] MIME_TYPES = {TritonPlayer.MIME_TYPE_MPEG, TritonPlayer.MIME_TYPE_AAC};
 
+    private static final String[] SPEEDS = {"0.5", "1", "1.5", "2", "3", "4", "8"};
+
     private Spinner mUrlSpinner;
     private Spinner mTransportSpinner;
     private Spinner mMimeTypeSpinner;
+    private Spinner mSpeedSpinner;
 
 
     private void requestPermission(){
@@ -79,9 +83,24 @@ public class StreamPlayerActivity extends TritonPlayerActivity implements SeekBa
         mMimeTypeSpinner = (Spinner) findViewById(R.id.spinner_mimeType);
         mMimeTypeSpinner.setAdapter(mimeTypeAdapter);
 
+        // Init the Speed type spinner
+        ArrayAdapter<String> speedAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, SPEEDS);
+        speedAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpeedSpinner = (Spinner) findViewById(R.id.spinner_speed);
+        mSpeedSpinner.setAdapter(speedAdapter);
+        mSpeedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                changeSpeed(new Float(mSpeedSpinner.getSelectedItem().toString()));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
         findViewById(R.id.button_pause).setOnClickListener(this);
         initSeekViews();
-
     }
 
 
@@ -97,6 +116,7 @@ public class StreamPlayerActivity extends TritonPlayerActivity implements SeekBa
         mUrlSpinner.setSelection(0);
         mTransportSpinner.setSelection(0);
         mMimeTypeSpinner.setSelection(0);
+        mSpeedSpinner.setSelection(1);
         if(mPlayerLogView != null){
             mPlayerLogView.setText("");
         }
@@ -160,6 +180,12 @@ public class StreamPlayerActivity extends TritonPlayerActivity implements SeekBa
         }
     }
 
+    private void changeSpeed(Float speed){
+        if(mTritonPlayer != null){
+            mTritonPlayer.changeSpeed(speed);
+        }
+    }
+
 
     protected void releasePlayer() {
         super.releasePlayer();
@@ -215,7 +241,7 @@ public class StreamPlayerActivity extends TritonPlayerActivity implements SeekBa
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser && (mTritonPlayer != null)) {
-            mTritonPlayer.seekTo(progress);
+            mTritonPlayer.seekTo(progress, progress);
         }
     }
 
@@ -226,7 +252,6 @@ public class StreamPlayerActivity extends TritonPlayerActivity implements SeekBa
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {}
-
 
     // TODO: Stop updating the position when seeking.
     private void updatePosition() {

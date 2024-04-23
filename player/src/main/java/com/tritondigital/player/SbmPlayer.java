@@ -6,6 +6,8 @@ import android.os.Bundle;
 import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
 
+import org.json.JSONObject;
+
 import java.util.UUID;
 
 
@@ -172,15 +174,26 @@ public final class SbmPlayer extends MediaPlayer {
         }
     }
 
+    @Override
+    public boolean isTimeshiftStreaming() {
+        return false;
+    }
 
     @Override
     protected void internalPlay() {
+       internalPlay(false);
+    }
+
+    @Override
+    protected void internalPlay(boolean timeshiftStreaming ) {
         setState(STATE_CONNECTING);
 
         // Recreating a new client every time so we don't have to wait for
         // the previous client to be ready to start a new connection.
-        String url = getSettings().getString(SETTINGS_SBM_URL);
-        mSseClient = new SbmSseClient(url, mSseClientListener);
+        if(!timeshiftStreaming){
+        	String url = getSettings().getString(SETTINGS_SBM_URL);
+      		mSseClient = new SbmSseClient(url, mSseClientListener);
+    	}
     }
 
 
@@ -197,6 +210,19 @@ public final class SbmPlayer extends MediaPlayer {
         setState(STATE_RELEASED);
     }
 
+    @Override
+    protected void internalChangeSpeed(Float speed) {
+
+    }
+
+    @Override
+    protected void internalGetCloudStreamInfo() {
+    }
+
+    @Override
+    protected void internalPlayProgram(String programId) {
+
+    }
 
     // TODO: add a delay
     private void recoverError() {
@@ -292,7 +318,7 @@ public final class SbmPlayer extends MediaPlayer {
     protected void internalPause() {}
 
     @Override
-    protected void internalSeekTo(int position) {}
+    protected void internalSeekTo(int position, int original) {}
 
     @Override
     public boolean isPausable() { return false; }

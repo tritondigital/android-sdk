@@ -1,7 +1,9 @@
 package com.tritondigital.player;
 
 import android.content.Context;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter;
@@ -10,7 +12,6 @@ import android.text.TextUtils;
 import com.google.android.exoplayer2.Format;
 import com.tritondigital.util.*;
 
-import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,8 @@ public class StreamPlayer extends MediaPlayer {
     public static final String SETTINGS_STREAM_MIME_TYPE                    = PlayerConsts.MIME_TYPE;
     public static final String SETTINGS_STREAM_POSITION                     = PlayerConsts.POSITION;
     public static final String SETTINGS_STREAM_URL                          = PlayerConsts.STREAM_URL;
+    public static final String SETTINGS_TIMESHIFT_STREAM_URL                = PlayerConsts.TIMESHIFT_STREAM_URL;
+    public static final String SETTINGS_TIMESHIFT_PROGRAM_URL         = PlayerConsts.TIMESHIFT_PROGRAM_URL ;
     public static final String SETTINGS_TRANSPORT                           = PlayerConsts.TRANSPORT;
     public static final String SETTINGS_LOW_DELAY                           = PlayerConsts.LOW_DELAY; //-1 (AUTO), 0 (DISABLED), 1 - 60 for seconds
     public static final String SETTINGS_TTAGS                               = PlayerConsts.TTAGS;
@@ -60,14 +63,16 @@ public class StreamPlayer extends MediaPlayer {
     private boolean               mSeekableCache;
     private boolean               mBuffering;
     private int                   mRestorePosition;
+    private boolean               timeshiftStreaming = false;
 
     /**
      * Constructor
      */
     @SuppressWarnings("unchecked")
-    public StreamPlayer(@NonNull Context context, @NonNull Bundle settings) {
+    public StreamPlayer(@NonNull Context context, @NonNull Bundle settings, boolean isTimeshiftStreaming) {
         super(context, settings);
 
+        this.timeshiftStreaming = isTimeshiftStreaming;
         // Validate the URL
         String streamUrl = settings.getString(SETTINGS_STREAM_URL);
         if (streamUrl == null) {
@@ -109,6 +114,7 @@ public class StreamPlayer extends MediaPlayer {
         boolean locationTrackingEnabled = settings.getBoolean(SETTINGS_TARGETING_LOCATION_TRACKING_ENABLED);
         HashMap<String, String> params  = (HashMap<String, String>) settings.getSerializable(SETTINGS_TARGETING_PARAMS);
         HashMap<String, List> dmpSegments  = (HashMap<String, List>) settings.getSerializable(SETTINGS_DMP_SEGMENTS);
+
         String authToken                = settings.getString(SETTINGS_AUTH_TOKEN);
 
         if (locationTrackingEnabled || (params != null) || !TextUtils.isEmpty(authToken) || isTritonUrl(streamUrl)) {
@@ -118,8 +124,11 @@ public class StreamPlayer extends MediaPlayer {
 
             // Append the targeting params to those contained in the provided URL
             if (params != null) {
+                updateDistParam(params);
                 for (Map.Entry<String, String> entry : params.entrySet()) {
-                    mUrlBuilder.addQueryParameter(entry.getKey(), entry.getValue());
+                    if(!entry.getKey().equalsIgnoreCase(StreamUrlBuilder.DIST_TIMESHIFT)){
+                    	mUrlBuilder.addQueryParameter(entry.getKey(), entry.getValue());
+                    }
                 }
             }
 
@@ -133,11 +142,26 @@ public class StreamPlayer extends MediaPlayer {
         mLowLevelPlayerSettings = new Bundle(settings);
     }
 
+    @Override
+    public boolean isTimeshiftStreaming() {
+        return this.timeshiftStreaming;
+    }
 
     @Override
     protected void internalPlay() {
+       internalPlay(false);
+    }
+
+    @Override
+    protected void internalPlay(boolean timeshiftStreaming ) {
+        this.timeshiftStreaming = timeshiftStreaming;
         setState(STATE_CONNECTING);
-        String streamUrl = getSettings().getString(SETTINGS_STREAM_URL);
+        String streamUrl = null;
+        if(mSettings.containsKey(SETTINGS_TIMESHIFT_PROGRAM_URL)){
+            streamUrl = mSettings.getString(SETTINGS_TIMESHIFT_PROGRAM_URL);
+        }else{
+            streamUrl = (timeshiftStreaming) ? mSettings.getString(SETTINGS_TIMESHIFT_STREAM_URL) : mSettings.getString(SETTINGS_STREAM_URL);
+        }
 
         // Network error check
         if (streamUrl.startsWith("http") && !NetworkUtil.isNetworkConnected(getContext())) {
@@ -146,12 +170,12 @@ public class StreamPlayer extends MediaPlayer {
         }
 
         // Create the low level player if needed
-        createLowLevelPlayerIfNeeded();
+        createLowLevelPlayerIfNeeded(timeshiftStreaming, streamUrl);
         acquireWifiLock();
 
         // Start the playback
-        if      (mAndroidPlayer != null) { mAndroidPlayer.play(); }
-        else if (mRemotePlayer  != null) { mRemotePlayer.play(); }
+        if      (mAndroidPlayer != null) { mAndroidPlayer.play(timeshiftStreaming); }
+        else if (mRemotePlayer  != null) { mRemotePlayer.play(timeshiftStreaming); }
         else {
             Assert.fail(TAG, "A low level player should exist");
         }
@@ -173,6 +197,10 @@ public class StreamPlayer extends MediaPlayer {
         verifySeekableChanged();
     }
 
+    @Override
+    protected void internalChangeSpeed(Float speed) {
+        if      (mAndroidPlayer != null) { mAndroidPlayer.internalChangeSpeed(speed); }
+    }
 
     @Override
     protected void internalRelease() {
@@ -180,13 +208,25 @@ public class StreamPlayer extends MediaPlayer {
         setState(STATE_RELEASED);
     }
 
-
     @Override
-    protected void internalSeekTo(int position) {
-        if      (mAndroidPlayer != null) { mAndroidPlayer.seekTo(position); }
-        else if (mRemotePlayer  != null) { mRemotePlayer.seekTo(position); }
+    protected void internalSeekTo(int position, int original) {
+        if      (mAndroidPlayer != null) { mAndroidPlayer.seekTo(position, original); }
+        else if (mRemotePlayer  != null) { mRemotePlayer.seekTo(position, original); }
     }
 
+    @Override
+    protected void internalGetCloudStreamInfo() {
+        if (mAndroidPlayer != null) {
+            mAndroidPlayer.internalGetCloudStreamInfo();
+        }
+    }
+
+    @Override
+    protected void internalPlayProgram(String programId) {
+        if (mAndroidPlayer != null) {
+            mAndroidPlayer.internalPlayProgram(programId);
+        }
+    }
 
     @Override
     public int getDuration() {
@@ -243,11 +283,17 @@ public class StreamPlayer extends MediaPlayer {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     private void createLowLevelPlayerIfNeeded() {
+        createLowLevelPlayerIfNeeded(false, null);
+    }
+    private void createLowLevelPlayerIfNeeded(boolean timeshiftStreaming, String streamUrl) {
+        this.timeshiftStreaming = timeshiftStreaming;
         if ((mAndroidPlayer == null) && (mRemotePlayer == null)) {
 
             // Initial position
             mLowLevelPlayerSettings.putInt(SETTINGS_STREAM_POSITION, mRestorePosition);
-
+            if(streamUrl != null && mUrlBuilder != null){
+                mUrlBuilder.setHost(streamUrl);
+            }
             // Update the stream URL
             if (mUrlBuilder != null) {
                 String sbmId = createSbmPlayerIfNeeded();
@@ -262,7 +308,12 @@ public class StreamPlayer extends MediaPlayer {
                     newUrl = newUrl + "&ttag=" + allTtags;
                 }
 
+                if(timeshiftStreaming){
+                    mLowLevelPlayerSettings.putString(SETTINGS_TIMESHIFT_STREAM_URL, newUrl);
+                }else{
                 mLowLevelPlayerSettings.putString(SETTINGS_STREAM_URL, newUrl);
+            }
+
             }
 
             MediaPlayer lowLevelPlayer;
@@ -281,6 +332,7 @@ public class StreamPlayer extends MediaPlayer {
             lowLevelPlayer.setOnMetaDataReceivedListener(mInputMetaDataListener);
             lowLevelPlayer.setOnStateChangedListener(mInputOnStateChangedListener);
             lowLevelPlayer.setOnAnalyticsReceivedListener(mInputAnalyticsReceivedListener);
+            lowLevelPlayer.setOnCloudStreamInfoReceivedListener(mInputProgramsReceivedListened);
         }
     }
 
@@ -376,6 +428,15 @@ public class StreamPlayer extends MediaPlayer {
         }
     };
 
+    private final OnCloudStreamInfoReceivedListener mInputProgramsReceivedListened = new OnCloudStreamInfoReceivedListener() {
+        @Override
+        public void onCloudStreamInfoReceivedListener(MediaPlayer player, String cloudStreamInfo) {
+            if (player == mAndroidPlayer){
+                notifyCloudStreamInfo(cloudStreamInfo);
+            }
+        }
+    };
+
     private final OnStateChangedListener mInputOnStateChangedListener = new OnStateChangedListener() {
         @Override
         public void onStateChanged(MediaPlayer player, int state) {
@@ -388,7 +449,7 @@ public class StreamPlayer extends MediaPlayer {
                         break;
 
                     case STATE_PLAYING:
-                        startSbmPlayer();
+                        startSbmPlayer(timeshiftStreaming);
                         setState(state);
                         break;
 
@@ -452,8 +513,12 @@ public class StreamPlayer extends MediaPlayer {
 
         if (!TextUtils.isEmpty(sbmUrl)) {
             char argPrefix = sbmUrl.contains("?") ? '&' : '?';
+            if(sbmUrl.contains("sbmid=")){
+                sbmId = Uri.parse(sbmUrl).getQueryParameter("sbmid");
+            }else{
             sbmId = SbmPlayer.generateSbmId();
             sbmUrl += argPrefix + "sbmid=" + sbmId;
+            }
 
             Bundle sbmPlayerSettings = new Bundle();
             sbmPlayerSettings.putString(SbmPlayer.SETTINGS_SBM_URL, sbmUrl);
@@ -464,9 +529,9 @@ public class StreamPlayer extends MediaPlayer {
         return sbmId;
     }
 
-    private void startSbmPlayer() {
+    private void startSbmPlayer(boolean timeshiftStreaming) {
         if (mSbmPlayer != null) {
-            mSbmPlayer.play();
+            mSbmPlayer.play(timeshiftStreaming);
         }
     }
 
@@ -506,6 +571,21 @@ public class StreamPlayer extends MediaPlayer {
             internalStop();
             if (getRequestedAction() == REQUESTED_ACTION_PLAY) {
                 play();
+            }
+        }
+    }
+
+    private void updateDistParam(HashMap<String, String> params){
+        if(this.timeshiftStreaming && params.containsKey(StreamUrlBuilder.DIST_TIMESHIFT)){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                params.put(StreamUrlBuilder.DIST_BACKUP, params.getOrDefault(StreamUrlBuilder.DIST, "triton-dist"));
+            }
+            params.put(StreamUrlBuilder.DIST, params.get(StreamUrlBuilder.DIST_TIMESHIFT));
+        }
+
+        if(!this.timeshiftStreaming){
+            if(params.containsKey(StreamUrlBuilder.DIST_BACKUP)){
+                params.put(StreamUrlBuilder.DIST, params.get(StreamUrlBuilder.DIST_BACKUP));
             }
         }
     }

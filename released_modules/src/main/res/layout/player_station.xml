@@ -24,6 +24,73 @@
             android:imeOptions="actionDone" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/button_get_cloudstreaminfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get Cloud Stream Info" />
+
+    <Button
+        android:id="@+id/button_play_program"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Play Program" />
+
+
+    <RelativeLayout
+        android:id="@+id/view_seekable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/button_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_media_pause" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/button_pause"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="4dp"
+            android:layout_toRightOf="@id/button_pause" />
+
+        <TextView
+            android:id="@+id/textView_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/button_pause"
+            android:layout_marginLeft="4dp"
+            android:layout_toRightOf="@id/button_pause" />
+
+        <TextView
+            android:id="@+id/textView_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/button_pause"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="4dp" />
+    </RelativeLayout>
+
     <include layout="@layout/player" />
 
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/textView_cloudStreamInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp" />
+        </TableRow>
+    </TableLayout>
 </LinearLayout>

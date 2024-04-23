@@ -112,6 +112,7 @@ final class TdAudioTagPayloadReader extends TdTagPayloadReader{
                         .setChannelCount(config.channelCount)
                         .setSampleRate(config.sampleRateHz)
                         .build();
+
                 output.format(format);
                 hasOutputFormat = true;
             } else if (packetType == AAC_PACKET_TYPE_AAC_RAW) {
@@ -125,6 +126,7 @@ final class TdAudioTagPayloadReader extends TdTagPayloadReader{
         {
             if ( !hasOutputFormat )
             {
+
                 // It's an MP3, set the media format once.
                 Format format = new Format.Builder().setId(null)
                         .setLanguage(null)
@@ -139,6 +141,7 @@ final class TdAudioTagPayloadReader extends TdTagPayloadReader{
                         .setChannelCount(channels)
                         .setSampleRate(AUDIO_MP3_SAMPLING_RATE_TABLE[sampleRateIndex])
                         .build();
+
                 output.format(format);
 
                 hasOutputFormat = true;

@@ -8,6 +8,7 @@ import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
 
 import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -94,6 +95,7 @@ public final class AdLoader {
             mVastParsingTask = new VastParsingTask(dmpSegments);
         }
 
+
         if (android.os.Build.VERSION.SDK_INT < 11) {
             mVastParsingTask.execute(adRequest);
         } else {
@@ -117,6 +119,7 @@ public final class AdLoader {
      */
     public void load(AdRequestBuilder adRequestBuilder) {
         load(adRequestBuilder,null);
+
         if (adRequestBuilder == null) {
             load((String) null);
         } else {
@@ -136,6 +139,7 @@ public final class AdLoader {
             }else{
                 load(adRequestBuilder.build(), dmpSegments);
             }
+
         }
     }
 
@@ -272,6 +276,7 @@ public final class AdLoader {
                             JSONObject segments = new JSONObject(dmpSegments);
                             urlConnection.setRequestProperty("X-DMP-Segment-IDs", segments.toString());
                         }
+
                         is = new BufferedInputStream(urlConnection.getInputStream());
                     } else {
                         is = new ByteArrayInputStream(adRequests[0].getBytes());

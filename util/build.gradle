@@ -1,3 +1,7 @@
+plugins {
+    id 'com.google.gms.google-services'
+}
+
 apply plugin: 'com.android.library'
 apply from: '../export_aar.gradle'
 
@@ -18,10 +22,12 @@ android {
     }
     packagingOptions {
         exclude 'LICENSE.txt'
+        exclude 'META-INF/INDEX.LIST'
     }
     lintOptions {
         abortOnError false
     }
+
     useLibrary 'android.test.runner'
 
     useLibrary 'android.test.base'
@@ -29,11 +35,12 @@ android {
 }
 
 dependencies {
+    implementation "androidx.core:core:1.10.1"
     api fileTree(include: ['*.jar'], dir: 'libs')
     api 'com.google.android.gms:play-services-base:17.5.0'
     api 'com.google.android.gms:play-services-analytics:17.0.0'
 
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test:rules:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'org.hamcrest:hamcrest-library:2.2'

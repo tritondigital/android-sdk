@@ -53,6 +53,7 @@ class Provisioning
         public static final String MIME_TYPE    = PlayerConsts.MIME_TYPE;
         public static final String MOUNT        = PlayerConsts.STATION_MOUNT;
         public static final String MOUNT_SUFFIX = "mount_suffix";
+        public static final String TIMESHIFT_MOUNT_SUFFIX     = "timeshift_mount_suffix";
         public static final String SBM_SUFFIX   = "sbm_suffix";
         public static final String TRANSPORT    = PlayerConsts.TRANSPORT;
         public static final String ALTERNATE_URL    = "alternate_url";
@@ -68,7 +69,7 @@ class Provisioning
     private static final String DOMAIN_NAME_PROD = "playerservices.streamtheworld.com";
     private static final String SERVER_PROD      = String.format("https://%s/api/livestream",DOMAIN_NAME_PROD);
     private static final String SERVER_HTTPS     = String.format("https://%s/api/livestream",DOMAIN_NAME_PROD);
-    private static final String VERSION          = "1.9";
+    private static final String VERSION          = "1.10";
     private static final String TAG              = Log.makeTag("Provisioning");
 
     public static final int ERROR_GEOBLOCK            = 453;
@@ -83,7 +84,7 @@ class Provisioning
     private String     mUserAgent;
     private String     mPlayerServicesPrefix;
     private ParserTask mParserTask;
-
+    private boolean     cloudStreaming = false;
 
     /**
      * Sets the transport. Fallback to TRANSPORT_HLS if the provided transport isn't available
@@ -92,6 +93,14 @@ class Provisioning
     public void setMount(String mount, String transport) {
         mMount = mount;
         setPreferedTransport(transport);
+    }
+
+    /**
+     * Sets the transport. Fallback to TRANSPORT_HLS if the provided transport isn't available
+     * on the current device.
+     */
+    public void setCloudStreaming(boolean cloudStreaming) {
+        this.cloudStreaming = cloudStreaming;
     }
 
 
@@ -521,11 +530,17 @@ class Provisioning
                         String elementName = parser.getName();
                         if ("transport".equals(elementName)) {
                             String mountSuffix = parser.getAttributeValue(null, "mountSuffix");
+                            String timeshift = parser.getAttributeValue(null, "timeshift");
                             if (mountSuffix != null) {
                                 String transport = XmlPullParserUtil.readText(parser);
-                                if ("hls".equals(transport)) {
-                                    outProvisioningBundle.putString(Result.TRANSPORT, transport);
-                                    outProvisioningBundle.putString(Result.MOUNT_SUFFIX, mountSuffix);
+                                if( timeshift != null && timeshift.equalsIgnoreCase("true")){
+                                    outProvisioningBundle.putString(Result.TRANSPORT, "hls");
+                                    outProvisioningBundle.putString(Result.TIMESHIFT_MOUNT_SUFFIX, mountSuffix);
+                                }else{
+		                     if ("hls".equals(transport)) {
+		                          outProvisioningBundle.putString(Result.TRANSPORT, transport);
+		                            outProvisioningBundle.putString(Result.MOUNT_SUFFIX, mountSuffix);
+		                     }
                                 }
                             } else {
                                 XmlPullParserUtil.skip(parser);
@@ -539,7 +554,6 @@ class Provisioning
                 XmlPullParserUtil.skip(parser);
             }
         }
-
 
         private void readMetadata(XmlPullParser parser, Bundle outProvisioningBundle) throws XmlPullParserException, IOException {
             parser.require(XmlPullParser.START_TAG, null, "metadata");

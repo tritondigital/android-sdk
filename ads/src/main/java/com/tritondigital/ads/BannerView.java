@@ -405,8 +405,9 @@ public class BannerView extends FrameLayout {
         }
 
         String bannerUrl = banner.getString(Ad.URL);
+        String companionClickUrl = banner.getString(Ad.COMPANION_CLICK_THROUGH_URL); 
         if ( bannerUrl != null )
-            loadUrl(bannerUrl);
+            loadUrl(bannerUrl, companionClickUrl);
         else {
             String bannerHtml = banner.getString(Ad.HTML);
             if ( bannerHtml != null )
@@ -484,6 +485,7 @@ public class BannerView extends FrameLayout {
 
     }
 
+
     ///////////////////////////////////////////////////////////////////////////
     // Web view
     ///////////////////////////////////////////////////////////////////////////
@@ -511,9 +513,8 @@ public class BannerView extends FrameLayout {
     }
 
 
-    private void loadUrl(String url) {
-        createWebViewIfNeeded(url);
-
+    private void loadUrl(String url, String companionClick) {
+        createWebViewIfNeeded(url, companionClick);
         if (mWebViewClient != null) {
             mWebViewClient.loadBanner(url);
         }
@@ -522,7 +523,7 @@ public class BannerView extends FrameLayout {
 
     private void loadHTML(String html) {
         // Create the webview
-        createWebViewIfNeeded("http");
+        createWebViewIfNeeded("http", "");
 
         if (mWebViewClient != null) {
            // mWebView
@@ -540,6 +541,7 @@ public class BannerView extends FrameLayout {
             } else {
                 newHTML = html;
             }
+            
             mWebViewClient.loadHTML(newHTML);
 
         }
@@ -548,7 +550,7 @@ public class BannerView extends FrameLayout {
 
     @TargetApi(11)
     @SuppressLint({"SetJavaScriptEnabled"})
-    private void createWebViewIfNeeded(String bannerUrl) {
+    private void createWebViewIfNeeded(String bannerUrl, String companionClickUrl) {
         if ((mWebView == null) && (bannerUrl != null) && bannerUrl.startsWith("http")) {
             mWebView = new WebView(getContext());
             mWebView.setFocusable(false);
@@ -577,6 +579,21 @@ public class BannerView extends FrameLayout {
             } else {
                 CookieManager.getInstance().setAcceptCookie(true);
             }
+    
+            // Add OnTouchListener to intercept touch events
+            mWebView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        if (companionClickUrl != null) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(companionClickUrl));
+                            getContext().startActivity(browserIntent);
+                        }
+                    }
+                    return false; // Return false to allow the event to propagate
+                }
+            });
+    
             addView(mWebView, mLayoutParams);
         }
     }

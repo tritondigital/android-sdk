@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.annotation.RequiresApi;
+
 import com.tritondigital.util.*;
 
 import java.time.LocalTime;
@@ -248,6 +249,7 @@ public final class InterstitialActivity extends Activity implements
         if(mAd.getBoolean(Ad.ENABLE_COUNTDOWN_DISPLAY,false)){
             addCountdownTimer(frameLayout);
         }
+
         setContentView(frameLayout, mMatchParentLayoutParam);
     }
 

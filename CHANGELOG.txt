@@ -1,3 +1,17 @@
+3.3.9 - 2024/04/23
+- Fix the error reconnection loop.
+- Added the ability to change the speed of a podcast.
+- Multi Listener ID
+- Android 14 Register Receiver Error
+- Remove Google Analytics
+- Add more error codes
+- Timeshift updates
+- Fix Expplayer NullPointerException.
+- Implement Timeshift.
+- Do not stop stream when muted.
+- Start the stream with the volume button if it was muted.
+- Play downloaded podcasts from storage.
+
 3.2.8 - 2022/09/09
 - Update to ExoPlayer 2.18.1
 - Add DMP Segment headers

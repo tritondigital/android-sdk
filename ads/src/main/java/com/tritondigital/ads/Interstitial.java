@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+
+import androidx.core.content.ContextCompat;
 
 import com.tritondigital.ads.AdLoader.AdLoaderListener;
 import com.tritondigital.util.Assert;
@@ -222,6 +225,7 @@ public final class Interstitial {
         }
     }
 
+
     private void onStarted() {
         mActive = true;
 
@@ -240,7 +244,12 @@ public final class Interstitial {
         playerFilter.addAction(InterstitialActivity.ACTION_CLOSED);
         playerFilter.addAction(InterstitialActivity.ACTION_ERROR);
         playerFilter.addAction(InterstitialActivity.ACTION_FINISHED);
+        if (Build.VERSION.SDK_INT >= 34) {
+            mContext.registerReceiver(
+                    mReceiver, playerFilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
         mContext.registerReceiver(mReceiver, playerFilter);
+    	}
     }
 
 
@@ -262,6 +271,7 @@ public final class Interstitial {
                     case InterstitialActivity.ACTION_FINISHED:
                         onFinished();
                         break;
+
                     case InterstitialActivity.ACTION_ERROR:
                         int error = intent.getIntExtra(InterstitialActivity.EXTRA_ERROR_CODE, ERROR_UNKNOWN);
                         onError(error);
@@ -332,6 +342,7 @@ public final class Interstitial {
     }
         
     }
+
     /**
      * Shows an ad from an ad request
      */
@@ -356,7 +367,8 @@ public final class Interstitial {
     public void showAd(Bundle ad) {
         int error = 0;
         if ((ad == null) || ad.isEmpty() || (ad.getString(Ad.URL) == null)) {
-            String errorUrl = ad.getString(Ad.ERROR_URL);
+            String errorUrl = ad != null ? ad.getString(Ad.ERROR_URL) : null;
+
             error = ERROR_NO_INVENTORY;
             if (errorUrl != null && !errorUrl.isEmpty()) {
                 if (errorUrl.startsWith("http")) {
