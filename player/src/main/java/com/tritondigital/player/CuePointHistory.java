@@ -66,6 +66,11 @@ public final class CuePointHistory {
     private static final String TAG = Log.makeTag("CuePointHistory");
     private static final int MIN_REQUEST_TIME   = 15000;
 
+    private static final String SERVER_PROD    = "https://np.example.com";
+    private static final String SERVER_HTTPS   = "https://np.example.com";
+    private static final String SERVER_PREPROD = "https://example.preprod01.net";
+    private static final String SERVER_DEV     = "https://example.dev:8082";
+
     // User set values
     private String             mServer = SERVER_PROD;
     private final List<String> mCueTypeFilter = new ArrayList<>();

@@ -99,6 +99,19 @@ public abstract class MediaPlayer {
          */
         void onAnalyticsReceivedListener(MediaPlayer player, Format format);
     }
+    
+    /**
+     * Callback for receiving timeshift programs event.
+     */
+    public interface OnCloudStreamInfoReceivedListener {
+        /**
+         * Called when a player has received stream analytics.
+         *
+         * @param player    Source where this event comes from
+         * @param cloudStreamInfo    Received Format
+         */
+        void onCloudStreamInfoReceivedListener(MediaPlayer player, String cloudStreamInfo);
+    }
     /** Error code indicating an error in the OS player or Google Cast */
     public static final int ERROR_LOW_LEVEL_PLAYER_ERROR = 210;
 

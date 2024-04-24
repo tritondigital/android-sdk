@@ -108,7 +108,6 @@ public class StationPlayerActivity extends TritonPlayerActivity implements SeekB
         settings.putString(TritonPlayer.SETTINGS_STATION_BROADCASTER, BROADCASTER);
         settings.putString(TritonPlayer.SETTINGS_STATION_NAME, STATION_NAME);
         settings.putString(TritonPlayer.SETTINGS_TRANSPORT, TritonPlayer.TRANSPORT_HLS);
-        settings.putBoolean(TritonPlayer.SETTINGS_TIMESHIFT_ENABLED, false);
 
         //settings.putBoolean(TritonPlayer.SETTINGS_FORCE_DISABLE_EXOPLAYER, true);
         //settings.putString(TritonPlayer.SETTINGS_TRANSPORT, TritonPlayer.TRANSPORT_HLS);
@@ -156,4 +155,128 @@ public class StationPlayerActivity extends TritonPlayerActivity implements SeekB
     protected void setInputEnabled(boolean enabled) {
         mMountEditText.setEnabled(enabled);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Seek views
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    private Handler mHandler = new Handler();
+
+    private View mSeekableContainer;
+    private TextView mDurationTextView;
+    private TextView mPositionTextView;
+    private SeekBar mPositionSeekBar;
+
+
+    @Override
+    public void onInfo(MediaPlayer player, int info, int extra) {
+        super.onInfo(player, info, extra);
+
+        if (mTritonPlayer == player) {
+            if (info == MediaPlayer.INFO_SEEKABLE_CHANGED) {
+                updateSeekable();
+            }
+
+            if(mTritonPlayer.isTimeshiftStreaming()){
+                findViewById(R.id.button_live).setBackgroundColor(RED);
+                ((Button)findViewById(R.id.button_live)).setText("BACK TO LIVE");
+            }else{
+                findViewById(R.id.button_live).setBackgroundColor(GREEN);
+                ((Button)findViewById(R.id.button_live)).setText("LIVE");
+            }
+        }
+    }
+
+    private void initSeekViews() {
+        mSeekableContainer = findViewById(R.id.view_seekable);
+        mDurationTextView  = (TextView) mSeekableContainer.findViewById(R.id.textView_duration);
+        mPositionTextView  = (TextView) mSeekableContainer.findViewById(R.id.textView_position);
+        mPositionSeekBar   = (SeekBar) mSeekableContainer.findViewById(R.id.seekBar);
+        mPositionSeekBar.setOnSeekBarChangeListener(this);
+    }
+
+
+    private void updateSeekable() {
+        if ((mTritonPlayer != null) && mTritonPlayer.isSeekable() && mTritonPlayer.isTimeshiftStreaming()) {
+            mSeekableContainer.setVisibility(View.VISIBLE);
+            mHandler.removeCallbacks(mPositionPollingRunnable);
+            mHandler.post(mPositionPollingRunnable);
+        } else {
+            mSeekableContainer.setVisibility(View.GONE);
+            mHandler.removeCallbacks(mPositionPollingRunnable);
+            updatePosition();
+        }
+    }
+
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (fromUser && (mTritonPlayer != null)) {
+            mTritonPlayer.seekTo(progress,progress);
+        }
+    }
+
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {}
+
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {}
+
+    @Override
+    public void onCloudStreamInfoReceivedListener(MediaPlayer player, String cloudStreamInfo) {
+        if(!cloudStreamInfo.isEmpty()){
+            try {
+                JSONObject jsonObject = new JSONObject(cloudStreamInfo);
+                if(jsonObject.has("error")){
+                    ((TextView)findViewById(R.id.textView_playerInfo)).setText(jsonObject.getString("error"));
+                }else{
+                    JSONObject programs = jsonObject.getJSONObject("programs");
+                    JSONObject props = programs.getJSONObject("properties");
+                    setmProgramUniqueId(programs.getString("program_episode_id"));
+                    mProgramButton.setText("Play Program: " + props.getString("program_title") );
+                    mProgramButton.setVisibility(View.VISIBLE);
+                }
+
+
+            } catch (JSONException e) {
+                ((TextView)findViewById(R.id.textView_playerInfo)).setText("No program information available.");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // TODO: Stop updating the position when seeking.
+    private void updatePosition() {
+        if (mPositionTextView == null) {
+            return;
+        }
+
+        if ((mTritonPlayer == null) || (mTritonPlayer.getDuration() <= 0)) {
+            mPositionTextView.setText(null);
+            mDurationTextView.setText(null);
+            mPositionSeekBar.setProgress(0);
+        } else {
+            int position = mTritonPlayer.getPosition();
+            int duration = mTritonPlayer.getDuration();
+
+            // Update text
+            mPositionTextView.setText(DateUtils.formatElapsedTime(mDateFormatBuffer, (position / 1000)));
+            mDurationTextView.setText(DateUtils.formatElapsedTime(mDateFormatBuffer, (duration / 1000)));
+
+            // Update progress bar
+            mPositionSeekBar.setProgress(position);
+            mPositionSeekBar.setMax(duration);
+            mPositionSeekBar.setVisibility((duration > 0) ? View.VISIBLE : View.INVISIBLE);
+        }
+    }
+
+
+    private final Runnable mPositionPollingRunnable = new Runnable() {
+        @Override
+        public void run() {
+            updatePosition();
+            mHandler.postDelayed(this, 800);
+        }
+    };
 }

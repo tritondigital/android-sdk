@@ -47,7 +47,6 @@ public class StationPlayer extends MediaPlayer
     public static final String SETTINGS_MEDIA_ITEM_METADATA                 = PlayerConsts.MEDIA_ITEM_METADATA;
     public static final String SETTINGS_LOW_DELAY                           = PlayerConsts.LOW_DELAY;
     public static final String SETTINGS_TTAGS                               = PlayerConsts.TTAGS;
-    public static final String SETTINGS_TIMESHIFT_ENABLED                   = PlayerConsts.TIMESHIFT_ENABLED;
     public static final String SETTINGS_DMP_SEGMENTS                        = PlayerConsts.DMP_SEGMENTS;
 
 
@@ -334,6 +333,11 @@ public class StationPlayer extends MediaPlayer
 
                 mLiveStreamingUrl = mStreamPlayer.getSettings().getString(StreamPlayer.SETTINGS_STREAM_URL);
             }
+        }
+
+        @Override
+        public void onStationConnectionError(StationConnectionClient src, int errorCode) {
+            //TODO
         }
     };
 
