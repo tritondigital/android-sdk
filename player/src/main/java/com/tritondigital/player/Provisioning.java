@@ -66,9 +66,7 @@ class Provisioning
         }
     }
 
-    private static final String DOMAIN_NAME_PROD = "exampleProdserver.com";
-    private static final String SERVER_DEV       = "https://example.Dev.server/api/livestream";
-    private static final String SERVER_PREPROD   = "https://example.Preprod.server/api/livestream";
+    private static final String DOMAIN_NAME_PROD = "playerservices.streamtheworld.com";
     private static final String SERVER_PROD      = String.format("https://%s/api/livestream",DOMAIN_NAME_PROD);
     private static final String SERVER_HTTPS     = String.format("https://%s/api/livestream",DOMAIN_NAME_PROD);
     private static final String VERSION          = "1.10";
@@ -187,9 +185,7 @@ class Provisioning
 
         if (suffix != null) {
             switch (suffix) {
-                case ".preprod": serverUrl = SERVER_PREPROD; break;
                 case ".https":   serverUrl = SERVER_HTTPS;   break;
-                case ".dev":     serverUrl = SERVER_DEV;     break;
                 default:         serverUrl = SERVER_PROD;    break;
             }
         }
