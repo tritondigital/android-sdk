@@ -1,9 +1,10 @@
 package com.tritondigital.player;
 
+
 import android.text.TextUtils;
+
 import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaRouteSelector;
-
 
 import java.util.Locale;
 

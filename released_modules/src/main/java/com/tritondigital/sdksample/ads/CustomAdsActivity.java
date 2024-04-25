@@ -14,10 +14,12 @@ import android.widget.LinearLayout;
 import android.widget.VideoView;
 
 import androidx.annotation.RequiresApi;
+
 import com.tritondigital.ads.Ad;
 import com.tritondigital.ads.AdLoader;
 import com.tritondigital.ads.AdRequestBuilder;
 import com.tritondigital.sdksample.R;
+
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;

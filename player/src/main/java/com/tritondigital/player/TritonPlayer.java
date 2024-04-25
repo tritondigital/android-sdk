@@ -1,18 +1,16 @@
 package com.tritondigital.player;
 
+import static android.content.Context.AUDIO_SERVICE;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.mediarouter.media.MediaRouter;
 import android.text.TextUtils;
-
+import androidx.mediarouter.media.MediaRouter;
 import com.google.android.exoplayer2.Format;
 import com.tritondigital.util.Log;
 import com.tritondigital.util.TrackingUtil;
-
-import static android.content.Context.AUDIO_SERVICE;
 
 /**
  * Plays a station provided by Triton Digital or an on-demand stream.
@@ -231,16 +229,12 @@ public final class TritonPlayer extends MediaPlayer {
     /** @copybrief PlayerConsts::PLAYER_SERVICES_REGION */
     public static final String SETTINGS_PLAYER_SERVICES_REGION = PlayerConsts.PLAYER_SERVICES_REGION;
 
-    /** @copybrief PlayerConsts::TIMESHIFT */
-    public static final String SETTINGS_TIMESHIFT_ENABLED = PlayerConsts.TIMESHIFT_ENABLED;
-
     /** @copybrief PlayerConsts::DMP_SEGMENTS */
     public static final String SETTINGS_DMP_SEGMENTS = PlayerConsts.DMP_SEGMENTS;
+
     private final MediaPlayer mPlayer;
 
     private AudioManager mAudioManager;
-
-    private SettingsContentObserver     mSettingsContentObserver;
 
 
 
@@ -264,7 +258,7 @@ public final class TritonPlayer extends MediaPlayer {
         } else if (!TextUtils.isEmpty(mount)) {
             mPlayer = new StationPlayer(context, settings);
         } else if (!TextUtils.isEmpty(streamUrl)) {
-            mPlayer = new StreamPlayer(context, settings);
+            mPlayer = new StreamPlayer(context, settings, false);
         } else {
             throw new IllegalArgumentException("\"settings.SETTINGS_STATION_MOUNT\" or \"settings.SETTINGS_STREAM_URL\" must be set");
         }
@@ -274,13 +268,9 @@ public final class TritonPlayer extends MediaPlayer {
         mPlayer.setOnInfoListener(mInOnInfoListener);
         mPlayer.setOnStateChangedListener(mInOnStateChangedListener);
         mPlayer.setOnAnalyticsReceivedListener(mInAnalyticsReceivedListener);
+        mPlayer.setOnCloudStreamInfoReceivedListener(mOnCloudStreamInfoReceivedListener);
 
         mAudioManager = (AudioManager)context.getSystemService(AUDIO_SERVICE);
-
-        mSettingsContentObserver = new SettingsContentObserver( new Handler() );
-        context.getApplicationContext().getContentResolver().registerContentObserver(
-                android.provider.Settings.System.CONTENT_URI, true,
-                mSettingsContentObserver );
     }
 
 
@@ -298,6 +288,9 @@ public final class TritonPlayer extends MediaPlayer {
     public int getLastErrorCode() { return mPlayer.getLastErrorCode(); }
 
     @Override
+    public boolean isTimeshiftStreaming() { return mPlayer.isTimeshiftStreaming(); }
+
+    @Override
     public int getPosition() { return mPlayer.getPosition(); }
 
     @Override
@@ -309,12 +302,19 @@ public final class TritonPlayer extends MediaPlayer {
     @Override
     public float getVolume() { return mPlayer.getVolume(); }
 
+    public MediaPlayer getMediaPlayer() { return mPlayer; }
+
     @Override
     protected void internalPause() { mPlayer.pause();
     }
 
     @Override
     protected void internalPlay() {
+      internalPlay(false);
+    }
+
+    @Override
+    protected void internalPlay( boolean timeshiftStreaming ) {
         checkVolume();
         mPlayer.play();
     }
@@ -323,10 +323,15 @@ public final class TritonPlayer extends MediaPlayer {
     protected void internalRelease() { mPlayer.release(); }
 
     @Override
-    protected void internalSeekTo(int position) { mPlayer.seekTo(position); }
+    protected void internalSeekTo(int position, int original) { mPlayer.seekTo(position, original); }
 
     @Override
     protected void internalStop() { mPlayer.stop(); }
+
+    @Override
+    protected void internalChangeSpeed(Float speed) {
+        mPlayer.internalChangeSpeed(speed);
+    }
 
     @Override
     public boolean isSeekable() { return mPlayer.isSeekable(); }
@@ -343,6 +348,15 @@ public final class TritonPlayer extends MediaPlayer {
     @Override
     protected boolean isEventLoggingEnabled() { return true; }
 
+    @Override
+    protected void internalGetCloudStreamInfo() {
+        mPlayer.internalGetCloudStreamInfo();
+    }
+
+    @Override
+    protected void internalPlayProgram(String programId) {
+        mPlayer.playProgram(programId);
+    }
 
     /**
      * Sets the <a href="http://developer.android.com/reference/android/support/v7/media/MediaRouter.RouteInfo.html">media route</a> to use for the current player instance.
@@ -430,6 +444,13 @@ public final class TritonPlayer extends MediaPlayer {
         @Override
         public void onAnalyticsReceivedListener(MediaPlayer player, Format format) {
             notifyAnalytics(format);
+        }
+    };
+
+    private final OnCloudStreamInfoReceivedListener mOnCloudStreamInfoReceivedListener = new OnCloudStreamInfoReceivedListener() {
+        @Override
+        public void onCloudStreamInfoReceivedListener(MediaPlayer player, String cloudStreamInfo) {
+            notifyCloudStreamInfo(cloudStreamInfo);
         }
     };
 

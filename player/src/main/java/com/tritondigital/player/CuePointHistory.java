@@ -26,48 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-
-/**
- * Requests the cue point history from Triton's servers.
- *
- * @par Restrictions
- *  - The same history will be returned for request faster than 15 seconds.
- *  - The data provided by this class is not sync with the stream.
- *  - Some streams are configured to return only CuePoint.CUE_TYPE_VALUE_TRACK.
- *
- * @par Example
- * @code{.java}
- *      public class SongHistoryExample extends Activity implements CuePointHistoryListener
- *      {
- *          private CuePointHistory mCuePointHistory;
- *
- *
- *          protected void onCreate(Bundle savedInstanceState) {
- *              super.onCreate(savedInstanceState);
- *
- *              // Init the cue point history object
- *              mCuePointHistory = new CuePointHistory();
- *              mCuePointHistory.setListener(this);
- *              mCuePointHistory.setCueTypeFilter(CuePoint.CUE_TYPE_VALUE_TRACK);
- *              mCuePointHistory.setMaxItems(10);
- *              mCuePointHistory.setMount("MOBILEFM");
- *
- *              // Request the track history
- *              mCuePointHistory.request();
- *          }
- *
- *
- *          public void onCuePointHistoryReceived(CuePointHistory src, List<> cuePoints) {
- *              // Handle history here
- *          }
- *
- *
- *          public void onCuePointHistoryFailed(CuePointHistory src, int errorCode) {
- *              // Handle errors here
- *          }
- *      }
- * @endcode
- */
 @SuppressWarnings("JavaDoc")
 public final class CuePointHistory {
     /**

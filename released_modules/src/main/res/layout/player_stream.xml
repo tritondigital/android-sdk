@@ -53,6 +53,14 @@
             android:layout_weight="1"
             android:paddingBottom="8dip"
             android:paddingTop="8dip" />
+
+        <Spinner
+            android:id="@+id/spinner_speed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingBottom="8dip"
+            android:paddingTop="8dip" />
     </LinearLayout>
 
     <RelativeLayout

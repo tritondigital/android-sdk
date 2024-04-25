@@ -51,6 +51,9 @@ public final class Ad {
     /** _String_ - The ad's format: eg: VAST or DAAST */
     public static final String FORMAT = "format";
 
+    /** _String_ - URL to launch in the browser when the static ad has been clicked */
+    public static final String COMPANION_CLICK_THROUGH_URL = "companion_click_through_url";
+
     /** _String_ - URL to launch in the browser when the video has been clicked */
     public static final String VIDEO_CLICK_THROUGH_URL = "video_click_through_url";
 
@@ -65,6 +68,7 @@ public final class Ad {
 
     /** _String_ - Display the countdown timer on the interstitial ad */
     public static final String ENABLE_COUNTDOWN_DISPLAY = "enable_countdown_display";
+
     private Ad(){}
 
     /**

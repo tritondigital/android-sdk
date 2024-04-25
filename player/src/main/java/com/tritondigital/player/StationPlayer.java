@@ -1,15 +1,26 @@
 package com.tritondigital.player;
 
+import static com.tritondigital.player.StationConnectionClient.SETTINGS_USER_AGENT;
+
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.exoplayer2.Format;
-import com.tritondigital.util.*;
+import com.tritondigital.util.Log;
+import com.tritondigital.util.NetworkUtil;
+import com.tritondigital.util.SdkUtil;
 
 import java.io.Serializable;
 
@@ -36,7 +47,6 @@ public class StationPlayer extends MediaPlayer
     public static final String SETTINGS_MEDIA_ITEM_METADATA                 = PlayerConsts.MEDIA_ITEM_METADATA;
     public static final String SETTINGS_LOW_DELAY                           = PlayerConsts.LOW_DELAY;
     public static final String SETTINGS_TTAGS                               = PlayerConsts.TTAGS;
-    public static final String SETTINGS_TIMESHIFT_ENABLED                   = PlayerConsts.TIMESHIFT_ENABLED;
     public static final String SETTINGS_DMP_SEGMENTS                        = PlayerConsts.DMP_SEGMENTS;
 
 
@@ -48,7 +58,12 @@ public class StationPlayer extends MediaPlayer
     private String                  mUserAgent;
     private MediaRouter.RouteInfo   mMediaRoute;
     private String                  mLiveStreamingUrl;
-    private boolean                 timeshiftEnabled = false;
+    private boolean                 timeshiftStreaming = false;
+
+    private int originalSeekValue;
+
+    private static final String DOMAIN_NAME_PROD = "example.com";
+    private static final String DOMAIN_NAME_PREPROD = "example.prepord.net";
 
     /**
      * Constructor
@@ -58,9 +73,16 @@ public class StationPlayer extends MediaPlayer
         initUserAgent();
     }
 
-
     @Override
     protected void internalPlay() {
+       internalPlay(false);
+    }
+
+    @Override
+    protected void internalPlay( boolean timeshiftStreaming ) {
+        if(this.timeshiftStreaming && getState() == STATE_PAUSED){
+            mStreamPlayer.internalPlay(true);
+        }else{
         setState(STATE_CONNECTING);
 
         if (!NetworkUtil.isNetworkConnected(getContext())) {
@@ -75,18 +97,23 @@ public class StationPlayer extends MediaPlayer
         }
 
         mConnectionClient.start();
+        }
     }
 
 
     @Override
     public boolean isPausable() {
-        return false;
+        return timeshiftStreaming;
     }
 
 
-    // Won't be called because isPausable() --> false
+    // Will be called if we are in timeshift mode
     @Override
-    protected void internalPause() {}
+    protected void internalPause() {
+        if(timeshiftStreaming){
+            mStreamPlayer.internalPause();
+        }
+    }
 
 
     @Override
@@ -96,6 +123,10 @@ public class StationPlayer extends MediaPlayer
         setState(STATE_STOPPED);
     }
 
+    @Override
+    protected void internalChangeSpeed(Float speed) {
+        mStreamPlayer.internalChangeSpeed(speed);
+    }
 
     @Override
     protected void internalRelease() {
@@ -104,7 +135,65 @@ public class StationPlayer extends MediaPlayer
         setState(STATE_RELEASED);
     }
 
+    @Override
+    protected void internalGetCloudStreamInfo() {
+        getCloudStreamInfoAndNotify();
+    }
 
+    @Override
+    protected void internalPlayProgram(String programId) {
+        internalStop();
+        setState(STATE_CONNECTING);
+        if (!NetworkUtil.isNetworkConnected(getContext())) {
+            setErrorState(ERROR_NO_NETWORK);
+            return;
+        }
+
+        if (mResetConnectionClient || (mConnectionClient == null)) {
+            mResetConnectionClient = false;
+            cancelConnectionClient();
+            createConnectionClient();
+        }
+
+        mConnectionClient.setProgramId(programId);
+        mConnectionClient.start();
+
+        timeshiftStreaming = true;
+
+    }
+
+    public void getCloudStreamInfoAndNotify(){
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        String mount = getSettings().getString(SETTINGS_STATION_MOUNT);
+        String programUrl = String.format("https://%s/api/cloud-redirect/%s/stream-info", DOMAIN_NAME_PROD, mount);
+
+        try {
+            if (mount.indexOf('.') != -1) {
+                String[] mountArgs = mount.split("\\.");
+                switch (mountArgs[1].toLowerCase()) {
+                    case "preprod": programUrl = String.format("https://%s/api/cloud-redirect/%s/stream-info", DOMAIN_NAME_PREPROD, mountArgs[0]); break;
+                }
+            }
+
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, programUrl,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            notifyCloudStreamInfo(response);
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    notifyCloudStreamInfo("{\"error\":\"Could not get the cloud stream info\"}");
+                    Log.e(TAG, error);
+                }
+            });
+            queue.add(stringRequest);
+        } catch (Exception e) {
+            notifyCloudStreamInfo("{\"error\":\"Could not get the cloud stream info\"}");
+            Log.e(TAG, e);
+        }
+    }
     @Override
     protected String makeTag() {
         return Log.makeTag("StationPlayer");
@@ -164,8 +253,9 @@ public class StationPlayer extends MediaPlayer
 
     private void createConnectionClient() {
         Bundle connectionClientSettings = new Bundle(getSettings());
-        connectionClientSettings.putString(StationConnectionClient.SETTINGS_USER_AGENT, mUserAgent);
+        connectionClientSettings.putString(SETTINGS_USER_AGENT, mUserAgent);
 
+        connectionClientSettings.putInt(PlayerConsts.ORIGINAL_SEEK_VALUE, this.originalSeekValue);
         if (mMediaRoute != null) {
             // Use SHOUTCast for Google Cast
             String transport = PlayerConsts.TRANSPORT_SC;
@@ -185,12 +275,6 @@ public class StationPlayer extends MediaPlayer
 
 
     final StationConnectionClient.Listener mConnectionClientListener = new StationConnectionClient.Listener() {
-        @Override
-        public void onStationConnectionError(StationConnectionClient src, int errorCode) {
-            setErrorState(errorCode);
-        }
-
-
         @Override
         public void onStationConnectionNextStream(StationConnectionClient src, Bundle streamSettings) {
 
@@ -212,7 +296,6 @@ public class StationPlayer extends MediaPlayer
                 Integer lowDelay                = stationSettings.getInt(SETTINGS_LOW_DELAY, 0);
                 String[] tTags                  = stationSettings.getStringArray(SETTINGS_TTAGS);
                 boolean disableExoPlayer        = stationSettings.getBoolean(PlayerConsts.FORCE_DISABLE_EXOPLAYER, false);
-                timeshiftEnabled        = stationSettings.getBoolean(PlayerConsts.TIMESHIFT_ENABLED, false);
                 Serializable dmpSegments        = stationSettings.getSerializable(SETTINGS_DMP_SEGMENTS);
 
                 streamSettings.putBoolean(StreamPlayer.SETTINGS_TARGETING_LOCATION_TRACKING_ENABLED, locationTrackingEnabled);
@@ -227,7 +310,6 @@ public class StationPlayer extends MediaPlayer
                 streamSettings.putString(StreamPlayer.SETTINGS_STATION_MOUNT, mount);
                 streamSettings.putInt(StreamPlayer.SETTINGS_LOW_DELAY, lowDelay);
                 streamSettings.putBoolean(PlayerConsts.FORCE_DISABLE_EXOPLAYER, disableExoPlayer);
-                streamSettings.putBoolean(PlayerConsts.TIMESHIFT_ENABLED, timeshiftEnabled);
                 streamSettings.putSerializable(StreamPlayer.SETTINGS_DMP_SEGMENTS, dmpSegments);
 
                 //update transport on stationSettings
@@ -240,19 +322,28 @@ public class StationPlayer extends MediaPlayer
                 if ( tTags != null )
                     streamSettings.putStringArray(StreamPlayer.SETTINGS_TTAGS, tTags);
 
-                mStreamPlayer = new StreamPlayer(getContext(), streamSettings);
+                mStreamPlayer = new StreamPlayer(getContext(), streamSettings, timeshiftStreaming);
                 mStreamPlayer.setMediaRoute(mMediaRoute);
                 mStreamPlayer.setOnCuePointReceivedListener(mStreamPlayerCuePointListener);
                 mStreamPlayer.setOnInfoListener(mStreamPlayerOnInfoListener);
                 mStreamPlayer.setOnStateChangedListener(mStreamPlayerStateChangeListener);
                 mStreamPlayer.setOnAnalyticsReceivedListener(mStreamPlayerAnalyticsReceived);
-                mStreamPlayer.play();
+                mStreamPlayer.setOnCloudStreamInfoReceivedListener(mClousStreamInfoReceivedListener);
+                mStreamPlayer.play(timeshiftStreaming);
 
                 mLiveStreamingUrl = mStreamPlayer.getSettings().getString(StreamPlayer.SETTINGS_STREAM_URL);
             }
         }
+
+        @Override
+        public void onStationConnectionError(StationConnectionClient src, int errorCode) {
+            //TODO
+        }
     };
 
+    public boolean isTimeshiftStreaming() {
+        return timeshiftStreaming;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // StreamPlayer
@@ -272,15 +363,38 @@ public class StationPlayer extends MediaPlayer
 
     @Override
     public boolean isSeekable() {
-        return (mStreamPlayer == null) ? false : (timeshiftEnabled && mStreamPlayer.isSeekable());
+        return (mStreamPlayer == null) ? false : mStreamPlayer.isSeekable();
     }
 
 
     @Override
-    protected void internalSeekTo(int position) {
+    protected void internalSeekTo(int position, int original) {
         if (mStreamPlayer != null) {
-            mStreamPlayer.seekTo(position);
+            if(timeshiftStreaming && position != 0) {
+                mStreamPlayer.seekTo(position, original);
+            }else if(timeshiftStreaming && position == 0){
+                switchToLiveStreaming();
+            }else{
+                switchToCloudStreaming(original);
         }
+        }
+    }
+
+
+    private void switchToCloudStreaming(int originalSeekValue){
+        this.originalSeekValue = originalSeekValue;
+        internalStop();
+        mResetConnectionClient = true;
+        play(true);
+        timeshiftStreaming = true;
+    }
+
+    private void switchToLiveStreaming(){
+        this.originalSeekValue = 0;
+        internalStop();
+        mResetConnectionClient = true;
+        play(false);
+        timeshiftStreaming = false;
     }
 
 
@@ -299,6 +413,7 @@ public class StationPlayer extends MediaPlayer
 
 
     private void releaseStreamPlayer() {
+        this.timeshiftStreaming = false;
         if (mStreamPlayer != null) {
             mStreamPlayer.release();
             mStreamPlayer = null;
@@ -314,6 +429,9 @@ public class StationPlayer extends MediaPlayer
             }
 
             switch (state) {
+                case STATE_CONNECTING:
+                    setState(STATE_CONNECTING);
+                    break;
                 case STATE_STOPPED:
                     setState(STATE_STOPPED);
                     break;
@@ -322,10 +440,16 @@ public class StationPlayer extends MediaPlayer
                     break;
 
                 case STATE_PAUSED:{
+                    if(timeshiftStreaming){
+                        setState(STATE_PAUSED);
+                    }else {
                     setState(STATE_STOPPED);
                     stop();
+                    }
+
                     break;
                 }
+
                 case STATE_ERROR: {
                     int stationPlayerState = StationPlayer.this.getState();
 
@@ -369,6 +493,13 @@ public class StationPlayer extends MediaPlayer
         @Override
         public void onInfo(MediaPlayer player, int info, int extra) {
             notifyInfo(info, extra);
+        }
+    };
+
+    private final OnCloudStreamInfoReceivedListener mClousStreamInfoReceivedListener = new OnCloudStreamInfoReceivedListener() {
+        @Override
+        public void onCloudStreamInfoReceivedListener(MediaPlayer player, String cloudStreamInfo) {
+            notifyCloudStreamInfo(cloudStreamInfo);
         }
     };
 

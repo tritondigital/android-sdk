@@ -20,6 +20,8 @@ import com.tritondigital.util.Debug;
 import com.tritondigital.util.Log;
 import com.tritondigital.util.NetworkUtil;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,9 +95,18 @@ public class AndroidPlayer extends MediaPlayer
         playerThread.start();
     }
 
+    @Override
+    public boolean isTimeshiftStreaming() {
+        return false;
+    }
 
     @Override
     protected void internalPlay() {
+       internalPlay(false);
+    }
+
+    @Override
+    protected void internalPlay( boolean timeshiftStreaming ) {
         setState(STATE_CONNECTING);
 
         // Network error check
@@ -114,6 +125,10 @@ public class AndroidPlayer extends MediaPlayer
         setState(STATE_PAUSED);
     }
 
+    @Override
+    protected void internalChangeSpeed(Float speed) {
+        sendPlayerMsg(PlayerHandler.ACTION_CHANGE_PLAYBACK_SPEED, 0, speed);
+    }
 
     /**
      * Only does the state changed because this method gets called when releasing a player.
@@ -131,6 +146,15 @@ public class AndroidPlayer extends MediaPlayer
         setState(STATE_RELEASED);
     }
 
+    @Override
+    protected void internalGetCloudStreamInfo() {
+
+    }
+
+    @Override
+    protected void internalPlayProgram(String programId) {
+
+    }
 
     @Override
     public void setVolume(float volume) {
@@ -139,7 +163,7 @@ public class AndroidPlayer extends MediaPlayer
 
 
     @Override
-    protected void internalSeekTo(int position) {
+    protected void internalSeekTo(int position, int original) {
         sendPlayerMsg(PlayerHandler.ACTION_SEEK_TO, position, null);
     }
 
@@ -292,6 +316,8 @@ public class AndroidPlayer extends MediaPlayer
         static final int ACTION_SEEK_TO         = 353;
         static final int ACTION_SET_VOLUME      = 354;
         static final int ACTION_POLL_IS_PLAYING = 355;
+        static final int ACTION_META            = 356;
+        static final int ACTION_CHANGE_PLAYBACK_SPEED = 357;
 
 
         private final Context mContext;
@@ -453,7 +479,7 @@ public class AndroidPlayer extends MediaPlayer
             if ((mDuration <= 0) || (mDuration >= DURATION_LIVE_MIN_VALUE)) {
                 // Some devices calls this method instead of onError() when there is a network problem.
                 Log.e(TAG, "onCompletion()");
-                notifyStateChanged(STATE_ERROR, ERROR_UNEXPECTED_END_OF_MEDIA);
+                notifyStateChanged(STATE_ERROR, ERROR_UNEXPECTED_END_OF_MEDIA_ANDROID_PLAYER);
             } else {
                 // TODO: check if the position is close to the duration
                 notifyStateChanged(STATE_COMPLETED);

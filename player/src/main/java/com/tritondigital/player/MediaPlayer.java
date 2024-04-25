@@ -99,6 +99,19 @@ public abstract class MediaPlayer {
          */
         void onAnalyticsReceivedListener(MediaPlayer player, Format format);
     }
+    
+    /**
+     * Callback for receiving timeshift programs event.
+     */
+    public interface OnCloudStreamInfoReceivedListener {
+        /**
+         * Called when a player has received stream analytics.
+         *
+         * @param player    Source where this event comes from
+         * @param cloudStreamInfo    Received Format
+         */
+        void onCloudStreamInfoReceivedListener(MediaPlayer player, String cloudStreamInfo);
+    }
     /** Error code indicating an error in the OS player or Google Cast */
     public static final int ERROR_LOW_LEVEL_PLAYER_ERROR = 210;
 
@@ -110,6 +123,18 @@ public abstract class MediaPlayer {
 
     /** Error code indicating the end of a media which shouldn't occur on live streaming */
     public static final int ERROR_UNEXPECTED_END_OF_MEDIA = 213;
+
+    /** Error code indicating the end of a media which shouldn't occur on live streaming */
+    public static final int ERROR_UNEXPECTED_END_OF_MEDIA_ANDROID_PLAYER = 214;
+
+    /** Error code indicating that low delay increased 3 times an still did not fill the buffer */
+    public static final int ERROR_EXOPLAYER_BUFFER_RECONNECT = 212;
+
+    /** Error code indicating buffer timed out. Increase the lowdelay value */
+    public static final int ERROR_EXOPLAYER_BUFFER_TIMEOUT = 218;
+
+    /** Error code indicating buffer timed out. Increase the lowdelay value */
+    public static final int ERROR_EXOPLAYER_ON_ERROR = 219;
 
     /** Error code indicating that the stream can't be used in the user location */
     public static final int ERROR_GEOBLOCKED = 453; // Same value as in provisioning
@@ -206,6 +231,7 @@ public abstract class MediaPlayer {
     private OnInfoListener             mOnInfoListener;
     private OnStateChangedListener     mStateChangedListener;
     private OnAnalyticsReceivedListener mAnalyticsReceivedListener;
+    private OnCloudStreamInfoReceivedListener mCloudStreamInfoReceivedListener;
 
     private Bundle  mLastCuePoint;
     private int     mLastErrorCode;
@@ -214,11 +240,15 @@ public abstract class MediaPlayer {
 
     protected abstract void internalPause();
     protected abstract void internalPlay();
+    protected abstract void internalPlay( boolean timeshiftStreaming );
     protected abstract void internalStop();
     protected abstract void internalRelease();
-    protected abstract void internalSeekTo(int position);
+    protected abstract void internalSeekTo(int position, int original);
     protected abstract String makeTag();
     protected abstract boolean isEventLoggingEnabled();
+    protected abstract void internalGetCloudStreamInfo();
+    protected abstract void internalPlayProgram(String programId);
+    protected abstract void internalChangeSpeed(Float speed);
 
 
     /**
@@ -328,6 +358,10 @@ public abstract class MediaPlayer {
         return mAnalyticsReceivedListener;
     }
 
+    public OnCloudStreamInfoReceivedListener getCloudStreamInfoReceivedListener() {
+        return mCloudStreamInfoReceivedListener;
+    }
+
     /**
      * Sets the cue point event listener.
      */
@@ -365,6 +399,17 @@ public abstract class MediaPlayer {
         mAnalyticsReceivedListener = listener;
     }
 
+    /**
+     * Sets the timeshift programs listener.
+     */
+    public void setOnCloudStreamInfoReceivedListener(OnCloudStreamInfoReceivedListener listener) {
+        mCloudStreamInfoReceivedListener = listener;
+    }
+
+    /**
+     * Returns if the player is in timeshift mode.
+     */
+    public abstract boolean isTimeshiftStreaming();
 
     /**
      * Returns the duration of the current media in milliseconds.
@@ -410,9 +455,22 @@ public abstract class MediaPlayer {
      *
      * Does nothing if the media isn't loaded or seekable.
      */
+    public final void seekTo(int position, int original) {
+        if (isSeekable()) {
+            internalSeekTo(position, original);
+        } else {
+            Log.w(TAG, "The media isn't seekable");
+        }
+    }
+
+    /**
+     * Seek to the provided position.
+     *
+     * Does nothing if the media isn't loaded or seekable.
+     */
     public final void seekTo(int position) {
         if (isSeekable()) {
-            internalSeekTo(position);
+            internalSeekTo(position, position);
         } else {
             Log.w(TAG, "The media isn't seekable");
         }
@@ -422,22 +480,39 @@ public abstract class MediaPlayer {
     /**
      * Seek to a time from the current position.
      */
-    public final void seek(int delta) {
+    public void seek(int delta) {
         if (isSeekable()) {
             if (delta != 0) {
                 int position = getPosition() + (delta);
                 position = Math.max(0, position);
                 position = Math.min(position, getDuration());
 
-                seekTo(position);
+                seekTo(position, delta);
             } else{
-                seekTo(0);
+                seekTo(0, delta);
             }
         } else {
             Log.w(TAG, "Not seekable");
         }
     }
 
+    public final void seekToLive() {
+        if (isSeekable()) {
+            seek(0);
+        } else {
+            Log.w(TAG, "Not seekable");
+        }
+    }
+
+    //returns the timeshift programs
+    public void getCloudStreamInfo() {
+        internalGetCloudStreamInfo();
+    }
+
+    public void playProgram(String programId) {
+        mRequestedAction = REQUESTED_ACTION_PLAY;
+        internalPlayProgram(programId);
+    }
 
     /**
      * Normalize the duration received by lo level players
@@ -466,17 +541,20 @@ public abstract class MediaPlayer {
     public abstract void setVolume(float volume);
 
 
+    public final void play() {
+        this.play(false);
+    }
     /**
      * Starts the playback
      */
-    public final void play() {
+    public final void play(boolean timeshiftStreaming) {
         switch (mState) {
             case STATE_COMPLETED:
             case STATE_ERROR:
             case STATE_STOPPED:
             case STATE_PAUSED:
                 mRequestedAction = REQUESTED_ACTION_PLAY;
-                internalPlay();
+                internalPlay( timeshiftStreaming );
                 break;
 
             case STATE_CONNECTING:
@@ -527,6 +605,9 @@ public abstract class MediaPlayer {
         }
     }
 
+    public final void changeSpeed(Float speed){
+        internalChangeSpeed(speed);
+    }
 
     /**
      * Stops the playback
@@ -585,7 +666,7 @@ public abstract class MediaPlayer {
     final void setState(int state) {
         if (isTransitionValid(mState, state)) {
             if (isEventLoggingEnabled()) {
-                Log.i(TAG, "State changed: " + debugStateToStr(mState) + " -> " + debugStateToStr(state));
+                Log.i(TAG, "**********State changed: " + debugStateToStr(mState) + " -> " + debugStateToStr(state));
             }
             mState = state;
 
@@ -599,7 +680,7 @@ public abstract class MediaPlayer {
                 mStateChangedListener.onStateChanged(this, state);
             }
         } else if (mState != state) {
-            Log.w(TAG, "Invalid state transition: " + debugStateToStr(mState) + " -> " + debugStateToStr(state));
+            Log.w(TAG, "**********State changed invalid transition: " + debugStateToStr(mState) + " -> " + debugStateToStr(state));
         }
     }
 
@@ -607,6 +688,13 @@ public abstract class MediaPlayer {
         // Notify analytics changed.
         if (mAnalyticsReceivedListener != null) {
             mAnalyticsReceivedListener.onAnalyticsReceivedListener(this,format);
+        }
+    }
+
+    final void notifyCloudStreamInfo(String cloudStreamInfo) {
+        // Notify programs received.
+        if (mCloudStreamInfoReceivedListener != null) {
+            mCloudStreamInfoReceivedListener.onCloudStreamInfoReceivedListener(this,cloudStreamInfo);
         }
     }
 
@@ -713,7 +801,7 @@ public abstract class MediaPlayer {
     public static boolean isTransitionValid(int state0, int state1) {
         switch (state0) {
             case STATE_CONNECTING:
-                return (state1 == STATE_ERROR) || (state1 == STATE_PLAYING) || (state1 == STATE_STOPPED) || (state1 == STATE_PAUSED);
+                return (state1 == STATE_ERROR) || (state1 == STATE_PLAYING) || (state1 == STATE_STOPPED) || (state1 == STATE_PAUSED) || (state1 == STATE_CONNECTING);
 
             case STATE_ERROR:
                 return (state1 == STATE_CONNECTING) || (state1 == STATE_STOPPED);
@@ -725,7 +813,7 @@ public abstract class MediaPlayer {
                 return (state1 == STATE_CONNECTING) || (state1 == STATE_ERROR) || (state1 == STATE_RELEASED);
 
             case STATE_PAUSED:
-                return (state1 == STATE_CONNECTING) || (state1 == STATE_ERROR) || (state1 == STATE_STOPPED);
+                return (state1 == STATE_CONNECTING) || (state1 == STATE_ERROR) || (state1 == STATE_STOPPED) || (state1 == STATE_PLAYING);
 
             case STATE_COMPLETED:
                 return (state1 == STATE_CONNECTING) || (state1 == STATE_STOPPED);
@@ -756,6 +844,10 @@ public abstract class MediaPlayer {
             case ERROR_NO_NETWORK:              return "No network";
             case ERROR_SERVICE_UNAVAILABLE:     return "No servers available";
             case ERROR_UNEXPECTED_END_OF_MEDIA:            return "Unexpected end of media";
+            case ERROR_UNEXPECTED_END_OF_MEDIA_ANDROID_PLAYER: return "Unexpected end of media on Android Player";
+            case ERROR_EXOPLAYER_BUFFER_RECONNECT: return "Buffer size too small so we reconnect on lowdelay enable";
+            case ERROR_EXOPLAYER_BUFFER_TIMEOUT: return "Buffer size too small so we reconnect on lowdelay disabled";
+            case ERROR_EXOPLAYER_ON_ERROR: return "Player error";
             default:
                 Assert.failUnhandledValue(STATIC_TAG, errorCode, "debugErrorToStr");
                 return "Unknown";

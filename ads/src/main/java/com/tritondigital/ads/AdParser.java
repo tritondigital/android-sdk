@@ -431,6 +431,16 @@ class AdParser {
                         banner.putInt(Ad.WIDTH, width);
                         banner.putInt(Ad.HEIGHT, height);
                         banner.putString(Ad.URL, url);
+                    }
+                } else if ((elementName != null) && elementName.equals("CompanionClickThrough")) {
+                    String companionClickThroughUrl = XmlPullParserUtil.readText(parser);
+                    if (companionClickThroughUrl != null) {
+                        if (banner == null) {
+                            banner = new Bundle();
+                            banner.putInt(Ad.WIDTH, width);
+                            banner.putInt(Ad.HEIGHT, height);
+                        }
+                        banner.putString(Ad.COMPANION_CLICK_THROUGH_URL, companionClickThroughUrl);
                 }
                 } else {
                     XmlPullParserUtil.skip(parser);

@@ -98,6 +98,35 @@ public final class StreamUrlBuilder {
     /** @copybrief GENDER_VALUE_OTHER */
     public static final char GENDER_VALUE_OTHER = 'o';
 
+    /** @copybrief DIST */
+    public static final String DIST = "dist";
+
+    /** @copybrief DIST_TIMESHIFT */
+    public static final String DIST_TIMESHIFT = "dist-timeshift";
+
+    /** @copybrief DIST_TIMESHIFT */
+    public static final String DIST_BACKUP = "dist-backup";
+
+    public static final String LISTENER_ID_VALUE = "listener-id-value";
+
+    public static final String LISTENER_ID_TYPE = "listener-id-type";
+
+    public static enum ListenerIdType {
+        PPID("ppid"),
+        IDFA("idfa"),
+        GAID("gaid"),
+        APP("app");
+
+        private String listenerIdType;
+
+        ListenerIdType(String type){
+            this.listenerIdType = type;
+        }
+
+        public String getListenerIdType(){
+            return  this.listenerIdType;
+        }
+    }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 5.2.3 Custom Segment ID Targeting
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

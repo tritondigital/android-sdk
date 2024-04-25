@@ -48,7 +48,7 @@ public final class Debug {
 
 
 
-    private static final X500Principal DEBUG_DN = new X500Principal("CN=Android Debug,O=Android,C=US");
+    private static final X500Principal DEBUG_DN = new X500Principal("C=US, O=Android, CN=Android Debug");
 
     /**
      * see  http://stackoverflow.com/questions/7085644/how-to-check-if-apk-is-signed-or-debug-build
@@ -59,8 +59,20 @@ public final class Debug {
 
         try
         {
-            PackageInfo pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
-            Signature signatures[] = pinfo.signatures;
+            PackageInfo pinfo = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.PackageInfoFlags.of(PackageManager.GET_SIGNING_CERTIFICATES));
+            }else{
+               pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+            }
+
+            Signature signatures[] = null ;
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                signatures = pinfo.signingInfo.getApkContentsSigners();
+            }else{
+                signatures = pinfo.signatures;
+            }
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
@@ -68,7 +80,7 @@ public final class Debug {
             {
                 ByteArrayInputStream stream = new ByteArrayInputStream(signatures[i].toByteArray());
                 X509Certificate cert = (X509Certificate) cf.generateCertificate(stream);
-                isInDebug = cert.getSubjectX500Principal().equals(DEBUG_DN);
+                isInDebug = cert.getSubjectX500Principal().getName().equalsIgnoreCase(DEBUG_DN.getName());
                 if (isInDebug)
                     break;
             }

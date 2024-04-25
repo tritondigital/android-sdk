@@ -17,6 +17,8 @@ import android.text.TextUtils;
 import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
 
+import org.json.JSONObject;
+
 
 /**
  * Basic remote player implementation.
@@ -76,7 +78,17 @@ class RemotePlayer extends MediaPlayer {
 
 
     @Override
+    public boolean isTimeshiftStreaming() {
+        return false;
+    }
+
+    @Override
     protected void internalPlay() {
+       internalPlay(false);
+    }
+
+    @Override
+    protected void internalPlay(boolean timeshiftStreaming ) {
         if (getState() == STATE_PAUSED) {
             setState(STATE_CONNECTING);
             remoteResume();
@@ -101,6 +113,10 @@ class RemotePlayer extends MediaPlayer {
         setState(STATE_STOPPED);
     }
 
+    @Override
+    protected void internalChangeSpeed(Float speed) {
+
+    }
 
     @Override
     protected void internalRelease() {
@@ -115,6 +131,14 @@ class RemotePlayer extends MediaPlayer {
         setState(STATE_RELEASED);
     }
 
+    @Override
+    protected void internalGetCloudStreamInfo() {
+    }
+
+    @Override
+    protected void internalPlayProgram(String programId) {
+
+    }
 
     @Override
     protected String makeTag() { return Log.makeTag("RemotePlayer"); }
@@ -540,7 +564,7 @@ class RemotePlayer extends MediaPlayer {
 
 
     @Override
-    protected void internalSeekTo(int position) {
+    protected void internalSeekTo(int position, int original) {
         if ((mItemId != null) && mRemotePlaybackClient.hasSession()) {
             notifyInfo(RemotePlayer.INFO_SEEK_STARTED);
 
