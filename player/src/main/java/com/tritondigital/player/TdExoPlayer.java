@@ -1,6 +1,6 @@
 package com.tritondigital.player;
 
-import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_SEEK;
+import static androidx.media3.common.Player.DISCONTINUITY_REASON_SEEK;
 
 import android.content.Context;
 import android.net.Uri;
@@ -14,33 +14,32 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.LoadControl;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.PlaybackParameters;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Tracks;
-import com.google.android.exoplayer2.analytics.AnalyticsListener;
-import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultAllocator;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.util.MimeTypes;
+import androidx.media3.common.C;
+import androidx.media3.exoplayer.DefaultLoadControl;
+import androidx.media3.exoplayer.DefaultRenderersFactory;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.common.Format;
+import androidx.media3.exoplayer.LoadControl;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.Player;
+import androidx.media3.common.Timeline;
+import androidx.media3.common.Tracks;
+import androidx.media3.common.AudioAttributes;
+import androidx.media3.exoplayer.DecoderReuseEvaluation;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+import androidx.media3.exoplayer.hls.HlsMediaSource;
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
+import androidx.media3.exoplayer.trackselection.TrackSelector;
+import androidx.media3.exoplayer.upstream.BandwidthMeter;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.exoplayer.upstream.DefaultAllocator;
+import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter;
+import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.common.MimeTypes;
 import com.tritondigital.player.exoplayer.extractor.flv.TdDefaultExtractorsFactory;
 import com.tritondigital.player.exoplayer.extractor.flv.TdMetaDataListener;
 import com.tritondigital.util.Assert;
@@ -150,7 +149,6 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
     private static final int CALLBACK_HANDLER_READY      = 62;
     private static final int CALLBACK_STATE_CHANGED      = 63;
     private static final int CALLBACK_METADATA_RECEIVED  = 64;
-    private static final int CALLBACK_ANALYTICS_RECEIVED = 65;
 
     private static final String TAG = Log.makeTag("TdExoPlayer:Thread");
     private boolean timeshiftStreaming = false;
@@ -399,10 +397,6 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
 
                     case CALLBACK_STATE_CHANGED:
                         mTdExoPlayer.onStateChanged(msg.arg1, msg.arg2);
-                        break;
-
-                    case CALLBACK_ANALYTICS_RECEIVED:
-                        mTdExoPlayer.notifyAnalytics((Format)msg.obj);
                         break;
 
                     default:
@@ -725,15 +719,6 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
 
                     // Produces Extractor instances for parsing the media data.
                     TdDefaultExtractorsFactory extractorsFactory = new TdDefaultExtractorsFactory(mMainHandler.mTdExoPlayer);
-
-                    // This is the MediaSource representing the media to be played.
-                mExoPlayerLib.addAnalyticsListener(new AnalyticsListener() {
-                    @Override
-                    public void onAudioInputFormatChanged(EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-                        notifyAnalyticsChanged(format);
-                    }
-                });
-
                     MediaSource audioSource;
                 Uri uri = Uri.parse(streamUrl);
                 if (PlayerConsts.TRANSPORT_HLS.equals(transport)) {
@@ -852,11 +837,6 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
 
         private void notifyStateChanged(int state, int detail) {
             Message msg = mMainHandler.obtainMessage(CALLBACK_STATE_CHANGED, state, detail);
-            mMainHandler.sendMessage(msg);
-        }
-
-        private void notifyAnalyticsChanged(Format format) {
-            Message msg = mMainHandler.obtainMessage(CALLBACK_ANALYTICS_RECEIVED,format);
             mMainHandler.sendMessage(msg);
         }
 

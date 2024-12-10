@@ -1,3 +1,8 @@
+3.4.1 - 2024/08/23
+- Made compatible with android 14
+- Updated dependancies 
+- Migrated from Exoplayer2 to Media3
+
 3.3.9 - 2024/04/23
 - Fix the error reconnection loop.
 - Added the ability to change the speed of a podcast.

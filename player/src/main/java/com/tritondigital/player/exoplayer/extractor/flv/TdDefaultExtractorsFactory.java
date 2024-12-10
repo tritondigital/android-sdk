@@ -1,7 +1,9 @@
 package com.tritondigital.player.exoplayer.extractor.flv;
 
 
-import com.google.android.exoplayer2.extractor.*;
+import androidx.media3.extractor.DefaultExtractorsFactory;
+import androidx.media3.extractor.Extractor;
+import androidx.media3.extractor.ExtractorsFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,49 +50,49 @@ public class TdDefaultExtractorsFactory implements ExtractorsFactory {
                 // reflection (see http://proguard.sourceforge.net/FAQ.html#forname).
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor")
+                            Class.forName("androidx.media3.extractor.mkv.MatroskaExtractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor")
+                            Class.forName("androidx.media3.extractor.mp4.FragmentedMp4Extractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.mp4.Mp4Extractor")
+                            Class.forName("androidx.media3.extractor.mp4.Mp4Extractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.mp3.Mp3Extractor")
+                            Class.forName("androidx.media3.extractor.mp3.Mp3Extractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.ts.AdtsExtractor")
+                            Class.forName("androidx.media3.extractor.ts.AdtsExtractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.ts.Ac3Extractor")
+                            Class.forName("androidx.media3.extractor.ts.Ac3Extractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.ts.TsExtractor")
+                            Class.forName("androidx.media3.extractor.ts.TsExtractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
@@ -104,28 +106,28 @@ public class TdDefaultExtractorsFactory implements ExtractorsFactory {
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.ogg.OggExtractor")
+                            Class.forName("androidx.media3.extractor.ogg.OggExtractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.ts.PsExtractor")
+                            Class.forName("androidx.media3.extractor.ts.PsExtractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.extractor.wav.WavExtractor")
+                            Class.forName("androidx.media3.extractor.wav.WavExtractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.
                 }
                 try {
                     extractorClasses.add(
-                            Class.forName("com.google.android.exoplayer2.ext.flac.FlacExtractor")
+                            Class.forName("androidx.media3.decoder.flac.FlacExtractor")
                                     .asSubclass(Extractor.class));
                 } catch (ClassNotFoundException e) {
                     // Extractor not found.

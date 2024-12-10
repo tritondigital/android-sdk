@@ -3,7 +3,7 @@ package com.tritondigital.player;
 import android.content.Context;
 import android.os.Bundle;
 
-import com.google.android.exoplayer2.Format;
+import androidx.media3.common.Format;
 import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
 
@@ -87,19 +87,6 @@ public abstract class MediaPlayer {
         void onStateChanged(MediaPlayer player, int state);
     }
 
-    /**
-     * Callback for receiving CuePoint.
-     */
-    public interface OnAnalyticsReceivedListener {
-        /**
-         * Called when a player has received stream analytics.
-         *
-         * @param player    Source where this event comes from
-         * @param format    Received Format
-         */
-        void onAnalyticsReceivedListener(MediaPlayer player, Format format);
-    }
-    
     /**
      * Callback for receiving timeshift programs event.
      */
@@ -230,7 +217,6 @@ public abstract class MediaPlayer {
     private OnMetaDataReceivedListener mMetadataListener;
     private OnInfoListener             mOnInfoListener;
     private OnStateChangedListener     mStateChangedListener;
-    private OnAnalyticsReceivedListener mAnalyticsReceivedListener;
     private OnCloudStreamInfoReceivedListener mCloudStreamInfoReceivedListener;
 
     private Bundle  mLastCuePoint;
@@ -354,9 +340,6 @@ public abstract class MediaPlayer {
         return mStateChangedListener;
     }
 
-    public OnAnalyticsReceivedListener getAnalyticsReceivedListener() {
-        return mAnalyticsReceivedListener;
-    }
 
     public OnCloudStreamInfoReceivedListener getCloudStreamInfoReceivedListener() {
         return mCloudStreamInfoReceivedListener;
@@ -392,12 +375,6 @@ public abstract class MediaPlayer {
         mStateChangedListener = listener;
     }
 
-    /**
-     * Sets the analytics changed listener.
-     */
-    public void setOnAnalyticsReceivedListener(OnAnalyticsReceivedListener listener) {
-        mAnalyticsReceivedListener = listener;
-    }
 
     /**
      * Sets the timeshift programs listener.
@@ -655,7 +632,6 @@ public abstract class MediaPlayer {
             mMetadataListener     = null;
             mOnInfoListener       = null;
             mStateChangedListener = null;
-            mAnalyticsReceivedListener = null;
         }
     }
 
@@ -684,12 +660,7 @@ public abstract class MediaPlayer {
         }
     }
 
-    final void notifyAnalytics(Format format) {
-        // Notify analytics changed.
-        if (mAnalyticsReceivedListener != null) {
-            mAnalyticsReceivedListener.onAnalyticsReceivedListener(this,format);
-        }
-    }
+
 
     final void notifyCloudStreamInfo(String cloudStreamInfo) {
         // Notify programs received.

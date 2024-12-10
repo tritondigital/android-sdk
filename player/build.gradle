@@ -2,8 +2,7 @@ apply plugin: 'com.android.library'
 apply from: '../export_aar.gradle'
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION.toInteger()
-    buildToolsVersion BUILD_TOOLS_VERSION
+    compileSdk COMPILE_SDK_VERSION.toInteger()
 
     defaultConfig {
         minSdkVersion TRITONSDK_MIN_SDK_VERSION.toInteger()
@@ -16,22 +15,21 @@ android {
             minifyEnabled true
             proguardFiles rootProject.file('proguard.txt')
         }
-
         debug {
-            testCoverageEnabled = true
+            enableUnitTestCoverage true
+            enableAndroidTestCoverage true
         }
-    }
-    lintOptions {
-        abortOnError false
+
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
-    
-    dexOptions {
-        jumboMode = true
+
+    namespace 'com.tritondigital.player'
+    lint {
+        abortOnError false
     }
 }
 
@@ -40,24 +38,26 @@ dependencies {
     api project(':streamingproxy')
     api project(':util')
     implementation 'com.android.volley:volley:1.2.1'
+    implementation 'androidx.media3:media3-common:1.3.1'
 
     // Unit testing dependencies.
-    testImplementation 'junit:junit:4.12'        // Required -- JUnit 4 framework
+    testImplementation 'junit:junit:4.13.2'        // Required -- JUnit 4 framework
     testImplementation 'org.mockito:mockito-core:5.4.0'     // Optional -- Mockito framework
 
     //Android Test dependencies
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test:rules:1.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:rules:1.6.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     androidTestImplementation 'org.hamcrest:hamcrest-library:2.2'
-    androidTestImplementation 'com.google.android.exoplayer:exoplayer-core:2.18.1'
-    androidTestImplementation 'com.google.android.exoplayer:exoplayer-hls:2.18.1'
+    androidTestImplementation 'androidx.media3:media3-exoplayer:1.4.1'
+    androidTestImplementation 'androidx.media3:media3-exoplayer-hls:1.4.1'
 
     //Normal dependencies
     api 'androidx.legacy:legacy-support-core-utils:1.0.0'
     api 'androidx.mediarouter:mediarouter:1.2.1'
 
     //Google ExoPlayer
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.1'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.18.1'
+    implementation 'androidx.media3:media3-exoplayer:1.4.0'
+    implementation 'androidx.media3:media3-exoplayer-hls:1.4.0'
 }
+

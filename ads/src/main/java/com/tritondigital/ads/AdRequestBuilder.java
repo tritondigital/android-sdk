@@ -275,6 +275,7 @@ public final class AdRequestBuilder {
 
     /** @copybrief GENDER_VALUE_OTHER */
     public static final char GENDER_VALUE_OTHER = 'o';
+
     /**
      * _int_ - Custom segment ID (1 to 1000000)
      *
@@ -331,9 +332,7 @@ public final class AdRequestBuilder {
      */
     public static final String BANNERS = "banners";
 
-
-
-    //TD Advertisement Guide  version
+    //TD Advertisement Guide version
     public static final String ADS_GUIDE_VERSION_KEY   = "version";
     public static final String ADS_GUIDE_VERSION_VALUE = "1.5.1";
 

@@ -248,8 +248,8 @@ public final class Interstitial {
             mContext.registerReceiver(
                     mReceiver, playerFilter, Context.RECEIVER_NOT_EXPORTED);
         } else {
-        mContext.registerReceiver(mReceiver, playerFilter);
-    	}
+            mContext.registerReceiver(mReceiver, playerFilter);
+        }
     }
 
 
@@ -334,13 +334,12 @@ public final class Interstitial {
     public void showAd(AdRequestBuilder adRequestBuilder, Map<String, List<Integer>> dmpSegments) {
         if (mAdLoader != null) {
             if(dmpSegments == null){
-            mAdLoader.load(adRequestBuilder);
+                mAdLoader.load(adRequestBuilder);
             }else{
                 mAdLoader.load(adRequestBuilder,dmpSegments);
-        }
+            }
 
-    }
-        
+        }
     }
 
     /**
