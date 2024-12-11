@@ -1,9 +1,9 @@
 package com.tritondigital.player.exoplayer.extractor.flv;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.util.ParsableByteArray;
+import androidx.media3.common.C;
+import androidx.media3.common.ParserException;
+import androidx.media3.extractor.TrackOutput;
+import androidx.media3.common.util.ParsableByteArray;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;

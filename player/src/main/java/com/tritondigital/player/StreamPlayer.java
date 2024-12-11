@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter;
 import android.text.TextUtils;
 
-import com.google.android.exoplayer2.Format;
+import androidx.media3.common.Format;
 import com.tritondigital.util.*;
 
 import java.util.HashMap;
@@ -331,7 +331,6 @@ public class StreamPlayer extends MediaPlayer {
             lowLevelPlayer.setOnCuePointReceivedListener(mInputCuePointListener);
             lowLevelPlayer.setOnMetaDataReceivedListener(mInputMetaDataListener);
             lowLevelPlayer.setOnStateChangedListener(mInputOnStateChangedListener);
-            lowLevelPlayer.setOnAnalyticsReceivedListener(mInputAnalyticsReceivedListener);
             lowLevelPlayer.setOnCloudStreamInfoReceivedListener(mInputProgramsReceivedListened);
         }
     }
@@ -415,15 +414,6 @@ public class StreamPlayer extends MediaPlayer {
         public void onMetaDataReceived(MediaPlayer player, Bundle metadata) {
             if (player == mAndroidPlayer) {
                 notifyMetadata(metadata);
-            }
-        }
-    };
-
-    private final OnAnalyticsReceivedListener mInputAnalyticsReceivedListener = new OnAnalyticsReceivedListener() {
-        @Override
-        public void onAnalyticsReceivedListener(MediaPlayer player, Format format) {
-            if (player == mAndroidPlayer) {
-                notifyAnalytics(format);
             }
         }
     };
@@ -541,7 +531,7 @@ public class StreamPlayer extends MediaPlayer {
     {
         boolean present = false;
         try {
-             Class.forName("com.google.android.exoplayer2.ExoPlayer");
+             Class.forName("androidx.media3.exoplayer.ExoPlayer");
             present = true;
         }
         catch (ClassNotFoundException ex)

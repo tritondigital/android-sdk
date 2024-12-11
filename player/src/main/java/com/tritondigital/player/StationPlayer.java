@@ -17,7 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.exoplayer2.Format;
+import androidx.media3.common.Format;
 import com.tritondigital.util.Log;
 import com.tritondigital.util.NetworkUtil;
 import com.tritondigital.util.SdkUtil;
@@ -327,7 +327,6 @@ public class StationPlayer extends MediaPlayer
                 mStreamPlayer.setOnCuePointReceivedListener(mStreamPlayerCuePointListener);
                 mStreamPlayer.setOnInfoListener(mStreamPlayerOnInfoListener);
                 mStreamPlayer.setOnStateChangedListener(mStreamPlayerStateChangeListener);
-                mStreamPlayer.setOnAnalyticsReceivedListener(mStreamPlayerAnalyticsReceived);
                 mStreamPlayer.setOnCloudStreamInfoReceivedListener(mClousStreamInfoReceivedListener);
                 mStreamPlayer.play(timeshiftStreaming);
 
@@ -473,13 +472,6 @@ public class StationPlayer extends MediaPlayer
             }
         }
     };
-
-     private final OnAnalyticsReceivedListener mStreamPlayerAnalyticsReceived = new OnAnalyticsReceivedListener() {
-         @Override
-         public void onAnalyticsReceivedListener(MediaPlayer player, Format format) {
-            notifyAnalytics(format);
-         }
-     };
 
     private final OnCuePointReceivedListener mStreamPlayerCuePointListener = new OnCuePointReceivedListener() {
         @Override

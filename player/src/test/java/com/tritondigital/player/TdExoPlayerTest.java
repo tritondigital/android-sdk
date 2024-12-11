@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 import com.tritondigital.player.exoplayer.extractor.flv.TdScriptTagPayloadLoader;
 import com.tritondigital.player.exoplayer.extractor.flv.TdMetaDataListener;
-import com.google.android.exoplayer2.util.ParsableByteArray;
+import androidx.media3.common.util.ParsableByteArray;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

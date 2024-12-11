@@ -537,10 +537,10 @@ class Provisioning
                                     outProvisioningBundle.putString(Result.TRANSPORT, "hls");
                                     outProvisioningBundle.putString(Result.TIMESHIFT_MOUNT_SUFFIX, mountSuffix);
                                 }else{
-		                     if ("hls".equals(transport)) {
-		                          outProvisioningBundle.putString(Result.TRANSPORT, transport);
-		                            outProvisioningBundle.putString(Result.MOUNT_SUFFIX, mountSuffix);
-		                     }
+                                    if ("hls".equals(transport)) {
+                                        outProvisioningBundle.putString(Result.TRANSPORT, transport);
+                                        outProvisioningBundle.putString(Result.MOUNT_SUFFIX, mountSuffix);
+                                    }
                                 }
                             } else {
                                 XmlPullParserUtil.skip(parser);

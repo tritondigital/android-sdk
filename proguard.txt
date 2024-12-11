@@ -15,7 +15,7 @@
 
 
 ########## ExoPlayer ######################################
--dontwarn com.google.android.exoplayer2.**
+-dontwarn androidx.media3.exoplayer.**
 
 -keep public class com.tritondigital.player.exoplayer.extractor.flv.TdFlvExtractor
 
@@ -60,7 +60,6 @@
 -keep public class com.tritondigital.util.SdkUtil
 -keep public class com.tritondigital.util.Log
 -keep public class com.tritondigital.util.LocationUtil
--keep public class com.tritondigital.util.AnalyticsTracker
 -keep public class com.tritondigital.util.Assert
 -keep public class com.tritondigital.util.NetworkUtil
 -keep public class com.tritondigital.util.DisplayUtil

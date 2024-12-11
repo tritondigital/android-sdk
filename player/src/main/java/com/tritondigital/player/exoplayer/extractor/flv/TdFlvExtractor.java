@@ -1,14 +1,14 @@
 package com.tritondigital.player.exoplayer.extractor.flv;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.ExtractorOutput;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
+import androidx.media3.common.C;
+import androidx.media3.extractor.Extractor;
+import androidx.media3.extractor.ExtractorInput;
+import androidx.media3.extractor.ExtractorOutput;
+import androidx.media3.extractor.ExtractorsFactory;
+import androidx.media3.extractor.PositionHolder;
+import androidx.media3.extractor.SeekMap;
+import androidx.media3.common.util.ParsableByteArray;
+import androidx.media3.common.util.Util;
 import java.io.IOException;
 
 /**

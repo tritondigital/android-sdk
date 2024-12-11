@@ -68,7 +68,6 @@ public final class AdLoader {
         TAG = msg;
     }
 
-
     /**
      * Load an ad request.
      *
@@ -90,7 +89,7 @@ public final class AdLoader {
         // Start VAST parsing
         Log.i(TAG, "Loading ad request: " + adRequest);
         if(dmpSegments == null){
-        mVastParsingTask = new VastParsingTask();
+            mVastParsingTask = new VastParsingTask();
         }else{
             mVastParsingTask = new VastParsingTask(dmpSegments);
         }
@@ -198,9 +197,9 @@ public final class AdLoader {
 
         if(!isVastWrapper(ad)) {
 
-        if (mListener != null) {
+            if (mListener != null) {
                 ad.putStringArrayList(Ad.IMPRESSION_TRACKING_URLS, mImpressionUrls);
-            mListener.onAdLoaded(this, ad);
+                mListener.onAdLoaded(this, ad);
                 mNoRequest = 0;
                 mImpressionUrls = new ArrayList<>();
             }

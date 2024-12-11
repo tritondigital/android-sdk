@@ -157,8 +157,7 @@ class AdParser {
             }
         }
     }
-
-
+    
     /**
      * Reads the "Duration" tag.
      */
@@ -167,8 +166,7 @@ class AdParser {
         String duration = XmlPullParserUtil.readText(parser);
         mAd.putString(Ad.DURATION, duration);
     }
-
-
+    
     /**
      * Read the "MediaFiles" tag.
      */

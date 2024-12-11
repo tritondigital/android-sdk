@@ -19,7 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.exoplayer2.Format;
+import androidx.media3.common.Format;
 import com.google.android.gms.cast.CastMediaControlIntent;
 
 
@@ -41,7 +41,7 @@ import java.util.List;
  */
 public abstract class TritonPlayerActivity extends AppCompatActivity implements
         MediaPlayer.OnCuePointReceivedListener, MediaPlayer.OnStateChangedListener, MediaPlayer.OnCloudStreamInfoReceivedListener,
-        MediaPlayer.OnInfoListener, View.OnClickListener, MediaPlayer.OnMetaDataReceivedListener, MediaPlayer.OnAnalyticsReceivedListener {
+        MediaPlayer.OnInfoListener, View.OnClickListener, MediaPlayer.OnMetaDataReceivedListener {
 
     protected static final String IMAGE_URI = "http://mobileapps.streamtheworld.com/android/tritondigital_tritonradio/icon_512.png";
 
@@ -253,13 +253,6 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onAnalyticsReceivedListener(MediaPlayer player, Format format) {
-        if (mTritonPlayer == player) {
-            Log.i(TAG,"The streaming format changed to:" + format.toString());
-        }
-    }
-
-    @Override
     public void onStateChanged(MediaPlayer player, int state) {
         if (mTritonPlayer == player) {
             String stateStr = MediaPlayer.debugStateToStr(state);
@@ -348,7 +341,6 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
         mTritonPlayer.setOnMetaDataReceivedListener(this);
         mTritonPlayer.setOnInfoListener(this);
         mTritonPlayer.setOnStateChangedListener(this);
-        mTritonPlayer.setOnAnalyticsReceivedListener(this);
     }
 
 

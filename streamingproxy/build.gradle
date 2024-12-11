@@ -2,8 +2,7 @@ apply plugin: 'com.android.library'
 apply from: '../export_aar.gradle'
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION.toInteger()
-    buildToolsVersion BUILD_TOOLS_VERSION
+    compileSdk COMPILE_SDK_VERSION.toInteger()
 
     defaultConfig {
         minSdkVersion TRITONSDK_MIN_SDK_VERSION.toInteger()
@@ -15,6 +14,7 @@ android {
           proguardFiles rootProject.file('proguard.txt')
         }
     }
+    namespace 'com.tritondigital.net.streaming.proxy'
 }
 
 dependencies {

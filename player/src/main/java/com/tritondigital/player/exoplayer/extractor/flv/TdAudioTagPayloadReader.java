@@ -1,13 +1,13 @@
 package com.tritondigital.player.exoplayer.extractor.flv;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.audio.AacUtil;
-import com.google.android.exoplayer2.audio.MpegAudioUtil;
-import com.google.android.exoplayer2.extractor.*;
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.ParsableByteArray;
+import androidx.media3.common.C;
+import androidx.media3.common.Format;
+import androidx.media3.common.ParserException;
+import androidx.media3.extractor.AacUtil;
+import androidx.media3.extractor.MpegAudioUtil;
+import androidx.media3.extractor.TrackOutput;
+import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.ParsableByteArray;
 import java.util.Collections;
 
 /**
