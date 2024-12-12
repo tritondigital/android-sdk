@@ -9,7 +9,7 @@ allprojects {
         google()
         mavenCentral()
         maven {
-            url "https://maven.google.com"
+            url "https://plugins.gradle.org/m2/"
         }
     }
 }
@@ -18,7 +18,9 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven { 
+            url "https://plugins.gradle.org/m2/" 
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.7.1'
@@ -26,6 +28,10 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
+}
+
+configurations.all {
+    exclude group: 'com.tritondigital', module: 'player'
 }
 
 
@@ -98,11 +104,11 @@ task sampleLibs(type: Copy, dependsOn: 'sampleTemplate') {
 task sampleProperties (dependsOn: 'sampleTemplate') {
     doLast {
       def version = rootProject.ext.tritonSDKVersion
-      logger.info("Create saple gradle.properties")
+      logger.info("Create sample gradle.properties")
       def file = new File("generated/sample/gradle.properties")
-        List<String> sample = [ "TRITON_SDK = ${rootProject.ext.tritonSdkPackage}","android.useAndroidX=true","android.enableJetifier=true" ] as String[]
-      file.createNewFile()
-      file.text = sample.join ("\n")
+        List<String> sample = [ "TRITON_SDK = ${rootProject.ext.tritonSdkPackage}","android.useAndroidX=true","android.enableJetifier=true", "android.useFullClasspathForDexingTransform=true" ] as String[]
+        file.createNewFile()
+        file.text = sample.join ("\n")
     }
 }
 

@@ -45,7 +45,7 @@ public class CuePointHistoryAndroidTest {
     public void canGetLastCuePoint() {
         Runnable r = new Runnable() {
             public void run() {
-                mParser.setMount("S1_FLV_MP3");
+                mParser.setMount("TRITONRADIOMUSIC");
                 mParser.setMaxItems(1);
                 mParser.setListener(new CuePointHistory.CuePointHistoryListener() {
                     @Override
@@ -73,7 +73,7 @@ public class CuePointHistoryAndroidTest {
     public void canGetLast25CuePoints() {
         Runnable r = new Runnable() {
             public void run() {
-                mParser.setMount("S1_FLV_MP3");
+                mParser.setMount("TRITONRADIOMUSIC");
                 mParser.setMaxItems(25);
                 mParser.setListener(new CuePointHistory.CuePointHistoryListener() {
                     @Override

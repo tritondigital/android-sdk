@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "915336943764",
+    "project_id": "triton-android-sdk",
+    "storage_bucket": "triton-android-sdk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:915336943764:android:8d1e862b24d36d0c9c3c81",
+        "android_client_info": {
+          "package_name": "com.tritondigital.util"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "915336943764-7kqlq67d4pfught4ilpd02rcc1rd67aq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrvOq0V8bM7uekdUxU8ZAga3ofoRCL-wg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "915336943764-7kqlq67d4pfught4ilpd02rcc1rd67aq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

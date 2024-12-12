@@ -1,3 +1,7 @@
+plugins {
+    id 'com.google.gms.google-services'
+}
+
 apply plugin: 'com.android.library'
 apply from: '../export_aar.gradle'
 

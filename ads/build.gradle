@@ -16,17 +16,15 @@ android {
             proguardFiles rootProject.file('proguard.txt')
         }
     }
+
     packagingOptions {
-        resources {
-            excludes += ['LICENSE.txt']
-        }
+        exclude 'LICENSE.txt'
     }
 
-
-    namespace 'com.tritondigital.ads'
-    lint {
+    lintOptions {
         abortOnError false
     }
+    namespace 'com.tritondigital.ads'
 }
 
 dependencies {

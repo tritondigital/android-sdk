@@ -3,8 +3,7 @@ apply plugin: 'com.android.library'
 
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION.toInteger()
-    buildToolsVersion BUILD_TOOLS_VERSION
+    compileSdk COMPILE_SDK_VERSION.toInteger()
 
     defaultConfig {
         minSdkVersion TRITONSDK_MIN_SDK_VERSION.toInteger()
@@ -17,6 +16,7 @@ android {
             outputFileName = "${archivesBaseName}-${tritonSDKVersion}.aar"
         }
     }
+    namespace 'com.tritondigital.player'
 }
 
 dependencies {

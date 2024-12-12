@@ -15,11 +15,13 @@ android {
             minifyEnabled true
             proguardFiles rootProject.file('proguard.txt')
         }
-        debug {
-            enableUnitTestCoverage true
-            enableAndroidTestCoverage true
-        }
 
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+    lintOptions {
+        abortOnError false
     }
 
     compileOptions {
@@ -28,9 +30,6 @@ android {
     }
 
     namespace 'com.tritondigital.player'
-    lint {
-        abortOnError false
-    }
 }
 
 dependencies {
