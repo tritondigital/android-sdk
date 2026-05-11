@@ -40,7 +40,7 @@ public class SbmPlayerActivity extends AppCompatActivity implements
 
 
     private static final String[] URLS = {
-            "http://20203.live.streamtheworld.com:80/S1_HLS_AAC_SC"
+            "http://16143.live.streamtheworld.com/TRITONRADIOMUSIC_SC"
     };
 
     // UI

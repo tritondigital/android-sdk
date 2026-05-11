@@ -1,8 +1,16 @@
+plugins {
+    id 'com.google.gms.google-services'
+}
+
 apply plugin: 'com.android.library'
 apply from: '../export_aar.gradle'
 
 android {
-    compileSdk COMPILE_SDK_VERSION.toInteger()
+    compileSdk = COMPILE_SDK_VERSION.toInteger()
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         minSdkVersion TRITONSDK_MIN_SDK_VERSION.toInteger()
@@ -20,14 +28,14 @@ android {
         exclude 'META-INF/INDEX.LIST'
     }
     lintOptions {
-        abortOnError false
+        abortOnError = false
     }
 
     useLibrary 'android.test.runner'
 
     useLibrary 'android.test.base'
     useLibrary 'android.test.mock'
-    namespace 'com.tritondigital.util'
+    namespace = 'com.tritondigital.util'
 }
 
 dependencies {
@@ -42,6 +50,9 @@ dependencies {
     androidTestImplementation 'org.hamcrest:hamcrest-library:2.2'
     androidTestImplementation 'junit:junit:4.13.2'
 
+    //implementation platform('com.google.firebase:firebase-bom:32.1.1')
+    // When using the BoM, don't specify versions in Firebase dependencies
+    //implementation 'com.google.firebase:firebase-analytics'
 }
 
 task SdkUtilVersion {
@@ -54,3 +65,4 @@ task SdkUtilVersion {
     public final class SdkUtil { public static final String VERSION = "$version";
     private SdkUtil() {}}"""
 }
+

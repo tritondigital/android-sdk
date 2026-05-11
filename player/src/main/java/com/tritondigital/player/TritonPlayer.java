@@ -1,14 +1,15 @@
 package com.tritondigital.player;
 
 import static android.content.Context.AUDIO_SERVICE;
+
 import android.content.Context;
-import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
-import androidx.mediarouter.media.MediaRouter;
+
 import androidx.media3.common.Format;
+import androidx.mediarouter.media.MediaRouter;
+
 import com.tritondigital.util.Log;
 import com.tritondigital.util.TrackingUtil;
 
@@ -232,6 +233,9 @@ public final class TritonPlayer extends MediaPlayer {
     /** @copybrief PlayerConsts::DMP_SEGMENTS */
     public static final String SETTINGS_DMP_SEGMENTS = PlayerConsts.DMP_SEGMENTS;
 
+    /** @copybrief PlayerConsts::HANDLE_AUDIO_FOCUS */
+    public static final String SETTINGS_HANDLE_AUDIO_FOCUS = PlayerConsts.HANDLE_AUDIO_FOCUS;
+
     private final MediaPlayer mPlayer;
 
     private AudioManager mAudioManager;
@@ -256,8 +260,10 @@ public final class TritonPlayer extends MediaPlayer {
         if (!TextUtils.isEmpty(mount) && !TextUtils.isEmpty(streamUrl)) {
             throw new IllegalArgumentException("\"settings.SETTINGS_STATION_MOUNT\" and \"settings.SETTINGS_STREAM_URL\" can't be set at the same time.");
         } else if (!TextUtils.isEmpty(mount)) {
+            TrackingUtil.validateAdTargetingSettings(settings);
             mPlayer = new StationPlayer(context, settings);
         } else if (!TextUtils.isEmpty(streamUrl)) {
+            TrackingUtil.validateAdTargetingSettings(settings);
             mPlayer = new StreamPlayer(context, settings, false);
         } else {
             throw new IllegalArgumentException("\"settings.SETTINGS_STATION_MOUNT\" or \"settings.SETTINGS_STREAM_URL\" must be set");
@@ -453,35 +459,7 @@ public final class TritonPlayer extends MediaPlayer {
         public void onInfo(MediaPlayer player, int info, int extra) {
             notifyInfo(info, extra);
         }
-    };
-
-    private class SettingsContentObserver extends ContentObserver {
-
-        public SettingsContentObserver(Handler handler) {
-            super(handler);
-        }
-        private boolean volumeStopped = false;
-
-        @Override
-        public boolean deliverSelfNotifications() {
-            return super.deliverSelfNotifications();
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
-            int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-            if(volume == 0) {
-                if(getState() != STATE_STOPPED){
-                    volumeStopped = true;
-                }
-                pause();
-            }else  if (getState() == STATE_STOPPED && volume > 0 && volumeStopped) {
-                play();
-                volumeStopped = false;
-            }
-        }
-    }
+    };    
 
     private void checkVolume() {
         int volume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);

@@ -20,8 +20,6 @@ import com.tritondigital.util.Debug;
 import com.tritondigital.util.Log;
 import com.tritondigital.util.NetworkUtil;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

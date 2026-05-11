@@ -20,9 +20,7 @@ import com.tritondigital.ads.AdLoader;
 import com.tritondigital.ads.AdRequestBuilder;
 import com.tritondigital.sdksample.R;
 
-import java.time.Duration;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Timer;
 import java.util.TimerTask;
 

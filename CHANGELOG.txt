@@ -1,81 +1,192 @@
-3.4.1 - 2024/12/12
+--------------------------------------------------------------------------------
+3.6.2 - 2026/03/30
+- Add validation for ad-tracking parameters
+- Add required ad-tracking parameters into Samples app
+
+--------------------------------------------------------------------------------
+3.6.1 - 2026/02/24
+- Added edge-to-edge support on video interstitial ads
+
+--------------------------------------------------------------------------------
+3.6.0 - 2025/09/25
+- Added local testing script
+- Upgraded to Android 35
+- Upgraded Gradle from 8.7.1 to 8.11.1
+- Upgraded Java from 11 to 17
+- Upgraded Media3 from 1.4.0 to 1.6.1
+
+--------------------------------------------------------------------------------
+3.5.0 - 2025/01/22
+- Add setting to disable ExoPlayer handling of audio focus
+
+--------------------------------------------------------------------------------
+3.4.1 - 2024/08/23
 - Made compatible with android 14
 - Updated dependancies 
+
+--------------------------------------------------------------------------------
+3.4.0 - 2024/04/24
 - Migrated from Exoplayer2 to Media3
 
-3.3.9 - 2024/04/23
+--------------------------------------------------------------------------------
+3.3.9 - 2024/02/26
 - Fix the error reconnection loop.
+
+--------------------------------------------------------------------------------
+3.3.8 - 2023/12/06
 - Added the ability to change the speed of a podcast.
+
+--------------------------------------------------------------------------------
+3.3.7 - 2023/11/13
 - Multi Listener ID
 - Android 14 Register Receiver Error
+
+--------------------------------------------------------------------------------
+3.3.6 - 2023/09/18
 - Remove Google Analytics
+
+--------------------------------------------------------------------------------
+3.3.5 - 2023/08/18
 - Add more error codes
+
+--------------------------------------------------------------------------------
+3.3.4 - 2023/06/29
 - Timeshift updates
+
+--------------------------------------------------------------------------------
+3.3.3 - 2023/05/31
 - Fix Expplayer NullPointerException.
+
+--------------------------------------------------------------------------------
+3.3.2 - 2023/05/22
 - Implement Timeshift.
+
+--------------------------------------------------------------------------------
+3.3.1 - 2023/05/10
 - Do not stop stream when muted.
+
+--------------------------------------------------------------------------------
+3.3.0 - 2023/01/30
 - Start the stream with the volume button if it was muted.
+
+--------------------------------------------------------------------------------
+3.2.9 - 2022/12/05
 - Play downloaded podcasts from storage.
 
+--------------------------------------------------------------------------------
 3.2.8 - 2022/09/09
 - Update to ExoPlayer 2.18.1
-- Add DMP Segment headers
-- Add ad countdown timer to the interstitial ad
 
+--------------------------------------------------------------------------------
+3.2.7 - 2022/08/03
+- Add DMP Segment headers
+
+--------------------------------------------------------------------------------
+3.2.6 - 2022/07/11
+- Add ad countdown timer to the interstitial ad.
+
+--------------------------------------------------------------------------------
 3.2.5 - 2022/03/15
 - Fix player state when the audio focus is lost.
 
+--------------------------------------------------------------------------------
 3.2.4 - 2022/01/26
 - Fix Cuepoint not displaying
 
+--------------------------------------------------------------------------------
 3.2.3 - 2022/01/17
 - Update Exoplayer to version 2.16.1
 - Use HTTPS streaming links
 
+--------------------------------------------------------------------------------
 3.2.2 - 2021/12/07
-- Check that the Exoplayer instance is not null before releasing it.
+- Check that the Exoplayer instance is not null
 
-3.2.1 - 2021/11/22
-- Add 'other' as a supported gender type.
-- Update the player state when the audio focus is lost.
+--------------------------------------------------------------------------------
+3.2.1 - 2021/11/19
+- Add "other" gender support
+- Update the player state when the audio focus is lost
 
-3.1.9 - 2021/10/06
-- Updated Google Play target API level to 30.
-- Call the error URL on an ondemand missed opportunity
-- Raise onAnalyticsReceivedListener event when HLS Adaptive bitrate changes.
-- Re-generate secure stream tokens on reconnect.
-- Parse the StaticResource element in the VAST response.
-- Update to Exoplayer 2.15.0
-- Target minSdkVersion 21
+--------------------------------------------------------------------------------
+3.2.0 - 2021/11/05
+- Fix sample app
+
+--------------------------------------------------------------------------------
+3.1.9 - 2021/09/06
 - Timeshift Implementation
 
+--------------------------------------------------------------------------------
+3.1.8 - 2021/08/25
+- Update to Exoplayer 2.15.0
+- Target minSdkVersion 21
+
+--------------------------------------------------------------------------------
+3.1.7 - 2021/08/20
+- Parse the StaticResource element in the VAST response.
+
+--------------------------------------------------------------------------------
+3.1.6 - 2021/07/28
+- Raise onAnalyticsReceivedListener event when HLS Adaptive bitrate changes.
+- Re-generate stream tokens on reconnect.
+
+--------------------------------------------------------------------------------
+3.1.5 - 2021/06/10
+- Call the error URL on an ondemand missed opportunity
+
+--------------------------------------------------------------------------------
+3.1.4 - 2021/06/01
+- Updated Google Play target API level to 30.
+
+--------------------------------------------------------------------------------
 3.1.3 - 2021/05/05
 - Fix audio not playing on Android Auto.
+
+--------------------------------------------------------------------------------
+3.1.2 - 2021/04/20
 - Fix banners that are not hiding
 
+--------------------------------------------------------------------------------
 3.1.1 - 2021/02/19
+- Retrieve ads over HTTPS
+
+--------------------------------------------------------------------------------
+3.1.0 - 2021/02/01
 - Upgrade to Exoplayer 2.12.3
+
+--------------------------------------------------------------------------------
+3.0.0 - 2021/01/19
 - Upgrade the support libraries to AndroidX
+
+--------------------------------------------------------------------------------
+2.7.8 - 2020/10/12
 - Volume button unmute stream
+
+--------------------------------------------------------------------------------
+2.7.7 - 2020/09/14
 - Update target api level to 29
 - Syncbanner was not loading content correctly
 - Finish playing a pre-roll before starting the main stream
 
+--------------------------------------------------------------------------------
 2.7.6 - 2020/07/28
 - Allow local files to play without a network connection
 
+--------------------------------------------------------------------------------
 2.7.5 - 2020/07/03
 - VAST Wrapper Support
 - Check if the exception contains a message
 
+--------------------------------------------------------------------------------
 2.7.4 - 2020/05/12
 - Added "store-url", "store-id" & "bundle-id" query parameters in AdRequestBuilder
 
+--------------------------------------------------------------------------------
 2.7.3 - 2020/03/10
 - Change mute/pause to stop
 - Allow URL Alternative content to play
 
-2.7.2 - 2019/11/21
+--------------------------------------------------------------------------------
+2.7.2 - 2019/08/08
 - Fix companion banner not displaying
 - Target API Level 28
 

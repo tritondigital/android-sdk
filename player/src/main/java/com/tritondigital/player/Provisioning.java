@@ -21,6 +21,8 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -48,14 +50,14 @@ class Provisioning
 
     abstract class Result
     {
-        public static final String SERVERS      = "servers";
-        public static final String STATUS       = "status";
-        public static final String MIME_TYPE    = PlayerConsts.MIME_TYPE;
-        public static final String MOUNT        = PlayerConsts.STATION_MOUNT;
-        public static final String MOUNT_SUFFIX = "mount_suffix";
+        public static final String SERVERS          = "servers";
+        public static final String STATUS           = "status";
+        public static final String MIME_TYPE        = PlayerConsts.MIME_TYPE;
+        public static final String MOUNT            = PlayerConsts.STATION_MOUNT;
+        public static final String MOUNT_SUFFIX     = "mount_suffix";
         public static final String TIMESHIFT_MOUNT_SUFFIX     = "timeshift_mount_suffix";
-        public static final String SBM_SUFFIX   = "sbm_suffix";
-        public static final String TRANSPORT    = PlayerConsts.TRANSPORT;
+        public static final String SBM_SUFFIX       = "sbm_suffix";
+        public static final String TRANSPORT        = PlayerConsts.TRANSPORT;
         public static final String ALTERNATE_URL    = "alternate_url";
 
 
@@ -67,6 +69,8 @@ class Provisioning
     }
 
     private static final String DOMAIN_NAME_PROD = "playerservices.streamtheworld.com";
+    private static final String SERVER_DEV       = "https://playerservices.integration.stw:8082/api/livestream";
+    private static final String SERVER_PREPROD   = "https://playerservices.preprod01.streamtheworld.net/api/livestream";
     private static final String SERVER_PROD      = String.format("https://%s/api/livestream",DOMAIN_NAME_PROD);
     private static final String SERVER_HTTPS     = String.format("https://%s/api/livestream",DOMAIN_NAME_PROD);
     private static final String VERSION          = "1.10";
@@ -185,7 +189,9 @@ class Provisioning
 
         if (suffix != null) {
             switch (suffix) {
+                case ".preprod": serverUrl = SERVER_PREPROD; break;
                 case ".https":   serverUrl = SERVER_HTTPS;   break;
+                case ".dev":     serverUrl = SERVER_DEV;     break;
                 default:         serverUrl = SERVER_PROD;    break;
             }
         }
@@ -291,8 +297,29 @@ class Provisioning
         }
 
 
+        private static final List<String> ALLOWED_HOSTS = Arrays.asList(
+                "playerservices.streamtheworld.com",
+                "playerservices.integration.stw",
+                "playerservices.preprod01.streamtheworld.net"
+        );
+
+        private static boolean isAllowedHost(String host) {
+            if (host == null) return false;
+            host = host.toLowerCase(Locale.ENGLISH);
+            for (String allowed : ALLOWED_HOSTS) {
+                if (host.equals(allowed) || host.endsWith("-" + allowed)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private InputStream createInputStream(String urlString) throws IOException {
             URL url = new URL(urlString);
+            String host = url.getHost();
+            if (!isAllowedHost(host)) {
+                throw new IOException("Connection to untrusted host denied: " + host);
+            }
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(12000);
             conn.setConnectTimeout(15000);
@@ -387,7 +414,7 @@ class Provisioning
                             if (alternate != null) {
                                 if(mAlternateType == "mount") {
                                     mAlternateMount = alternate;
-                                return provisioningResult;
+                                    return provisioningResult;
                                 } else if (mAlternateType == "url") {
                                     mGeoblocked = false;
                                     provisioningResult.putInt(Result.STATUS, 200);

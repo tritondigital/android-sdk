@@ -17,8 +17,6 @@ import android.text.TextUtils;
 import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
 
-import org.json.JSONObject;
-
 
 /**
  * Basic remote player implementation.

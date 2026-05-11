@@ -13,8 +13,6 @@ import androidx.mediarouter.media.MediaRouter;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import androidx.media3.common.Format;
@@ -48,6 +46,7 @@ public class StationPlayer extends MediaPlayer
     public static final String SETTINGS_LOW_DELAY                           = PlayerConsts.LOW_DELAY;
     public static final String SETTINGS_TTAGS                               = PlayerConsts.TTAGS;
     public static final String SETTINGS_DMP_SEGMENTS                        = PlayerConsts.DMP_SEGMENTS;
+    public static final String SETTINGS_HANDLE_AUDIO_FOCUS                  = PlayerConsts.HANDLE_AUDIO_FOCUS;
 
 
     private static final String TAG = Log.makeTag("StationPlayer");
@@ -175,19 +174,16 @@ public class StationPlayer extends MediaPlayer
                 }
             }
 
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, programUrl,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            notifyCloudStreamInfo(response);
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    notifyCloudStreamInfo("{\"error\":\"Could not get the cloud stream info\"}");
-                    Log.e(TAG, error);
-                }
-            });
+            StringRequest stringRequest = new StringRequest(
+                    Request.Method.GET,
+                    programUrl,
+                    response -> notifyCloudStreamInfo(response),
+                    error -> {
+                        notifyCloudStreamInfo("{\"error\":\"Could not get the cloud stream info\"}");
+                        Log.e(TAG, error);
+                    }
+            );
+
             queue.add(stringRequest);
         } catch (Exception e) {
             notifyCloudStreamInfo("{\"error\":\"Could not get the cloud stream info\"}");
@@ -275,6 +271,7 @@ public class StationPlayer extends MediaPlayer
 
 
     final StationConnectionClient.Listener mConnectionClientListener = new StationConnectionClient.Listener() {
+
         @Override
         public void onStationConnectionNextStream(StationConnectionClient src, Bundle streamSettings) {
 
@@ -297,6 +294,7 @@ public class StationPlayer extends MediaPlayer
                 String[] tTags                  = stationSettings.getStringArray(SETTINGS_TTAGS);
                 boolean disableExoPlayer        = stationSettings.getBoolean(PlayerConsts.FORCE_DISABLE_EXOPLAYER, false);
                 Serializable dmpSegments        = stationSettings.getSerializable(SETTINGS_DMP_SEGMENTS);
+                boolean handleAudioFocus        = stationSettings.getBoolean(SETTINGS_HANDLE_AUDIO_FOCUS, true);
 
                 streamSettings.putBoolean(StreamPlayer.SETTINGS_TARGETING_LOCATION_TRACKING_ENABLED, locationTrackingEnabled);
                 streamSettings.putSerializable(StreamPlayer.SETTINGS_TARGETING_PARAMS, targetingParams);
@@ -311,6 +309,7 @@ public class StationPlayer extends MediaPlayer
                 streamSettings.putInt(StreamPlayer.SETTINGS_LOW_DELAY, lowDelay);
                 streamSettings.putBoolean(PlayerConsts.FORCE_DISABLE_EXOPLAYER, disableExoPlayer);
                 streamSettings.putSerializable(StreamPlayer.SETTINGS_DMP_SEGMENTS, dmpSegments);
+                streamSettings.putBoolean(SETTINGS_HANDLE_AUDIO_FOCUS, handleAudioFocus);
 
                 //update transport on stationSettings
                 String transport = streamSettings.getString(SETTINGS_TRANSPORT);
@@ -332,11 +331,6 @@ public class StationPlayer extends MediaPlayer
 
                 mLiveStreamingUrl = mStreamPlayer.getSettings().getString(StreamPlayer.SETTINGS_STREAM_URL);
             }
-        }
-
-        @Override
-        public void onStationConnectionError(StationConnectionClient src, int errorCode) {
-            //TODO
         }
     };
 

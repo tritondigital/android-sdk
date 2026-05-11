@@ -1,7 +1,6 @@
 package com.tritondigital.net.streaming.proxy.client;
 
 import com.tritondigital.net.streaming.proxy.client.Client.StateChangedListener.ErrorDetail;
-import com.tritondigital.net.streaming.proxy.dataprovider.DataProvider;
 import com.tritondigital.net.streaming.proxy.decoder.StreamContainerDecoder;
 import com.tritondigital.net.streaming.proxy.utils.Log;
 

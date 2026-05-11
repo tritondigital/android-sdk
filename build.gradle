@@ -1,15 +1,17 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 allprojects {
     gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xlint:deprecation"
+
+      
+        tasks.withType(JavaCompile).configureEach {
+            options.compilerArgs += "-Xlint:deprecation"
         }
     }
     repositories {
         google()
         mavenCentral()
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url = "https://plugins.gradle.org/m2/"
         }
     }
 }
@@ -19,19 +21,17 @@ buildscript {
         google()
         mavenCentral()
         maven { 
-            url "https://plugins.gradle.org/m2/" 
+            url = "https://plugins.gradle.org/m2/" 
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.7.1'
+        classpath 'com.android.tools.build:gradle:8.11.1'
+        classpath 'com.google.gms:google-services:4.4.0'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
-configurations.all {
-    exclude group: 'com.tritondigital', module: 'player'
-}
 
 
 def packagePrefix = 'triton-android-sdk'
@@ -55,15 +55,13 @@ if (System.properties['os.name'].toLowerCase().contains('windows')) {
 allprojects {
     repositories {
         mavenCentral()
-            flatDir {
-            dirs 'libs'
-        }
+        mavenLocal()
         google()
     }
 }
 
 ext {
-    tritonSDKVersion = ("$APP_VERSION_MAJOR.$APP_VERSION_MINOR.$APP_VERSION_PATCH")
+    tritonSDKVersion = "$APP_VERSION_MAJOR.$APP_VERSION_MINOR.$APP_VERSION_PATCH"
     tritonSdkPackage = "$packagePrefix-${tritonSDKVersion}"
 }
 
@@ -72,7 +70,7 @@ task doc(type: Exec){
 }
 
 task sdkBuild(type:Exec){
-  commandLine cmd, ':tdsdk:assemblerelease', '--no-daemon', '-c', 'tdsdk-settings.gradle'
+  commandLine cmd, ':tdsdk:assemblerelease', '--no-daemon'
 }
 
 task sdkCopy(type: Copy, dependsOn: 'sdkBuild') {
@@ -108,31 +106,13 @@ task sampleProperties (dependsOn: 'sampleTemplate') {
         List<String> sample = [ "TRITON_SDK = ${rootProject.ext.tritonSdkPackage}","android.useAndroidX=true","android.enableJetifier=true", "android.useFullClasspathForDexingTransform=true" ] as String[]
         file.createNewFile()
         file.text = sample.join ("\n")
+      //file.text = "TRITON_SDK = ${rootProject.ext.tritonSdkPackage}"
+      //file.text = "android.useAndroidX=true"
+      //file.text = "android.enableJetifier=true"
     }
 }
 
-task createVersion(){
-  doLast {
-    def process = "git rev-parse HEAD".execute()
-    process.waitFor()
-     def commit = ""
-    if(process.exitValue() == 0){
-        commit = process.text
-        if( !commit){
-          throw new GradleException("Git version not exist")
-        }else{
-          def file = new File("generated/version.properties")
-          file.createNewFile()
-          file.write("version = $tritonSDKVersion\n")
-          file.append("commit = $commit")
-        }
-    }else{
-      throw new GradleException("Git version not exist")
-    } 
-  }
-}
-
-task sample(dependsOn: ['sampleTemplate', 'sampleSrc', 'sampleLibs', 'sampleProperties', 'createVersion']) {
+task sample(dependsOn: ['sampleTemplate', 'sampleSrc', 'sampleLibs', 'sampleProperties']) {
   copy {
     from 'CHANGELOG.txt'
     into 'generated'
@@ -140,7 +120,7 @@ task sample(dependsOn: ['sampleTemplate', 'sampleSrc', 'sampleLibs', 'sampleProp
 }
 
 task cleansdk(type:Exec){
-  commandLine cmd, ':tdsdk:clean', '--no-daemon', '-c', 'tdsdk-settings.gradle'
+  commandLine cmd, ':tdsdk:clean', '--no-daemon'
 }
 
 task clean(type: Delete, dependsOn: ['cleansdk']) {
@@ -172,12 +152,4 @@ task tests {
 
 task androidTest {
 
-}
-
-def packageFiles = fileTree(dir: 'generated', includes: ['docs/**', 'libs/**', 'sample/**','version.properties','CHANGELOG.txt'], excludes: ['**/build/**', '**/.gradle/**'])
-
-task pack(type: Zip) {
-    archiveFileName = "${tritonSdkPackage}.zip"
-    destinationDirectory = file("generated")
-  from packageFiles
 }

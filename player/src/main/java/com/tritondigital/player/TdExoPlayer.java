@@ -144,6 +144,11 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
      */
     public static final String SETTINGS_DMP_SEGMENTS = PlayerConsts.DMP_SEGMENTS;
 
+    /**
+     * @copybrief PlayerConsts::HANDLE_AUDIO_FOCUS
+     */
+    public static final String SETTINGS_HANDLE_AUDIO_FOCUS = PlayerConsts.HANDLE_AUDIO_FOCUS;
+
     private static final int CALLBACK_CUE_POINT_RECEIVED = 60;
     private static final int CALLBACK_ON_INFO            = 61;
     private static final int CALLBACK_HANDLER_READY      = 62;
@@ -717,9 +722,18 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                 }
 
 
-                    // Produces Extractor instances for parsing the media data.
-                    TdDefaultExtractorsFactory extractorsFactory = new TdDefaultExtractorsFactory(mMainHandler.mTdExoPlayer);
-                    MediaSource audioSource;
+                // Produces Extractor instances for parsing the media data.
+                TdDefaultExtractorsFactory extractorsFactory = new TdDefaultExtractorsFactory(mMainHandler.mTdExoPlayer);
+
+                // This is the MediaSource representing the media to be played.
+                mExoPlayerLib.addAnalyticsListener(new AnalyticsListener() {
+                    @Override
+                    public void onAudioInputFormatChanged(EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
+                        notifyAnalyticsChanged(format);
+                    }
+                });
+
+                MediaSource audioSource;
                 Uri uri = Uri.parse(streamUrl);
                 if (PlayerConsts.TRANSPORT_HLS.equals(transport)) {
 
@@ -737,20 +751,22 @@ public class TdExoPlayer extends MediaPlayer implements TdMetaDataListener {
                         .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
                         .build();
 
-                mExoPlayerLib.setAudioAttributes(audioAttributes,true);
-                    // Prepare the stream
-                    Log.d(TAG, "Prepare ExoPlayer for: " + streamUrl);
+                boolean handleAudioFocus = mSettings.getBoolean(SETTINGS_HANDLE_AUDIO_FOCUS);
+                mExoPlayerLib.setAudioAttributes(audioAttributes, handleAudioFocus);
 
-                    // Prepare the player with the source.
-                    mExoPlayerLib.setMediaSource(audioSource);
-                    mExoPlayerLib.prepare();
+                // Prepare the stream
+                Log.d(TAG, "Prepare ExoPlayer for: " + streamUrl);
 
-                    mExoPlayerLib.setPlayWhenReady(true);
+                // Prepare the player with the source.
+                mExoPlayerLib.setMediaSource(audioSource);
+                mExoPlayerLib.prepare();
 
-                    int position = mSettings.getInt(SETTINGS_POSITION);
-                    if (position > 0) {
-                        mExoPlayerLib.seekTo(position);
-                    }
+                mExoPlayerLib.setPlayWhenReady(true);
+
+                int position = mSettings.getInt(SETTINGS_POSITION);
+                if (position > 0) {
+                    mExoPlayerLib.seekTo(position);
+                }
 
             } else {
                 mExoPlayerLib.setPlayWhenReady(true);
