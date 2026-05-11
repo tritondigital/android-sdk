@@ -1,9 +1,8 @@
 package com.tritondigital.player;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.content.res.Resources;
+
 import junit.framework.AssertionFailedError;
 
 import org.junit.Before;
@@ -13,8 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -24,9 +21,7 @@ import com.tritondigital.player.exoplayer.extractor.flv.TdScriptTagPayloadLoader
 import com.tritondigital.player.exoplayer.extractor.flv.TdMetaDataListener;
 import androidx.media3.common.util.ParsableByteArray;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.io.File;

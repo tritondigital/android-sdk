@@ -45,13 +45,13 @@ public class CuePointHistoryAndroidTest {
     public void canGetLastCuePoint() {
         Runnable r = new Runnable() {
             public void run() {
-                mParser.setMount("TRITONRADIOMUSIC");
+                mParser.setMount("S1_FLV_MP3");
                 mParser.setMaxItems(1);
                 mParser.setListener(new CuePointHistory.CuePointHistoryListener() {
                     @Override
                     public void onCuePointHistoryReceived(CuePointHistory src, List<Bundle> cuePoints) {
-                        assertTrue(cuePoints!= null && cuePoints.size() > 0);
-                        assertTrue(cuePoints.size() ==1);
+                        assertTrue(cuePoints != null && cuePoints.size() > 0);
+                        assertTrue(cuePoints.size() == 1);
                     }
 
                     @Override
@@ -73,13 +73,13 @@ public class CuePointHistoryAndroidTest {
     public void canGetLast25CuePoints() {
         Runnable r = new Runnable() {
             public void run() {
-                mParser.setMount("TRITONRADIOMUSIC");
+                mParser.setMount("S1_FLV_MP3");
                 mParser.setMaxItems(25);
                 mParser.setListener(new CuePointHistory.CuePointHistoryListener() {
                     @Override
                     public void onCuePointHistoryReceived(CuePointHistory src, List<Bundle> cuePoints) {
-                        assertTrue(cuePoints!= null && cuePoints.size() > 0);
-                        assertTrue(cuePoints.size() ==25);
+                        assertTrue(cuePoints != null && cuePoints.size() > 0);
+                        assertTrue(cuePoints.size() == 25);
                     }
 
                     @Override

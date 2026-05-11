@@ -24,7 +24,9 @@ public class MultiStationsPlayerActivity  extends TritonPlayerActivity
     private int mCurrentStationIndex;
 
     private final static String[] STATIONS = {
-        "S1_FLV_AAC",
+        "TRITONRADIOMUSICAAC_2",
+        "TRITONRADIOMUSICAAC",
+	"S1_FLV_AAC",
         "S1_FLV_MP3",
         "S1_HLS_AAC",
         "S2_FLV_AAC",

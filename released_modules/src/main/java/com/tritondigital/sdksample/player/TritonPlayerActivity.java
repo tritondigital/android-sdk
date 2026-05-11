@@ -177,15 +177,13 @@ public abstract class TritonPlayerActivity extends AppCompatActivity implements
             seek(-30000);
         } else if (id == R.id.button_live)  {
             seekToLive();
-        } else if(v.getId() == R.id.button_get_cloudstreaminfo){
-            if(mTritonPlayer == null){
+        } else if (id == R.id.button_get_cloudstreaminfo) {
+            if (mTritonPlayer == null) {
                 createPlayer();
-                mTritonPlayer.getCloudStreamInfo();
-            }else{
-                mTritonPlayer.getCloudStreamInfo();
             }
-        } else if(v.getId() == R.id.button_play_program){
-           startProgram();
+            mTritonPlayer.getCloudStreamInfo();
+        } else if (id == R.id.button_play_program) {
+            startProgram();
         }
     }
 

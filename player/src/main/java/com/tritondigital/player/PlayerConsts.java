@@ -98,5 +98,8 @@ public final class PlayerConsts {
     /** The original seek value used for Timeshift */
     public static final String ORIGINAL_SEEK_VALUE = "OriginalSeekValue";
 
+    /** Let the player handling the audio focus automatically. */
+    public static final String HANDLE_AUDIO_FOCUS = "HandleAudioFocus";
+
     private PlayerConsts() {}
 }

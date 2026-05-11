@@ -1,1 +1,1 @@
-include ':streamingproxy', ':util',':player', ':ads', 'released_modules'
+include ':streamingproxy', ':util',':player', ':ads', 'released_modules', ':tdsdk'

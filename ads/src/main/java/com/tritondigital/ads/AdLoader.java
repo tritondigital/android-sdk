@@ -11,8 +11,10 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -270,6 +272,12 @@ public final class AdLoader {
                 if (adRequests[0] != null) {
                     if (adRequests[0].startsWith("http")) {
                         URL url = new URL(adRequests[0]);
+                        String host = url.getHost();
+                        InetAddress address = InetAddress.getByName(host);
+                        if (address.isLoopbackAddress() || address.isSiteLocalAddress()
+                                || address.isLinkLocalAddress() || address.isAnyLocalAddress()) {
+                            throw new IOException("Connection to private/internal host denied: " + host);
+                        }
                         HttpURLConnection urlConnection=(HttpURLConnection) url.openConnection();
                         if(dmpSegments != null){
                             JSONObject segments = new JSONObject(dmpSegments);

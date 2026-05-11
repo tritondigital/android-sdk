@@ -2,7 +2,11 @@ apply plugin: 'com.android.library'
 apply from: '../export_aar.gradle'
 
 android {
-    compileSdk COMPILE_SDK_VERSION.toInteger()
+    compileSdk = COMPILE_SDK_VERSION.toInteger()
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         minSdkVersion TRITONSDK_MIN_SDK_VERSION.toInteger()
@@ -22,9 +26,9 @@ android {
     }
 
     lintOptions {
-        abortOnError false
+        abortOnError = false
     }
-    namespace 'com.tritondigital.ads'
+    namespace = 'com.tritondigital.ads'
 }
 
 dependencies {

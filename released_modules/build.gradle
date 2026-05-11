@@ -1,14 +1,18 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk COMPILE_SDK_VERSION.toInteger()
+    compileSdk = COMPILE_SDK_VERSION.toInteger()
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         minSdkVersion    APP_MIN_SDK_VERSION.toInteger()
         targetSdkVersion TARGET_SDK_VERSION.toInteger()
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -18,13 +22,13 @@ android {
         }
     }
     lintOptions {
-        abortOnError false
+        abortOnError = false
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    namespace 'com.tritondigital.sdksample'
+    namespace = 'com.tritondigital.sdksample'
 }
 
 dependencies {
@@ -37,8 +41,8 @@ dependencies {
     api 'com.google.android.gms:play-services-location:17.1.0'
     api 'androidx.mediarouter:mediarouter:1.2.1'
     api 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.media3:media3-exoplayer:1.4.0'
-    implementation 'androidx.media3:media3-exoplayer-hls:1.4.0'
+    implementation 'androidx.media3:media3-exoplayer:1.6.1'
+    implementation 'androidx.media3:media3-exoplayer-hls:1.6.1'
     implementation 'androidx.mediarouter:mediarouter:1.2.1'
 
 }

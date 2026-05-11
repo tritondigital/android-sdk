@@ -3,20 +3,23 @@ apply plugin: 'com.android.library'
 
 
 android {
-    compileSdk COMPILE_SDK_VERSION.toInteger()
+  compileSdk = COMPILE_SDK_VERSION.toInteger()
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
-        minSdkVersion TRITONSDK_MIN_SDK_VERSION.toInteger()
-        targetSdkVersion TARGET_SDK_VERSION.toInteger()
-        project.archivesBaseName = "triton-android-sdk"
+      minSdkVersion = TRITONSDK_MIN_SDK_VERSION.toInteger()
+      targetSdkVersion = TARGET_SDK_VERSION.toInteger()
     }
 
-    libraryVariants.all { variant ->
-        variant.outputs.all { output ->
-            outputFileName = "${archivesBaseName}-${tritonSDKVersion}.aar"
-        }
+  libraryVariants.all { variant ->
+    variant.outputs.all { output ->
+      outputFileName = "triton-android-sdk-${tritonSDKVersion}.aar"
     }
-    namespace 'com.tritondigital.player'
+  }
+  namespace = 'com.tritondigital.tdsdk'
 }
 
 dependencies {

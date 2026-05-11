@@ -28,8 +28,7 @@ import com.tritondigital.sdksample.R;
 public class StreamPlayerActivity extends TritonPlayerActivity implements SeekBar.OnSeekBarChangeListener {
 
     private static final String[] URLS = {
-        "https://storage.googleapis.com/automotive-media/Jazz_In_Paris.mp3"
-    };
+        "https://storage.googleapis.com/automotive-media/Jazz_In_Paris.mp3","https://traffic.omny.fm/d/clips/9ddc536a-8e34-4bf9-9897-aae8017127ca/c1672dfe-3f96-46f6-b1cb-aaee014a2de3/60dc5248-d26e-4b21-9d86-ab0600288aad/audio.mp3"};
 
 
     private static final String[] TRANSPORTS = { TritonPlayer.TRANSPORT_SC, TritonPlayer.TRANSPORT_HLS, TritonPlayer.TRANSPORT_FLV};

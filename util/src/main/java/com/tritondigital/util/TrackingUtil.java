@@ -8,14 +8,19 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -171,6 +176,25 @@ public final class TrackingUtil {
 
         private Context getContext() {
             return mContextRef.get();
+        }
+    }
+
+    static public void validateAdTargetingSettings(@Nullable Bundle settings)
+    {
+        // Based on https://help.tritondigital.com/docs/advertising-specification-parameters#deviceplayer-information
+
+        if (settings == null) return;
+
+        List<String> required = Arrays.asList("bundle-id", "store-id", "store-url");
+        List<String> missing = new ArrayList<>();
+        for (String param : required) {
+            if (!settings.containsKey(param)) {
+                missing.add(param);
+            }
+        }
+
+        if (!missing.isEmpty()) {
+            Log.w(Log.makeTag("TrackingUtil"), "Missing Ad targeting parameters: " + String.join(", ", missing) + ". These parameters must be provided to allow targeting on this app.");
         }
     }
 }

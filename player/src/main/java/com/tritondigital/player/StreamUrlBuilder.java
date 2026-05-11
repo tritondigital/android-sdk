@@ -414,6 +414,9 @@ public final class StreamUrlBuilder {
 
         Uri.Builder uriBuilder = mHostUri.buildUpon();
 
+        // Listener ID
+        appendMultiListenerID(mQueryParams, uriBuilder);
+
         // Append the query parameter to the URL
         if (!mQueryParams.isEmpty()) {
             for (HashMap.Entry<String, String> entry : mQueryParams.entrySet()) {
@@ -435,10 +438,6 @@ public final class StreamUrlBuilder {
         //SDK Version
         uriBuilder.appendQueryParameter("tdsdk", "android-" + SdkUtil.VERSION);
 
-        // Listener ID
-        uriBuilder.appendQueryParameter("lsid", TrackingUtil.getTrackingId(mContext));
-
-
         //Add pname
         uriBuilder.appendQueryParameter(PlayerConsts.PNAME, PlayerConsts.PNAME_VAL);
 
@@ -448,6 +447,17 @@ public final class StreamUrlBuilder {
         return streamUrl;
     }
 
+    private void appendMultiListenerID(HashMap<String,String> queryParams, Uri.Builder uriBuilder){
+        if(queryParams.containsKey(LISTENER_ID_TYPE) && queryParams.containsKey(LISTENER_ID_VALUE)){
+            uriBuilder.appendQueryParameter("lsid", queryParams.get(LISTENER_ID_TYPE) + ":" + queryParams.get(LISTENER_ID_VALUE));
+            String trackingId = TrackingUtil.getTrackingId(mContext);
+            uriBuilder.appendQueryParameter(trackingId.split(":")[0], trackingId.split(":")[1]);
+            queryParams.remove(LISTENER_ID_TYPE);
+            queryParams.remove(LISTENER_ID_VALUE);
+        }else{
+            uriBuilder.appendQueryParameter("lsid", TrackingUtil.getTrackingId(mContext));
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Server URL

@@ -4,12 +4,8 @@ import android.os.Bundle;
 
 import com.tritondigital.ads.AdRequestBuilder;
 import com.tritondigital.ads.Interstitial;
-import com.tritondigital.player.TritonPlayer;
 import com.tritondigital.sdksample.R;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Shows how to display an on-demand interstitial ad.
@@ -52,7 +48,6 @@ public class InterstitialAdsActivity extends AdsActivity implements
         mInterstitial.showAd(adRequestBuilder);
     }
 
-
     @Override
     public void onInterstitialClosed(Interstitial interstitial) {
         setStatus("Interstitial closed");
@@ -67,7 +62,6 @@ public class InterstitialAdsActivity extends AdsActivity implements
     public void onInterstitialError(Interstitial interstitial, int errorCode) {
         setStatus("Interstitial error: " + Interstitial.debugErrorToStr(errorCode));
     }
-
 
     @Override
     public void onInterstitialStarted(Interstitial Interstitial) {

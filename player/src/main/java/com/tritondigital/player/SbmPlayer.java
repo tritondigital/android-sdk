@@ -6,15 +6,13 @@ import android.os.Bundle;
 import com.tritondigital.util.Assert;
 import com.tritondigital.util.Log;
 
-import org.json.JSONObject;
-
 import java.util.UUID;
 
 
 /**
  * Side-Band Metadata player.
  *
- * \note For special cases only.
+ * \note For special cases only. Most clients will never have to use this class.
  *
  * This player connects to a Triton server and downloads the cue points linked to an
  * audio stream session. SBM needs to be enabled on the server side.

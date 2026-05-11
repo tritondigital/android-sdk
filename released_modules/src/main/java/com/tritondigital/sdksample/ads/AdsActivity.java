@@ -18,8 +18,8 @@ import com.tritondigital.sdksample.R;
  */
 public abstract class AdsActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final String DEFAULT_HOST       = "cmod.live.streamtheworld.com";
-    private static final String DEFAULT_STATION_ID = "WEB_SDK_TEST_S1";
+    private static final String DEFAULT_HOST       = "cmod-world.live.streamtheworld.com";
+    private static final String DEFAULT_STATION_ID = "TRITONRADIOMUSIC";
 
 
 

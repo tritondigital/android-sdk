@@ -34,7 +34,7 @@ public class CuePointHistoryActivity extends AppCompatActivity implements
         View.OnClickListener, TextView.OnEditorActionListener {
 
     // Default values
-    private static final String DEFAULT_MOUNT     = "FLYFMAAC";
+    private static final String DEFAULT_MOUNT     = "TRITONRADIOMUSIC";
     private static final int    DEFAULT_MAX_ITEMS = 10;
 
     // Views

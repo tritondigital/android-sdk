@@ -2,8 +2,6 @@ package com.tritondigital.sdksample.player;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.mediarouter.media.MediaItemMetadata;
-
 import android.os.Handler;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -12,8 +10,9 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.mediarouter.media.MediaItemMetadata;
+
 import com.tritondigital.player.MediaPlayer;
-import com.tritondigital.player.PlayerConsts;
 import com.tritondigital.player.StreamUrlBuilder;
 import com.tritondigital.player.TritonPlayer;
 import com.tritondigital.sdksample.R;
@@ -33,10 +32,9 @@ import java.util.HashMap;
 public class StationPlayerActivity extends TritonPlayerActivity implements SeekBar.OnSeekBarChangeListener{
 
     // IMPORTANT: use your real values in your apps.
-    private static final String BROADCASTER   = "TritonDigital";
-    private static final String STATION_NAME  = "Sdk Sample";
-    //private static final String DEFAULT_MOUNT = "S1_FLV_AAC";
-    private static final String DEFAULT_MOUNT = "S1_HLS_AAC";
+    private static final String BROADCASTER   = "Triton Digital";
+    private static final String STATION_NAME  = "BASIC_CONFIG";
+    private static final String DEFAULT_MOUNT = "TRITONRADIOMUSICAAC_RW";
     private static final int GREEN = Color.rgb(123, 232, 143);
     private static final int RED = Color.rgb(240, 94, 84);
     private Button         mProgramButton;
@@ -114,16 +112,26 @@ public class StationPlayerActivity extends TritonPlayerActivity implements SeekB
         //settings.putString(TritonPlayer.SETTINGS_TRANSPORT, TritonPlayer.TRANSPORT_SC);
 
         // Add the targeting parameters
-        //HashMap<String, String> targetingParams = new HashMap();
-        //targetingParams.put(StreamUrlBuilder.COUNTRY_CODE, "US");
-        //targetingParams.put(StreamUrlBuilder.POSTAL_CODE, "12345");
-        //targetingParams.put(StreamUrlBuilder.GENDER, "m");
-        //targetingParams.put(StreamUrlBuilder.YEAR_OF_BIRTH, "1990");
-        //settings.putSerializable(TritonPlayer.SETTINGS_TARGETING_PARAMS, targetingParams);
+        HashMap<String, String> targetingParams = new HashMap();
+        targetingParams.put("bundle-id", "com.tritondigital.sdksample"); // Required
+        targetingParams.put("store-id", "com.tritondigital.sdksample"); // Required
+        targetingParams.put("store-url", "https://play.google.com/store/apps/details?id=com.tritondigital.sdksample"); // Required
+        targetingParams.put(StreamUrlBuilder.COUNTRY_CODE, "US");
+        targetingParams.put(StreamUrlBuilder.POSTAL_CODE, "12345");
+        targetingParams.put(StreamUrlBuilder.GENDER, "m");
+        targetingParams.put(StreamUrlBuilder.YEAR_OF_BIRTH, "1990");
+        targetingParams.put(StreamUrlBuilder.DIST_TIMESHIFT, "timeshift-dist");
+        targetingParams.put(StreamUrlBuilder.DIST, "the-dist");
+        targetingParams.put(StreamUrlBuilder.LISTENER_ID_TYPE, StreamUrlBuilder.ListenerIdType.IDFA.getListenerIdType());
+        targetingParams.put(StreamUrlBuilder.LISTENER_ID_VALUE, "demo-user");
+
+        settings.putSerializable(TritonPlayer.SETTINGS_TARGETING_PARAMS, targetingParams);
 
         // Add the authorization token
         //String token = AuthUtil.createJwtToken("MySecretKey", "MySecretKeyId", true, "foo@bar.com", targetingParams);
         //settings.putString(TritonPlayer.SETTINGS_AUTH_TOKEN, token);
+
+        
 
         // Add low delay setting
         //settings.putInt(TritonPlayer.SETTINGS_LOW_DELAY, -1); // Auto

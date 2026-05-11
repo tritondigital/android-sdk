@@ -658,6 +658,9 @@ public abstract class MediaPlayer {
         } else if (mState != state) {
             Log.w(TAG, "**********State changed invalid transition: " + debugStateToStr(mState) + " -> " + debugStateToStr(state));
         }
+        if (state == STATE_ERROR) {
+            Log.e(TAG, "The error was caused by " + debugErrorToStr(mLastErrorCode) );
+        }
     }
 
 
